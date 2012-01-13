@@ -47,8 +47,8 @@ public class Git
         public boolean interactive;
     }
 
-    @Command(group = "remote", name = "show", 
-            description = "Gives some information about the remote <name>", 
+    @Command(group = "remote", name = "show",
+            description = "Gives some information about the remote <name>",
             defaultCommand = true)
     public class RemoteShow extends GitCommand
     {
@@ -56,7 +56,7 @@ public class Git
         public String remote;
     }
 
-    @Command(group = "remote", name = "add", description = "group = \"remote\"")
+    @Command(group = "remote", name = "add", description = "Adds a remote")
     public class RemoteAdd extends GitCommand
     {
         @Arguments(description = "Remote repository to add")
