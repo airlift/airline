@@ -1,0 +1,17 @@
+*.iml
+*.ipr
+*.iws
+/target
+pom.xml.versionsBackup
+/test-output
+atlassian-ide-plugin.xml
+.idea
+.DS_Store
+.classpath
+.project
+.settings
+.project
+temp-testng-customsuite.xml
+.externalToolBuilders
+*~
+.rvmrc
