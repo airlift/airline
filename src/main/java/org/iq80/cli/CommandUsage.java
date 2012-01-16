@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -52,56 +53,60 @@ public class CommandUsage
      */
     public void usage(@Nullable String programName, @Nullable String groupName, CommandParser<?> commandParser, StringBuilder out)
     {
-        usage(programName, groupName, commandParser, out, 0);
+        usage(programName, groupName, commandParser, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable String programName, @Nullable String groupName, CommandParser<?> commandParser, StringBuilder out, int indent)
+    public void usage(@Nullable String programName, @Nullable String groupName, CommandParser<?> commandParser, UsagePrinter out)
     {
         //
         // NAME
         //
-        out.append(spaces(indent)).append("NAME\n");
-        out.append(spaces(indent + 8));
-        int currentPosition = indent + 8;
-        if (commandParser.getGroup() != null) {
-            out.append(commandParser.getGroup()).append(" ");
-            currentPosition += commandParser.getGroup().length() + 1;
-        }
-        out.append(commandParser.getName()).append(" - ");
-        currentPosition += commandParser.getName().length() + 3;
-        wrap(commandParser.getDescription(), indent + 12, columnSize, out, currentPosition);
-        out.append("\n\n");
+        out.append("NAME").newline();
+
+        out.newIndentedPrinter(8)
+                .append(commandParser.getGroup())
+                .append(commandParser.getName())
+                .append("-")
+                .append(commandParser.getDescription())
+                .newline()
+                .newline();
 
         //
         // SYNOPSIS
         //
-        out.append(spaces(indent)).append("SYNOPSIS\n");
-        out.append(spaces(indent + 8));
-        List<String> commandArguments = newArrayList();
-        if (groupName != null && !programName.isEmpty()) {
-            commandArguments.add(programName);
-        }
-        if (groupName != null && !groupName.isEmpty()) {
-            commandArguments.add(groupName);
-        }
-        commandArguments.add(commandParser.getName());
-        commandArguments.addAll(Lists.transform(commandParser.getOptions(), new Function<OptionParser, String>()
+        out.append("SYNOPSIS").newline();
+        ArgumentParser arguments;
         {
-            public String apply(OptionParser option)
+            UsagePrinter sectionPrinter = out.newIndentedPrinter(8);
+            sectionPrinter
+                    .append(programName)
+                    .append(groupName)
+                    .append(commandParser.getName());
+
+            // build arguments
+            List<String> commandArguments = newArrayList();
+            commandArguments.addAll(Lists.transform(commandParser.getOptions(), new Function<OptionParser, String>()
             {
-                if (option.isHidden()) {
-                    return null;
+                public String apply(OptionParser option)
+                {
+                    if (option.isHidden()) {
+                        return null;
+                    }
+                    return toUsage(option);
                 }
-                return toUsage(option);
+            }));
+            arguments = commandParser.getArguments();
+            if (arguments != null) {
+                commandArguments.add("[--]");
+                commandArguments.add(toUsage(arguments));
             }
-        }));
-        ArgumentParser arguments = commandParser.getArguments();
-        if (arguments != null) {
-            commandArguments.add("[--]");
-            commandArguments.add(toUsage(arguments));
+            // indent again to create hanging indent effect
+            // send arguments to printer as pre-parsed words to avoid splitting within an argument
+            sectionPrinter.newIndentedPrinter(8)
+                    .appendWords(commandArguments)
+                    .newline()
+                    .newline();
         }
-        wrap(commandArguments, indent + 16, columnSize, out, indent + 8);
-        out.append("\n\n");
 
         //
         // OPTIONS
@@ -112,51 +117,43 @@ public class CommandUsage
         }
 
         if (options.size() > 0 || arguments != null) {
-            out.append(spaces(indent)).append("OPTIONS\n");
+            out.append("OPTIONS").newline();
         }
 
         for (OptionParser option : options) {
             // option names
-            out.append(spaces(indent + 8)).append(toDescription(option));
+            UsagePrinter optionPrinter = out.newIndentedPrinter(8);
+            optionPrinter.append(toDescription(option)).newline();
 
             // description
-            out.append("\n").append(spaces(indent + 12));
-            wrap(option.getDescription(), indent + 12, columnSize, out, indent + 12);
-            out.append("\n");
+            UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
+            descriptionPrinter.append(option.getDescription()).newline();
 
             // default value
             Object defaultValue = option.getDefaultValue();
             if (defaultValue != null) {
-                out.append("\n").append(spaces(indent + 12)).append("Default: ").append(defaultValue);
+                descriptionPrinter.append("Default:").append(String.valueOf(defaultValue)).newline();
             }
-
-            out.append("\n");
+            descriptionPrinter.newline();
         }
 
         if (arguments != null) {
             // "--" option
-            out.append(spaces(indent + 8)).append("--");
+            UsagePrinter optionPrinter = out.newIndentedPrinter(8);
+            optionPrinter.append("--").newline();
 
             // description
-            out.append("\n").append(spaces(indent + 12));
-            wrap("This option can be used to separate command-line options from the list of argument, (useful when arguments might be mistaken for command-line options",
-                    indent + 12,
-                    columnSize,
-                    out,
-                    indent + 12);
-
-            out.append("\n\n");
+            UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
+            descriptionPrinter.append("This option can be used to separate command-line options from the " +
+                    "list of argument, (useful when arguments might be mistaken for command-line options").newline();
+            descriptionPrinter.newline();
 
             // arguments name
-            out.append(spaces(indent + 8)).append(toDescription(arguments));
+            optionPrinter.append(toDescription(arguments)).newline();
 
             // description
-            out.append("\n").append(spaces(indent + 12));
-            wrap(arguments.getDescription(), indent + 12, columnSize, out, indent + 12);
-            out.append("\n");
-
-            out.append("\n");
-
+            descriptionPrinter.append(arguments.getDescription()).newline();
+            descriptionPrinter.newline();
         }
     }
 
@@ -167,32 +164,6 @@ public class CommandUsage
             result.append(" ");
         }
         return result.toString();
-    }
-
-    private void wrap(String description, int indent, int maxSize, StringBuilder out, int currentPosition)
-    {
-        Iterable<String> words = Splitter.onPattern("\\W+").omitEmptyStrings().trimResults().split(description);
-        wrap(words, indent, maxSize, out, currentPosition);
-    }
-
-    private void wrap(Iterable<String> words, int indent, int maxSize, StringBuilder out, int currentPosition)
-    {
-        boolean isFirst = true;
-        for (String word : words) {
-            if (word.length() > maxSize || currentPosition + word.length() <= maxSize) {
-                if (!isFirst) {
-                    out.append(" ");
-                }
-                currentPosition++;
-            }
-            else {
-                out.append("\n").append(spaces(indent));
-                currentPosition = indent;
-            }
-            out.append(word);
-            currentPosition += word.length();
-            isFirst = false;
-        }
     }
 
     private String toDescription(OptionParser option)
@@ -294,5 +265,73 @@ public class CommandUsage
             stringBuilder.append(']');
         }
         return stringBuilder.toString();
+    }
+
+    public static class UsagePrinter
+    {
+        private final StringBuilder out;
+        private final int maxSize;
+        private final int indent;
+        private final AtomicInteger currentPosition;
+
+        public UsagePrinter(StringBuilder out)
+        {
+            this(out, 79);
+        }
+
+        public UsagePrinter(StringBuilder out, int maxSize)
+        {
+            this(out, maxSize, 0, new AtomicInteger());
+        }
+
+        private UsagePrinter(StringBuilder out, int maxSize, int indent, AtomicInteger currentPosition)
+        {
+            this.out = out;
+            this.maxSize = maxSize;
+            this.indent = indent;
+            this.currentPosition = currentPosition;
+        }
+
+        public UsagePrinter newIndentedPrinter(int size)
+        {
+            return new UsagePrinter(out, maxSize, indent + size, currentPosition);
+        }
+
+        public UsagePrinter newline()
+        {
+            out.append("\n");
+            currentPosition.set(0);
+            return this;
+        }
+
+        public UsagePrinter append(String value)
+        {
+            return appendWords(Splitter.onPattern("\\s+").omitEmptyStrings().trimResults().split(String.valueOf(value)));
+        }
+
+        public UsagePrinter appendWords(Iterable<String> words)
+        {
+            for (String word : words) {
+                if (currentPosition.get() == 0) {
+                    // beginning of line
+                    out.append(spaces(indent));
+                    currentPosition.getAndAdd((indent));
+                }
+                else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize) {
+                    // between words
+                    out.append(" ");
+                    currentPosition.getAndIncrement();
+                }
+                else {
+                    // wrap line
+                    out.append("\n").append(spaces(indent));
+                    currentPosition.set(indent);
+                }
+
+                out.append(word);
+                currentPosition.getAndAdd((word.length()));
+            }
+            return this;
+        }
     }
 }
