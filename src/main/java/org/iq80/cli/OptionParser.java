@@ -90,6 +90,11 @@ public class OptionParser
         return description;
     }
 
+    public int getArity()
+    {
+        return arity;
+    }
+
     public boolean isRequired()
     {
         return required;

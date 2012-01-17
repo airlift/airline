@@ -104,7 +104,7 @@ public class GroupCommandParser<C>
         return name;
     }
 
-    public List<CommandParser<?>> getCommandParserIndex()
+    public List<CommandParser<?>> getCommandParsers()
     {
         return new ArrayList<CommandParser<?>>(commandParserIndex.values());
     }

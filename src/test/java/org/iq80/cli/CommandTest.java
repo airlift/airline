@@ -199,7 +199,7 @@ public class CommandTest
         }
         GitLikeCommandParser<?> parser = builder.build();
 
-        final List<CommandParser<?>> commandParsers = parser.getGroupCommandParsers().get(0).getCommandParserIndex();
+        final List<CommandParser<?>> commandParsers = parser.getGroupCommandParsers().get(0).getCommandParsers();
         Assert.assertEquals(commandParsers.size(), commands.length);
 
         int i = 0;

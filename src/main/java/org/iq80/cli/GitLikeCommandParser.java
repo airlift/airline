@@ -116,6 +116,11 @@ public class GitLikeCommandParser<C>
         return name;
     }
 
+    public Collection<OptionParser> getGlobalOptions()
+    {
+        return globalOptionsIndex.values();
+    }
+
     public List<GroupCommandParser<C>> getGroupCommandParsers()
     {
         return ImmutableList.copyOf(groupCommandParsers.values());

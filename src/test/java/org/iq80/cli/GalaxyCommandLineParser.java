@@ -15,10 +15,11 @@ public class GalaxyCommandLineParser
     public void test()
     {
         GitLikeCommandParser<?> parser = createParser();
+        new GlobalUsage(119).usage("galaxy", parser);
         CommandUsage commandUsage = new CommandUsage(119);
         for (GroupCommandParser<?> groupCommandParser : parser.getGroupCommandParsers()) {
-            for (CommandParser<?> commandParser : groupCommandParser.getCommandParserIndex()) {
-                commandUsage.usage("galaxy", commandParser.getGroup(), commandParser, new StringBuilder());
+            for (CommandParser<?> commandParser : groupCommandParser.getCommandParsers()) {
+                commandUsage.usage("galaxy", commandParser.getGroup(), commandParser);
             }
         }
 
