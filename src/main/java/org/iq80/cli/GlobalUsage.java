@@ -70,9 +70,9 @@ public class GlobalUsage
                 return toUsage(option);
             }
         }));
-        out.append("usage:")
+        out.newPrinterWithHangingIndent(8)
+                .append("usage:")
                 .append(metadata.getName())
-                .newIndentedPrinter(8) // hanging indent
                 .appendWords(commandArguments)
                 .append("<command> [<args>]")
                 .newline()

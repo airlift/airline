@@ -12,6 +12,7 @@ public class UsagePrinter
     private final StringBuilder out;
     private final int maxSize;
     private final int indent;
+    private final int hangingIndent;
     private final AtomicInteger currentPosition;
 
     public UsagePrinter(StringBuilder out)
@@ -21,20 +22,26 @@ public class UsagePrinter
 
     public UsagePrinter(StringBuilder out, int maxSize)
     {
-        this(out, maxSize, 0, new AtomicInteger());
+        this(out, maxSize, 0, 0, new AtomicInteger());
     }
 
-    UsagePrinter(StringBuilder out, int maxSize, int indent, AtomicInteger currentPosition)
+    public UsagePrinter(StringBuilder out, int maxSize, int indent, int hangingIndent, AtomicInteger currentPosition)
     {
         this.out = out;
         this.maxSize = maxSize;
         this.indent = indent;
+        this.hangingIndent = hangingIndent;
         this.currentPosition = currentPosition;
     }
 
     public UsagePrinter newIndentedPrinter(int size)
     {
-        return new UsagePrinter(out, maxSize, indent + size, currentPosition);
+        return new UsagePrinter(out, maxSize, indent + size, hangingIndent, currentPosition);
+    }
+
+    public UsagePrinter newPrinterWithHangingIndent(int size)
+    {
+        return new UsagePrinter(out, maxSize, indent, hangingIndent + size, currentPosition);
     }
 
     public UsagePrinter newline()
@@ -102,7 +109,7 @@ public class UsagePrinter
             }
             else {
                 // wrap line
-                out.append("\n").append(spaces(indent));
+                out.append("\n").append(spaces(indent)).append(spaces(hangingIndent));
                 currentPosition.set(indent);
             }
 

@@ -94,14 +94,14 @@ public class CommandUsage
         // SYNOPSIS
         //
         out.append("SYNOPSIS").newline();
-        UsagePrinter synopsis = out.newIndentedPrinter(8)
-                .append(programName)
-                .newIndentedPrinter(8) // Hanging indent
-                .appendWords(toSynopsisUsage(command.getGlobalOptions()))
-                .append(groupName)
-                .appendWords(toSynopsisUsage(command.getGroupOptions()))
-                .append(command.getName())
-                .appendWords(toSynopsisUsage(command.getCommandOptions()));
+        UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
+        if (programName != null) {
+            synopsis.append(programName).appendWords(toSynopsisUsage(command.getGlobalOptions()));
+        }
+        if (groupName != null) {
+            synopsis.append(groupName).appendWords(toSynopsisUsage(command.getGroupOptions()));
+        }
+        synopsis.append(command.getName()).appendWords(toSynopsisUsage(command.getCommandOptions()));
 
         // command arguments (optional)
         ArgumentsMetadata arguments = command.getArguments();
