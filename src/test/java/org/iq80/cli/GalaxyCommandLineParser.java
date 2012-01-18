@@ -82,10 +82,10 @@ public class GalaxyCommandLineParser
 
     public static class GlobalOptions
     {
-        @Option(type = GLOBAL, options = "--debug", description = "Enable debug messages")
+        @Option(type = GLOBAL, name = "--debug", description = "Enable debug messages")
         public boolean debug = false;
 
-        @Option(type = GLOBAL, options = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
+        @Option(type = GLOBAL, name = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
         public String coordinator = Objects.firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
 
         @Override
@@ -102,22 +102,22 @@ public class GalaxyCommandLineParser
 
     public static class SlotFilter
     {
-        @Option(options = {"-b", "--binary"}, description = "Select slots with a given binary")
+        @Option(name = {"-b", "--binary"}, description = "Select slots with a given binary")
         public List<String> binary;
 
-        @Option(options = {"-c", "--config"}, description = "Select slots with a given configuration")
+        @Option(name = {"-c", "--config"}, description = "Select slots with a given configuration")
         public List<String> config;
 
-        @Option(options = {"-i", "--host"}, description = "Select slots on the given host")
+        @Option(name = {"-i", "--host"}, description = "Select slots on the given host")
         public List<String> host;
 
-        @Option(options = {"-I", "--ip"}, description = "Select slots at the given IP address")
+        @Option(name = {"-I", "--ip"}, description = "Select slots at the given IP address")
         public List<String> ip;
 
-        @Option(options = {"-u", "--uuid"}, description = "Select slot with the given UUID")
+        @Option(name = {"-u", "--uuid"}, description = "Select slot with the given UUID")
         public List<String> uuid;
 
-        @Option(options = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
+        @Option(name = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
         public List<String> state;
 
         @Override
@@ -138,16 +138,16 @@ public class GalaxyCommandLineParser
 
     public static class AgentFilter
     {
-        @Option(options = {"-i", "--host"}, description = "Select slots on the given host")
+        @Option(name = {"-i", "--host"}, description = "Select slots on the given host")
         public final List<String> host = newArrayList();
 
-        @Option(options = {"-I", "--ip"}, description = "Select slots at the given IP address")
+        @Option(name = {"-I", "--ip"}, description = "Select slots at the given IP address")
         public final List<String> ip = newArrayList();
 
-        @Option(options = {"-u", "--uuid"}, description = "Select slot with the given UUID")
+        @Option(name = {"-u", "--uuid"}, description = "Select slot with the given UUID")
         public final List<String> uuid = newArrayList();
 
-        @Option(options = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
+        @Option(name = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
         public final List<String> state = newArrayList();
 
         @Override
@@ -191,7 +191,7 @@ public class GalaxyCommandLineParser
     @Command(name = "install", description = "Install software in a new slot")
     public static class InstallCommand extends GalaxyCommand
     {
-        @Option(options = {"--count"}, description = "Number of instances to install")
+        @Option(name = {"--count"}, description = "Number of instances to install")
         public int count = 1;
 
         @Options
@@ -353,10 +353,10 @@ public class GalaxyCommandLineParser
     @Command(name = "add", description = "Provision a new agent")
     public static class AgentAddCommand extends GalaxyCommand
     {
-        @Option(options = {"--count"}, description = "Number of agents to provision")
+        @Option(name = {"--count"}, description = "Number of agents to provision")
         public int count = 1;
 
-        @Option(options = {"--availability-zone"}, description = "Availability zone to provision")
+        @Option(name = {"--availability-zone"}, description = "Availability zone to provision")
         public String availabilityZone;
 
         @Arguments(usage = "[<instance-type>]", description = "Instance type to provision")

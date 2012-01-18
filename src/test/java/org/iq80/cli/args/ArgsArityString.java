@@ -33,7 +33,7 @@ import java.util.List;
 public class ArgsArityString
 {
 
-    @Option(options = "-pairs", arity = 2, description = "Pairs")
+    @Option(name = "-pairs", arity = 2, description = "Pairs")
     public List<String> pairs;
 
     @Arguments(description = "Rest")

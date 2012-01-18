@@ -31,93 +31,93 @@ public class CommandLineArgs
     @Arguments(description = "The XML suite files to run")
     public List<String> suiteFiles = com.google.common.collect.Lists.newArrayList();
 
-    @Option(options = {"-log", "-verbose"}, description = "Level of verbosity")
+    @Option(name = {"-log", "-verbose"}, description = "Level of verbosity")
     public Integer verbose;
 
-    @Option(options = "-groups", description = "Comma-separated list of group names to be run")
+    @Option(name = "-groups", description = "Comma-separated list of group names to be run")
     public String groups;
 
-    @Option(options = "-excludedgroups", description = "Comma-separated list of group names to be " +
+    @Option(name = "-excludedgroups", description = "Comma-separated list of group names to be " +
             "run")
     public String excludedGroups;
 
-    @Option(options = "-d", description = "Output directory")
+    @Option(name = "-d", description = "Output directory")
     public String outputDirectory;
 
-    @Option(options = "-junit", description = "JUnit mode")
+    @Option(name = "-junit", description = "JUnit mode")
     public Boolean junit = Boolean.FALSE;
 
-    @Option(options = "-listener", description = "List of .class files or list of class names" +
+    @Option(name = "-listener", description = "List of .class files or list of class names" +
             " implementing ITestListener or ISuiteListener")
     public String listener;
 
-    @Option(options = "-methodselectors", description = "List of .class files or list of class " +
+    @Option(name = "-methodselectors", description = "List of .class files or list of class " +
             "names implementing IMethodSelector")
     public String methodSelectors;
 
-    @Option(options = "-objectfactory", description = "List of .class files or list of class " +
+    @Option(name = "-objectfactory", description = "List of .class files or list of class " +
             "names implementing ITestRunnerFactory")
     public String objectFactory;
 
-    @Option(options = "-parallel", description = "Parallel mode (methods, tests or classes)")
+    @Option(name = "-parallel", description = "Parallel mode (methods, tests or classes)")
     public String parallelMode;
 
-    @Option(options = "-configfailurepolicy", description = "Configuration failure policy (skip or continue)")
+    @Option(name = "-configfailurepolicy", description = "Configuration failure policy (skip or continue)")
     public String configFailurePolicy;
 
-    @Option(options = "-threadcount", description = "Number of threads to use when running tests " +
+    @Option(name = "-threadcount", description = "Number of threads to use when running tests " +
             "in parallel")
     public Integer threadCount;
 
-    @Option(options = "-dataproviderthreadcount", description = "Number of threads to use when " +
+    @Option(name = "-dataproviderthreadcount", description = "Number of threads to use when " +
             "running data providers")
     public Integer dataProviderThreadCount;
 
-    @Option(options = "-suitename", description = "Default name of test suite, if not specified " +
+    @Option(name = "-suitename", description = "Default name of test suite, if not specified " +
             "in suite definition file or source code")
     public String suiteName;
 
-    @Option(options = "-testname", description = "Default name of test, if not specified in suite" +
+    @Option(name = "-testname", description = "Default name of test, if not specified in suite" +
             "definition file or source code")
     public String testName;
 
-    @Option(options = "-reporter", description = "Extended configuration for custom report listener")
+    @Option(name = "-reporter", description = "Extended configuration for custom report listener")
     public String reporter;
 
     /**
      * Used as map key for the complete list of report listeners provided with the above argument
      */
-    @Option(options = "-reporterslist")
+    @Option(name = "-reporterslist")
     public String reportersList;
 
-    @Option(options = "-usedefaultlisteners", description = "Whether to use the default listeners")
+    @Option(name = "-usedefaultlisteners", description = "Whether to use the default listeners")
     public String useDefaultListeners = "true";
 
-    @Option(options = "-skipfailedinvocationcounts")
+    @Option(name = "-skipfailedinvocationcounts")
     public Boolean skipFailedInvocationCounts;
 
-    @Option(options = "-testclass", description = "The list of test classes")
+    @Option(name = "-testclass", description = "The list of test classes")
     public String testClass;
 
-    @Option(options = "-testnames", description = "The list of test names to run")
+    @Option(name = "-testnames", description = "The list of test names to run")
     public String testNames;
 
-    @Option(options = "-testjar", description = "")
+    @Option(name = "-testjar", description = "")
     public String testJar;
 
-    @Option(options = "-testRunFactory", description = "")
+    @Option(name = "-testRunFactory", description = "")
     public String testRunFactory;
 
-    @Option(options = "-port", description = "The port")
+    @Option(name = "-port", description = "The port")
     public Integer port;
 
-    @Option(options = "-host", description = "The host")
+    @Option(name = "-host", description = "The host")
     public String host;
 
-    @Option(options = "-master", description = "Host where the master is")
+    @Option(name = "-master", description = "Host where the master is")
     public String master;
 
-    @Option(options = "-slave", description = "Host where the slave is")
+    @Option(name = "-slave", description = "Host where the slave is")
     public String slave;
 
 }

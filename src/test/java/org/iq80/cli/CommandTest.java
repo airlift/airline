@@ -298,7 +298,7 @@ public class CommandTest
         @Command(name = "A")
         class A
         {
-            @Option(options = "-long")
+            @Option(name = "-long")
             public long l;
         }
         CommandParser.create(A.class).parse("-lon", "32");

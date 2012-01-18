@@ -25,7 +25,7 @@ import org.iq80.cli.Option;
 public class ArgsInherited extends ArgsDefault
 {
 
-    @Option(options = "-child", description = "Child parameter")
+    @Option(name = "-child", description = "Child parameter")
     public Integer child = 1;
 
 }

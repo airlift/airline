@@ -131,7 +131,7 @@ public class MetadataLoader
                         name = field.getName();
                     }
 
-                    List<String> options = ImmutableList.copyOf(optionAnnotation.options());
+                    List<String> options = ImmutableList.copyOf(optionAnnotation.name());
                     String description = optionAnnotation.description();
 
                     int arity = optionAnnotation.arity();

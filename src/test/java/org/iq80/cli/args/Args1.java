@@ -33,27 +33,27 @@ public class Args1
     @Arguments
     public List<String> parameters = Lists.newArrayList();
 
-    @Option(options = {"-log", "-verbose"}, description = "Level of verbosity")
+    @Option(name = {"-log", "-verbose"}, description = "Level of verbosity")
     public Integer verbose = 1;
 
-    @Option(options = "-groups", description = "Comma-separated list of group names to be run")
+    @Option(name = "-groups", description = "Comma-separated list of group names to be run")
     public String groups;
 
-    @Option(options = "-debug", description = "Debug mode")
+    @Option(name = "-debug", description = "Debug mode")
     public boolean debug = false;
 
-    @Option(options = "-long", description = "A long number")
+    @Option(name = "-long", description = "A long number")
     public long l;
 
-    @Option(options = "-double", description = "A double number")
+    @Option(name = "-double", description = "A double number")
     public double doub;
 
-    @Option(options = "-float", description = "A float number")
+    @Option(name = "-float", description = "A float number")
     public float floa;
 
-    @Option(options = "-bigdecimal", description = "A BigDecimal number")
+    @Option(name = "-bigdecimal", description = "A BigDecimal number")
     public BigDecimal bigd;
 
-    @Option(options = "-date", description = "An ISO 8601 formatted date.")
+    @Option(name = "-date", description = "An ISO 8601 formatted date.")
     public Date date;
 }

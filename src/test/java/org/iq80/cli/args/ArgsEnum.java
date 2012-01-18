@@ -35,7 +35,7 @@ public class ArgsEnum
         ONE, TWO, THREE
     }
 
-    @Option(options = "-choice", description = "Choice parameter")
+    @Option(name = "-choice", description = "Choice parameter")
     public ChoiceType choice = ChoiceType.ONE;
 
 }

@@ -25,8 +25,6 @@ import org.iq80.cli.Options;
 
 import java.util.List;
 
-import static org.iq80.cli.OptionType.GLOBAL;
-
 @Command(name = "add", description = "Add file contents to the index")
 public class CommandAdd
 {
@@ -36,7 +34,7 @@ public class CommandAdd
     @Arguments(description = "Patterns of files to be added")
     public List<String> patterns;
 
-    @Option(options = "-i")
+    @Option(name = "-i")
     public Boolean interactive = false;
 
 }

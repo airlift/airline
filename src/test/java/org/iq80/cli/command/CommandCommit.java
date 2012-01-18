@@ -25,8 +25,6 @@ import org.iq80.cli.Options;
 
 import java.util.List;
 
-import static org.iq80.cli.OptionType.GLOBAL;
-
 @Command(name = "commit", description = "Record changes to the repository")
 public class CommandCommit
 {
@@ -36,9 +34,9 @@ public class CommandCommit
     @Arguments(description = "List of files")
     public List<String> files;
 
-    @Option(options = "--amend", description = "Amend")
+    @Option(name = "--amend", description = "Amend")
     public Boolean amend = false;
 
-    @Option(options = "--author")
+    @Option(name = "--author")
     public String author;
 }

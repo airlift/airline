@@ -24,6 +24,6 @@ import org.iq80.cli.Option;
 @Command(name="ArgsBooleanArity0")
 public class ArgsBooleanArity0
 {
-    @Option(options = "-debug", arity = 0)
+    @Option(name = "-debug", arity = 0)
     public Boolean debug = false;
 }

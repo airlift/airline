@@ -24,7 +24,7 @@ import org.iq80.cli.Option;
 @Command(name="ArgsPrivate")
 public class ArgsPrivate
 {
-    @Option(options = "-verbose")
+    @Option(name = "-verbose")
     private Integer verbose = 1;
 
     public Integer getVerbose()

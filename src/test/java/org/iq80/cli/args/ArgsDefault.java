@@ -29,16 +29,16 @@ public class ArgsDefault
     @Arguments
     public List<String> parameters = Lists.newArrayList();
 
-    @Option(options = "-log", description = "Level of verbosity")
+    @Option(name = "-log", description = "Level of verbosity")
     public Integer log = 1;
 
-    @Option(options = "-groups", description = "Comma-separated list of group names to be run")
+    @Option(name = "-groups", description = "Comma-separated list of group names to be run")
     public String groups;
 
-    @Option(options = "-debug", description = "Debug mode")
+    @Option(name = "-debug", description = "Debug mode")
     public boolean debug = false;
 
-    @Option(options = "-level", description = "A long number")
+    @Option(name = "-level", description = "A long number")
     public long level;
 
 }

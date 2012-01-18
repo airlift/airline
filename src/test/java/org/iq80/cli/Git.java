@@ -28,7 +28,7 @@ public class Git
 
     public static class GitCommand
     {
-        @Option(options = "-v", description = "Verbose mode")
+        @Option(name = "-v", description = "Verbose mode")
         public boolean verbose;
 
         public void execute()
@@ -48,7 +48,7 @@ public class Git
         @Arguments(description = "Patterns of files to be added")
         public List<String> patterns;
 
-        @Option(options = "-i")
+        @Option(name = "-i")
         public boolean interactive;
     }
 

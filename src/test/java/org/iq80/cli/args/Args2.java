@@ -32,15 +32,15 @@ public class Args2
     @Arguments(description = "List of parameters")
     public List<String> parameters = com.google.common.collect.Lists.newArrayList();
 
-    @Option(options = {"-log", "-verbose"}, description = "Level of verbosity")
+    @Option(name = {"-log", "-verbose"}, description = "Level of verbosity")
     public Integer verbose = 1;
 
-    @Option(options = "-groups", description = "Comma-separated list of group names to be run")
+    @Option(name = "-groups", description = "Comma-separated list of group names to be run")
     public String groups;
 
-    @Option(options = "-debug", description = "Debug mode")
+    @Option(name = "-debug", description = "Debug mode")
     public boolean debug = false;
 
-    @Option(options = "-host", description = "The host")
+    @Option(name = "-host", description = "The host")
     public List<String> hosts = newArrayList();
 }

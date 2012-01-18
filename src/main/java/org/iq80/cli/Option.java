@@ -40,7 +40,7 @@ public @interface Option
     /**
      * An array of allowed command line parameters (e.g. "-n", "--name", etc...).
      */
-    String[] options();
+    String[] name();
 
     /**
      * A description of this option.
