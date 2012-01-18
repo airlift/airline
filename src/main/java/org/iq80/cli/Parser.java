@@ -1,5 +1,6 @@
 package org.iq80.cli;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import org.iq80.cli.model.ArgumentsMetadata;
@@ -87,6 +88,20 @@ public class Parser
                 if (tokens.hasNext()) {
                     value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
                     state = state.withOptionValue(option, value)
+                            .popContext();
+                }
+            }
+            else if (option.getArity() > 1) {
+                ImmutableList.Builder<Object> values = ImmutableList.builder();
+
+                int count = 0;
+                while (count < option.getArity() && tokens.hasNext()) {
+                    values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
+                    ++count;
+                }
+
+                if (count == option.getArity()) {
+                    state = state.withOptionValue(option, values.build())
                             .popContext();
                 }
             }

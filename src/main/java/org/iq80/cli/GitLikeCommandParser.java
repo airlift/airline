@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
@@ -34,7 +33,6 @@ import org.iq80.cli.model.OptionMetadata;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -154,7 +152,11 @@ public class GitLikeCommandParser<C>
 
         // inject options
         for (OptionMetadata option : options) {
-            List<Object> values = parsedOptions.get(option);
+            List<? extends Object> values = parsedOptions.get(option);
+            if (option.getArity() > 1 && !values.isEmpty()) {
+                // hack: flatten the collection
+                values = ImmutableList.copyOf(concat((Iterable<Iterable<Object>>) values));
+            }
             if (values != null && !values.isEmpty()) {
                 for (Accessor accessor : option.getAccessors()) {
                     accessor.addValues(commandInstance, values);
