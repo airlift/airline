@@ -21,7 +21,7 @@ public class GalaxyCommandLineParser
     {
         GitLikeCommandParser<?> parser = createParser();
         GlobalMetadata metadata = parser.getMetadata();
-        new GlobalUsage(119).usage("galaxy", metadata);
+        new GlobalUsageSummary(119).usage("galaxy", metadata);
 
         CommandGroupUsage commandGroupUsage = new CommandGroupUsage(119);
         for (CommandGroupMetadata commandGroupMetadata : metadata.getCommandGroups()) {

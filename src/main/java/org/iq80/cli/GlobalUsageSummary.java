@@ -19,16 +19,16 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newTreeMap;
 import static org.iq80.cli.UsageHelper.toUsage;
 
-public class GlobalUsage
+public class GlobalUsageSummary
 {
     private final int columnSize;
 
-    public GlobalUsage()
+    public GlobalUsageSummary()
     {
         this(79);
     }
 
-    public GlobalUsage(int columnSize)
+    public GlobalUsageSummary(int columnSize)
     {
         Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
