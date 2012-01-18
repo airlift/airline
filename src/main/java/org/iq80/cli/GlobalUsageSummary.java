@@ -10,7 +10,6 @@ import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,22 +36,22 @@ public class GlobalUsageSummary
     /**
      * Display the help on System.out.
      */
-    public void usage(@Nullable String programName, GlobalMetadata metadata)
+    public void usage(GlobalMetadata global)
     {
         StringBuilder stringBuilder = new StringBuilder();
-        usage(programName, metadata, stringBuilder);
+        usage(global, stringBuilder);
         System.out.println(stringBuilder.toString());
     }
 
     /**
      * Store the help in the passed string builder.
      */
-    public void usage(@Nullable String programName, GlobalMetadata metadata, StringBuilder out)
+    public void usage(GlobalMetadata global, StringBuilder out)
     {
-        usage(programName, metadata, new UsagePrinter(out, columnSize));
+        usage(global, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable String programName, GlobalMetadata metadata, UsagePrinter out)
+    public void usage(GlobalMetadata global, UsagePrinter out)
     {
         //
         // Usage
@@ -60,7 +59,7 @@ public class GlobalUsageSummary
 
         // build arguments
         List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Collections2.transform(metadata.getOptions(), new Function<OptionMetadata, String>()
+        commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
             {
@@ -72,7 +71,7 @@ public class GlobalUsageSummary
         }));
         out.newPrinterWithHangingIndent(8)
                 .append("usage:")
-                .append(metadata.getName())
+                .append(global.getName())
                 .appendWords(commandArguments)
                 .append("<command> [<args>]")
                 .newline()
@@ -83,14 +82,14 @@ public class GlobalUsageSummary
         //
 
         Map<String, String> commands = newTreeMap();
-        for (CommandMetadata commandMetadata : metadata.getDefaultGroupCommands()) {
+        for (CommandMetadata commandMetadata : global.getDefaultGroupCommands()) {
             commands.put(commandMetadata.getName(), commandMetadata.getDescription());
         }
-        for (CommandGroupMetadata commandGroupMetadata : metadata.getCommandGroups()) {
+        for (CommandGroupMetadata commandGroupMetadata : global.getCommandGroups()) {
             commands.put(commandGroupMetadata.getName(), commandGroupMetadata.getDescription());
         }
 
-        out.append("The most commonly used ").append(metadata.getName()).append(" commands are:").newline();
+        out.append("The most commonly used ").append(global.getName()).append(" commands are:").newline();
         out.newIndentedPrinter(4).appendTable(Iterables.transform(commands.entrySet(), new Function<Entry<String, String>, Iterable<String>>()
         {
             public Iterable<String> apply(Entry<String, String> entry)
@@ -99,6 +98,6 @@ public class GlobalUsageSummary
             }
         }));
         out.newline();
-        out.append("See '").append(metadata.getName()).append(" help <command>' for more information on a specific command.").newline();
+        out.append("See '").append(global.getName()).append(" help <command>' for more information on a specific command.").newline();
     }
 }
