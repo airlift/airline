@@ -23,9 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandMetadata;
+import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.MetadataLoader;
 import org.iq80.cli.model.OptionMetadata;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -70,10 +72,11 @@ public class CommandParser<T>
 
     public T parse(String... args)
     {
-        return parseInternal(ArrayListMultimap.<OptionMetadata, Object>create(), true, ImmutableList.copyOf(args));
+        return parseInternal(null, ArrayListMultimap.<OptionMetadata, Object>create(), true, ImmutableList.copyOf(args));
     }
 
-    public T parseInternal(ListMultimap<OptionMetadata, Object> parsedOptions,
+    public T parseInternal(@Nullable GlobalMetadata global,
+            ListMultimap<OptionMetadata, Object> parsedOptions,
             boolean validate,
             Iterable<String> parameters)
     {
@@ -96,14 +99,16 @@ public class CommandParser<T>
         }
 
         // build the instance
-        return createInstance(metadata.getType(), metadata.getAllOptions(), parsedOptions, arguments, parsedArguments.build());
+        return createInstance(metadata.getType(), metadata.getAllOptions(), parsedOptions, arguments, parsedArguments.build(), metadata.getMetadataInjections(), global);
     }
 
     public static <T> T createInstance(Class<?> type,
             Iterable<OptionMetadata> options,
             ListMultimap<OptionMetadata, Object> parsedOptions,
             ArgumentsMetadata arguments,
-            Iterable<Object> parsedArguments)
+            Iterable<Object> parsedArguments,
+            Iterable<Accessor> metadataInjection,
+            GlobalMetadata globalMetadata)
     {
         // create the command instance
         T commandInstance = (T) ParserUtil.createInstance(type);
@@ -123,6 +128,12 @@ public class CommandParser<T>
             arguments.getAccessor().addValues(commandInstance, parsedArguments);
         }
 
+        // inject metadata
+        if (globalMetadata != null) {
+            for (Accessor accessor : metadataInjection) {
+                accessor.addValues(commandInstance, ImmutableList.of(globalMetadata));
+            }
+        }
         return commandInstance;
     }
 }

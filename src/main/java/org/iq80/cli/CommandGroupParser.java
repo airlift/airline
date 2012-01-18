@@ -23,8 +23,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import org.iq80.cli.model.CommandGroupMetadata;
+import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +70,7 @@ public class CommandGroupParser<C>
         return metadata;
     }
 
-    public C parseInternal(ListMultimap<OptionMetadata, Object> parsedOptions, boolean validate, List<String> args)
+    public C parseInternal(@Nullable GlobalMetadata global, ListMultimap<OptionMetadata, Object> parsedOptions, boolean validate, List<String> args)
     {
         // process global options
         List<String> parameters = ParserUtil.parseOptions(this.groupOptions, validate, true, args, parsedOptions);
@@ -94,7 +96,7 @@ public class CommandGroupParser<C>
             }
         }
 
-        C commandResult = command.parseInternal(parsedOptions, validate, parameters);
+        C commandResult = command.parseInternal(global, parsedOptions, validate, parameters);
         return commandResult;
     }
 }

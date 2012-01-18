@@ -121,7 +121,7 @@ public class GitLikeCommandParser<C>
         if (commandGroup != null) {
             // remove group name from parameters list
             parameters = parameters.subList(1, parameters.size());
-            C commandResult = commandGroup.parseInternal(parsedOptions, validate, parameters);
+            C commandResult = commandGroup.parseInternal(metadata, parsedOptions, validate, parameters);
             return commandResult;
         }
 
@@ -145,7 +145,7 @@ public class GitLikeCommandParser<C>
             }
         }
 
-        C commandResult = command.parseInternal(parsedOptions, validate, parameters);
+        C commandResult = command.parseInternal(metadata, parsedOptions, validate, parameters);
         return commandResult;
     }
 

@@ -1,6 +1,7 @@
 package org.iq80.cli.model;
 
 import com.google.common.collect.ImmutableList;
+import org.iq80.cli.Accessor;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class CommandMetadata
     private final List<OptionMetadata> groupOptions;
     private final List<OptionMetadata> commandOptions;
     private final ArgumentsMetadata arguments;
+    private final List<Accessor> metadataInjections;
     private final Class<?> type;
 
     public CommandMetadata(String name,
@@ -19,7 +21,9 @@ public class CommandMetadata
             Iterable<OptionMetadata> globalOptions,
             Iterable<OptionMetadata> groupOptions,
             Iterable<OptionMetadata> commandOptions,
-            ArgumentsMetadata arguments, Class<?> type)
+            ArgumentsMetadata arguments,
+            Iterable<Accessor> metadataInjections,
+            Class<?> type)
     {
         this.name = name;
         this.description = description;
@@ -27,6 +31,7 @@ public class CommandMetadata
         this.groupOptions = ImmutableList.copyOf(groupOptions);
         this.commandOptions = ImmutableList.copyOf(commandOptions);
         this.arguments = arguments;
+        this.metadataInjections = ImmutableList.copyOf(metadataInjections);
         this.type = type;
     }
 
@@ -66,6 +71,11 @@ public class CommandMetadata
         return arguments;
     }
 
+    public List<Accessor> getMetadataInjections()
+    {
+        return metadataInjections;
+    }
+
     public Class<?> getType()
     {
         return type;
@@ -82,6 +92,7 @@ public class CommandMetadata
         sb.append(", groupOptions=").append(groupOptions);
         sb.append(", commandOptions=").append(commandOptions);
         sb.append(", arguments=").append(arguments);
+        sb.append(", metadataInjections=").append(metadataInjections);
         sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();

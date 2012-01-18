@@ -89,7 +89,7 @@ public class Accessor
         return instance;
     }
 
-    public void addValues(Object commandInstance, Iterable<Object> values)
+    public void addValues(Object commandInstance, Iterable<?> values)
     {
         if (Iterables.isEmpty(values)) {
             return;

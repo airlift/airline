@@ -1,6 +1,7 @@
 package org.iq80.cli;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -94,7 +95,7 @@ public class GlobalUsageSummary
         {
             public Iterable<String> apply(Entry<String, String> entry)
             {
-                return ImmutableList.of(entry.getKey(), entry.getValue());
+                return ImmutableList.of(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""));
             }
         }));
         out.newline();

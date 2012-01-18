@@ -4,14 +4,13 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import org.iq80.cli.GitLikeCommandParser.Builder;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.iq80.cli.HelpCommand.help;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -19,27 +18,22 @@ public class GalaxyCommandLineParser
     @Test
     public void test()
     {
-        GitLikeCommandParser<?> parser = createParser();
-        GlobalMetadata metadata = parser.getMetadata();
-        new GlobalUsageSummary(119).usage(metadata);
-        new GlobalUsage(119).usage(metadata);
+        parse();
+        parse("help");
+        parse("help", "show");
+        parse("help", "install");
+        parse("help", "upgrade");
+        parse("help", "upgrade");
+        parse("help", "terminate");
+        parse("help", "start");
+        parse("help", "stop");
+        parse("help", "restart");
+        parse("help", "reset-to-actual");
+        parse("help", "ssh");
+        parse("help", "agent");
+        parse("help", "agent", "show");
+        parse("help", "agent", "add");
 
-        CommandGroupUsage commandGroupUsage = new CommandGroupUsage(119);
-        for (CommandGroupMetadata commandGroupMetadata : metadata.getCommandGroups()) {
-            commandGroupUsage.usage(metadata, commandGroupMetadata);
-        }
-
-        CommandUsage commandUsage = new CommandUsage(119);
-        for (CommandMetadata command : metadata.getDefaultGroupCommands()) {
-            commandUsage.usage("galaxy", null, command);
-        }
-        for (CommandGroupMetadata commandGroup : metadata.getCommandGroups()) {
-            for (CommandMetadata command : commandGroup.getCommands()) {
-                commandUsage.usage("galaxy", commandGroup.getName(), command);
-            }
-        }
-
-        parse("--debug");
         parse("--debug", "show", "-u", "b2", "--state", "r");
         parse("--debug", "install", "com.proofpoint.discovery:discovery-server:1.1", "@discovery:general:1.0");
         parse("--debug", "upgrade", "-u", "b2", "1.1", "@1.0");
@@ -60,7 +54,8 @@ public class GalaxyCommandLineParser
     {
         Builder<GalaxyCommand> builder = GitLikeCommandParser.parser("galaxy", GalaxyCommand.class)
                 .withDescription("cloud management system")
-                .defaultCommand(ShowCommand.class)
+                .defaultCommand(HelpCommand.class)
+                .addCommand(HelpCommand.class)
                 .addCommand(ShowCommand.class)
                 .addCommand(InstallCommand.class)
                 .addCommand(UpgradeCommand.class)
@@ -84,9 +79,8 @@ public class GalaxyCommandLineParser
     private void parse(String... args)
     {
         System.out.println(Joiner.on(" ").join(args));
-        GitLikeCommandParser<?> parser = createParser();
-        Object results = parser.parse(args);
-        System.out.println(results);
+        GalaxyCommand command = createParser().parse(args);
+        System.out.println(command);
         System.out.println();
     }
 
@@ -178,6 +172,24 @@ public class GalaxyCommandLineParser
     {
         @Options
         public GlobalOptions globalOptions = new GlobalOptions();
+    }
+
+    @Command(name = "help", description = "Display help information about galaxy")
+    public static class HelpCommand extends GalaxyCommand
+    {
+        @Options
+        public GlobalMetadata global;
+
+        @Arguments
+        public List<String> command = newArrayList();
+
+        @Override
+        public String toString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            help(global, command, stringBuilder);
+            return stringBuilder.toString();
+        }
     }
 
     @Command(name = "show", description = "Show state of all slots")

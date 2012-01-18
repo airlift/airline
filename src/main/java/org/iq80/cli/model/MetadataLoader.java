@@ -6,6 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import org.iq80.cli.Accessor;
 import org.iq80.cli.Arguments;
 import org.iq80.cli.Command;
 import org.iq80.cli.Option;
@@ -87,6 +88,9 @@ public class MetadataLoader
         List<OptionMetadata> commandOptions = loadOptionsSet(commandType, OptionType.COMMAND);
 
         ArgumentsMetadata arguments = loadArguments(commandType);
+
+        List<Accessor> metadataInjections = loadMetadataInjections(commandType, ImmutableList.<Field>of());
+
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
                 description,
@@ -94,6 +98,7 @@ public class MetadataLoader
                 groupOptions,
                 commandOptions,
                 arguments,
+                metadataInjections,
                 commandType);
         return commandMetadata;
     }
@@ -158,6 +163,25 @@ public class MetadataLoader
             }
         }
         return optionsSet.build();
+    }
+
+    private static List<Accessor> loadMetadataInjections(Class<?> type, List<Field> fields)
+    {
+        ImmutableList.Builder<Accessor> metadataInjections = ImmutableList.builder();
+        for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
+            for (Field field : cls.getDeclaredFields()) {
+                field.setAccessible(true);
+                ImmutableList<Field> path = concat(fields, field);
+
+                Options optionsAnnotation = field.getAnnotation(Options.class);
+                if (optionsAnnotation != null) {
+                    if (field.getType().equals(GlobalMetadata.class)) {
+                        metadataInjections.add(new Accessor(path));
+                    }
+                }
+            }
+        }
+        return metadataInjections.build();
     }
 
     private static List<OptionMetadata> mergeOptionSet(Iterable<OptionMetadata> options)
