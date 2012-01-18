@@ -91,6 +91,10 @@ public class Accessor
 
     public void addValues(Object commandInstance, Iterable<Object> values)
     {
+        if (Iterables.isEmpty(values)) {
+            return;
+        }
+
         // get the actual instance
         Object instance = getValue(commandInstance);
 
