@@ -20,10 +20,11 @@ package org.iq80.cli;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
@@ -33,6 +34,8 @@ import org.iq80.cli.model.OptionMetadata;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -52,11 +55,6 @@ public class GitLikeCommandParser<C>
     }
 
     private final GlobalMetadata metadata;
-
-    private final List<OptionParser> globalOptions;
-    private final CommandParser<C> defaultCommand;
-    private final Map<String, CommandParser<C>> defaultGroupCommands;
-    private final Map<String, CommandGroupParser<C>> commandGroups;
 
     private GitLikeCommandParser(String name,
             String description,
@@ -84,18 +82,6 @@ public class GitLikeCommandParser<C>
         }));
 
         this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
-
-
-
-        this.globalOptions = OptionParser.from(typeConverter, metadata.getOptions());
-        if (metadata.getDefaultCommand() != null) {
-            this.defaultCommand = CommandParser.<C>create(typeConverter, metadata.getDefaultCommand());
-        }
-        else {
-            this.defaultCommand = null;
-        }
-        this.defaultGroupCommands = CommandParser.createIndex(typeConverter, metadata.getDefaultGroupCommands());
-        this.commandGroups = CommandGroupParser.createIndex(typeConverter, metadata.getCommandGroups());
     }
 
     public GlobalMetadata getMetadata()
@@ -106,47 +92,87 @@ public class GitLikeCommandParser<C>
     public C parse(String... args)
     {
         Preconditions.checkNotNull(args, "args is null");
-        return parse(true, ImmutableList.copyOf(args));
-    }
+        
+        Parser parser = new Parser(metadata);
+        ParseState state = parser.parse(args);
 
-    public C parse(boolean validate, Iterable<String> args)
-    {
-        // process global options
-        ListMultimap<OptionMetadata, Object> parsedOptions = ArrayListMultimap.create();
-        List<String> parameters = ParserUtil.parseOptions(this.globalOptions, validate, true, args, parsedOptions);
-
-        // select the command group
-        String name = Iterables.getFirst(parameters, null);
-        CommandGroupParser<C> commandGroup = commandGroups.get(name);
-        if (commandGroup != null) {
-            // remove group name from parameters list
-            parameters = parameters.subList(1, parameters.size());
-            C commandResult = commandGroup.parseInternal(metadata, parsedOptions, validate, parameters);
-            return commandResult;
-        }
-
-        // select a command in the default group
-        CommandParser<C> command = defaultGroupCommands.get(name);
-        if (command != null) {
-            // remove command name from parameters list
-            parameters = parameters.subList(1, parameters.size());
-        }
-        else {
-            // use the default command
-            command = defaultCommand;
-        }
-
-        if (command == null) {
-            if (name == null) {
-                throw new ParseException("No command specified");
+        if (state.getCommand() == null) {
+            if (state.getGroup() != null) {
+                state = state.withCommand(state.getGroup().getDefaultCommand());
             }
             else {
-                throw new ParseException("Unknown command %s", name);
+                state = state.withCommand(metadata.getDefaultCommand());
             }
         }
 
-        C commandResult = command.parseInternal(metadata, parsedOptions, validate, parameters);
-        return commandResult;
+        validate(state);
+
+        CommandMetadata command = state.getCommand();
+
+        return createInstance(command.getType(),
+                command.getAllOptions(),
+                state.getParsedOptions(),
+                command.getArguments(),
+                state.getParsedArguments(),
+                command.getMetadataInjections(),
+                metadata);
+    }
+
+    private void validate(ParseState state)
+    {
+        CommandMetadata command = state.getCommand();
+        if (command == null) {
+            throw new ParseException("No command specified");
+        }
+
+        ArgumentsMetadata arguments = command.getArguments();
+        if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
+            throw new ParseException("Required parameters are missing: %s", arguments.getTitle());
+        }
+        
+        if (!state.getUnparsedInput().isEmpty()) {
+            throw new ParseException("Found unexpected parameters: %s", state.getUnparsedInput());
+        }
+
+        // TODO: verify that we're in a valid parse state
+        //   command != null
+        //   state != option
+        //   state == global && default command != null
+        //   state == group && default group command != null
+    }
+
+    private static <T> T createInstance(Class<?> type,
+            Iterable<OptionMetadata> options,
+            ListMultimap<OptionMetadata, Object> parsedOptions,
+            ArgumentsMetadata arguments,
+            Iterable<Object> parsedArguments,
+            Iterable<Accessor> metadataInjection,
+            GlobalMetadata globalMetadata)
+    {
+        // create the command instance
+        T commandInstance = (T) ParserUtil.createInstance(type);
+
+        // inject options
+        for (OptionMetadata option : options) {
+            List<Object> values = parsedOptions.get(option);
+            if (values != null && !values.isEmpty()) {
+                for (Accessor accessor : option.getAccessors()) {
+                    accessor.addValues(commandInstance, values);
+                }
+            }
+        }
+
+        // inject args
+        if (arguments != null && parsedArguments != null) {
+            arguments.getAccessor().addValues(commandInstance, parsedArguments);
+        }
+
+        if (globalMetadata != null) {
+            for (Accessor accessor : metadataInjection) {
+                accessor.addValues(commandInstance, ImmutableList.of(globalMetadata));
+            }
+        }
+        return commandInstance;
     }
 
     //

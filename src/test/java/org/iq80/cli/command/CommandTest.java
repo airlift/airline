@@ -18,12 +18,13 @@
 
 package org.iq80.cli.command;
 
-import org.iq80.cli.CommandParser;
 import org.iq80.cli.GitLikeCommandParser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+
+import static org.iq80.cli.TestUtil.singleCommandParser;
 
 public class CommandTest
 {
@@ -47,7 +48,7 @@ public class CommandTest
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void shouldComplainIfNoAnnotations()
     {
-        CommandParser.create(String.class);
+        singleCommandParser(String.class);
     }
 
     @Test

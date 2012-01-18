@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.iq80.cli.TestUtil.singleCommandParser;
 
 /**
  * @author dain
@@ -33,7 +34,11 @@ public class ParametersDelegateTest
     @Test
     public void delegatingEmptyClassHasNoEffect()
     {
-        DelegatingEmptyClassHasNoEffect p = CommandParser.create(DelegatingEmptyClassHasNoEffect.class).parse("-a", "-b", "someValue");
+        DelegatingEmptyClassHasNoEffect p = GitLikeCommandParser.parser("foo", DelegatingEmptyClassHasNoEffect.class)
+                .addCommand(DelegatingEmptyClassHasNoEffect.class)
+                .build()
+                .parse("command", "-a", "-b", "someValue");
+
         Assert.assertTrue(p.isA);
         Assert.assertEquals(p.bValue, "someValue");
         Assert.assertEquals(p.delegate.nonParamString, "a");
@@ -65,8 +70,8 @@ public class ParametersDelegateTest
     public void delegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams()
     {
 
-        DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams p = CommandParser.create(DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams.class)
-                .parse("-c", "--long-d", "123", "--long-b", "bValue");
+        DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams p = singleCommandParser(DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams.class)
+                .parse("command", "-c", "--long-d", "123", "--long-b", "bValue");
         Assert.assertFalse(p.isA);
         Assert.assertEquals(p.bValue, "bValue");
         Assert.assertTrue(p.delegate.isC);
@@ -119,8 +124,8 @@ public class ParametersDelegateTest
     @Test
     public void combinedAndNestedDelegates()
     {
-        CombinedAndNestedDelegates p = CommandParser.create(CombinedAndNestedDelegates.class)
-                .parse("-d", "234", "--list", "a", "--list", "b", "-a");
+        CombinedAndNestedDelegates p = singleCommandParser(CombinedAndNestedDelegates.class)
+                .parse("command", "-d", "234", "--list", "a", "--list", "b", "-a");
         Assert.assertEquals(p.nestedDelegate2.nestedDelegate1.leafDelegate.list, newArrayList("value1", "value2", "a", "b"));
         Assert.assertFalse(p.nestedDelegate2.nestedDelegate1.leafDelegate.bool);
         Assert.assertEquals(p.nestedDelegate2.nestedDelegate1.d, Integer.valueOf(234));
@@ -147,7 +152,7 @@ public class ParametersDelegateTest
     @Test
     public void commandTest()
     {
-        CommandTest c = CommandParser.create(CommandTest.class).parse("-a", "a");
+        CommandTest c = singleCommandParser(CommandTest.class).parse("command", "-a", "a");
         Assert.assertEquals(c.delegate.a, "a");
     }
 
@@ -170,7 +175,7 @@ public class ParametersDelegateTest
     public void nullDelegatesAreAllowed()
     {
 
-        NullDelegatesAreProhibited value = CommandParser.create(NullDelegatesAreProhibited.class).parse("-a");
+        NullDelegatesAreProhibited value = singleCommandParser(NullDelegatesAreProhibited.class).parse("command", "-a");
         Assert.assertEquals(value.delegate.a, true);
     }
 
@@ -194,7 +199,7 @@ public class ParametersDelegateTest
     @Test
     public void duplicateDelegateAllowed()
     {
-        DuplicateDelegateAllowed value = CommandParser.create(DuplicateDelegateAllowed.class).parse("-a", "value");
+        DuplicateDelegateAllowed value = singleCommandParser(DuplicateDelegateAllowed.class).parse("command", "-a", "value");
         Assert.assertEquals(value.d1.a, "value");
         Assert.assertEquals(value.d2.a, "value");
     }
@@ -226,6 +231,6 @@ public class ParametersDelegateTest
     @Test(expectedExceptions = ParseException.class)
     public void duplicateMainParametersAreNotAllowed()
     {
-        CommandParser.create(DuplicateMainParametersAreNotAllowed.class).parse("main", "params");
+        singleCommandParser(DuplicateMainParametersAreNotAllowed.class).parse("command", "main", "params");
     }
 }

@@ -362,13 +362,10 @@ public class GalaxyCommandLineParser
         @Override
         public String toString()
         {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("ResetToActualCommand");
-            sb.append("{slotFilter=").append(slotFilter);
-            sb.append(", command='").append(command).append("'");
-            sb.append(", globalOptions=").append(globalOptions);
-            sb.append('}');
-            return sb.toString();
+            return "SshCommand{" +
+                    "slotFilter=" + slotFilter +
+                    ", command='" + command + '\'' +
+                    '}';
         }
     }
 

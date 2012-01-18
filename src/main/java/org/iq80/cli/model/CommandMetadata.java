@@ -1,8 +1,10 @@
 package org.iq80.cli.model;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.iq80.cli.Accessor;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class CommandMetadata
@@ -96,5 +98,16 @@ public class CommandMetadata
         sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();
+    }
+
+    public static Function<CommandMetadata, String> nameGetter()
+    {
+        return new Function<CommandMetadata, String>()
+        {
+            public String apply(CommandMetadata input)
+            {
+                return input.getName();
+            }
+        };
     }
 }

@@ -7,6 +7,11 @@ import java.lang.reflect.Method;
 
 public class TypeConverter
 {
+    public static TypeConverter newInstance()
+    {
+        return new TypeConverter();
+    }
+
     public Object convert(String name, Class<?> type, String value)
     {
         Preconditions.checkNotNull(name, "name is null");

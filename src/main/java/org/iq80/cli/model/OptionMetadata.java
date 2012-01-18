@@ -1,12 +1,15 @@
 package org.iq80.cli.model;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.iq80.cli.Accessor;
 import org.iq80.cli.OptionType;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -21,8 +24,9 @@ public class OptionMetadata
     private final boolean required;
     private final boolean hidden;
     private final Set<Accessor> accessors;
+    private final Set<String> allowedValues;
 
-    public OptionMetadata(OptionType optionType, Iterable<String> options, String title, String description, int arity, boolean required, boolean hidden, Iterable<Field> path)
+    public OptionMetadata(OptionType optionType, Iterable<String> options, String title, String description, int arity, boolean required, boolean hidden, Iterable<Field> path, Iterable<String> allowedValues)
     {
         this.optionType = optionType;
         this.options = ImmutableSet.copyOf(options);
@@ -32,6 +36,13 @@ public class OptionMetadata
         this.required = required;
         this.hidden = hidden;
         this.accessors = ImmutableSet.of(new Accessor(path));
+
+        if (allowedValues != null) {
+            this.allowedValues = ImmutableSet.copyOf(allowedValues);
+        }
+        else {
+            this.allowedValues = null;
+        }
     }
 
     public OptionMetadata(Iterable<OptionMetadata> options)
@@ -57,6 +68,13 @@ public class OptionMetadata
             accessors.addAll(other.getAccessors());
         }
         this.accessors = ImmutableSet.copyOf(accessors);
+        
+        if (option.allowedValues != null) {
+            this.allowedValues = ImmutableSet.copyOf(option.allowedValues);
+        }
+        else {
+            this.allowedValues = null;
+        }
     }
 
     public OptionType getOptionType()
@@ -109,6 +127,10 @@ public class OptionMetadata
         return accessors;
     }
 
+    public Set<String> getAllowedValues()
+    {
+        return allowedValues;
+    }
 
     @Override
     public boolean equals(Object o)
@@ -175,5 +197,16 @@ public class OptionMetadata
         sb.append(", accessors=").append(accessors);
         sb.append('}');
         return sb.toString();
+    }
+
+    public static Function<OptionMetadata, Set<String>> optionsGetter()
+    {
+        return new Function<OptionMetadata, Set<String>>()
+        {
+            public Set<String> apply(OptionMetadata input)
+            {
+                return input.getOptions();
+            }
+        };
     }
 }

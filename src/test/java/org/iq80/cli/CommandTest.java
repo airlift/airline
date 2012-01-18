@@ -18,6 +18,7 @@
 
 package org.iq80.cli;
 
+import com.google.common.collect.ImmutableList;
 import org.iq80.cli.GitLikeCommandParser.Builder;
 import org.iq80.cli.args.Args1;
 import org.iq80.cli.args.Args2;
@@ -42,13 +43,18 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.base.Predicates.compose;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.collect.Iterables.find;
+import static org.iq80.cli.TestUtil.singleCommandParser;
+
 @Test
 public class CommandTest
 {
     public void simpleArgs()
             throws ParseException
     {
-        Args1 args = CommandParser.create(Args1.class).parse(
+        Args1 args = singleCommandParser(Args1.class).parse("Args1",
                 "-debug", "-log", "2", "-float", "1.2", "-double", "1.3", "-bigdecimal", "1.4",
                 "-groups", "unit", "a", "b", "c");
 
@@ -67,8 +73,9 @@ public class CommandTest
      */
     public void repeatedArgs()
     {
-        CommandParser<Args1> parser = CommandParser.create(Args1.class);
-        Assert.assertEquals(parser.getMetadata().getAllOptions().size(), 8);
+        GitLikeCommandParser<Args1> parser = singleCommandParser(Args1.class);
+        CommandMetadata command = find(parser.getMetadata().getDefaultGroupCommands(), compose(equalTo("Args1"), CommandMetadata.nameGetter()));
+        Assert.assertEquals(command.getAllOptions().size(), 8);
     }
 
     /**
@@ -77,7 +84,7 @@ public class CommandTest
     @Test(expectedExceptions = ParseException.class)
     public void nonexistentCommandShouldThrow()
     {
-        GitLikeCommandParser.parser("test").addCommand(Args1.class).build().parse("foo");
+        singleCommandParser(Args1.class).parse("foo");
     }
 
     /**
@@ -85,7 +92,7 @@ public class CommandTest
      */
     private void multipleNames(String option)
     {
-        Args1 args = CommandParser.create(Args1.class).parse(option, "2");
+        Args1 args = singleCommandParser(Args1.class).parse("Args1", option, "2");
         Assert.assertEquals(args.verbose.intValue(), 2);
     }
 
@@ -101,7 +108,7 @@ public class CommandTest
 
     public void arityString()
     {
-        ArgsArityString args = CommandParser.create(ArgsArityString.class).parse("-pairs", "pair0", "pair1", "rest");
+        ArgsArityString args = singleCommandParser(ArgsArityString.class).parse("ArgsArityString", "-pairs", "pair0", "pair1", "rest");
 
         Assert.assertEquals(args.pairs.size(), 2);
         Assert.assertEquals(args.pairs.get(0), "pair0");
@@ -113,30 +120,33 @@ public class CommandTest
     @Test(expectedExceptions = ParseException.class)
     public void arity2Fail()
     {
-        CommandParser.create(ArgsArityString.class).parse("-pairs", "pair0");
+        singleCommandParser(ArgsArityString.class).parse("ArgsArityString", "-pairs", "pair0");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void multipleUnparsedFail()
     {
-        CommandParser.create(ArgsMultipleUnparsed.class).parse();
+        singleCommandParser(ArgsMultipleUnparsed.class).parse();
     }
 
     public void privateArgs()
     {
-        ArgsPrivate args = CommandParser.create(ArgsPrivate.class).parse("-verbose", "3");
+        ArgsPrivate args = singleCommandParser(ArgsPrivate.class).parse("ArgsPrivate", "-verbose", "3");
         Assert.assertEquals(args.getVerbose().intValue(), 3);
     }
 
     private void argsBoolean1(String[] params, Boolean expected)
     {
-        ArgsBooleanArity args = CommandParser.create(ArgsBooleanArity.class).parse(params);
+        params = ImmutableList.builder().add("ArgsBooleanArity").add(params).build().toArray(new String[0]);
+        ArgsBooleanArity args = singleCommandParser(ArgsBooleanArity.class).parse(params);
         Assert.assertEquals(args.debug, expected);
     }
 
     private void argsBoolean0(String[] params, Boolean expected)
     {
-        ArgsBooleanArity0 args = CommandParser.create(ArgsBooleanArity0.class).parse(params);
+        params = ImmutableList.builder().add("ArgsBooleanArity0").add(params).build().toArray(new String[0]);
+
+        ArgsBooleanArity0 args = singleCommandParser(ArgsBooleanArity0.class).parse(params);
         Assert.assertEquals(args.debug, expected);
     }
 
@@ -155,18 +165,18 @@ public class CommandTest
     @Test(expectedExceptions = ParseException.class)
     public void badParameterShouldThrowParameter1Exception()
     {
-        CommandParser.create(Args1.class).parse("-log", "foo");
+        singleCommandParser(Args1.class).parse("Args1", "-log", "foo");
     }
 
     @Test(expectedExceptions = ParseException.class)
     public void badParameterShouldThrowParameter2Exception()
     {
-        CommandParser.create(Args1.class).parse("-long", "foo");
+        singleCommandParser(Args1.class).parse("Args1", "-long", "foo");
     }
 
     public void listParameters()
     {
-        Args2 a = CommandParser.create(Args2.class).parse("-log", "2", "-groups", "unit", "a", "b", "c", "-host", "host2");
+        Args2 a = singleCommandParser(Args2.class).parse("Args2", "-log", "2", "-groups", "unit", "a", "b", "c", "-host", "host2");
         Assert.assertEquals(a.verbose.intValue(), 2);
         Assert.assertEquals(a.groups, "unit");
         Assert.assertEquals(a.hosts, Arrays.asList("host2"));
@@ -175,21 +185,21 @@ public class CommandTest
 
     public void inheritance()
     {
-        ArgsInherited args = CommandParser.create(ArgsInherited.class).parse("-log", "3", "-child", "2");
+        ArgsInherited args = singleCommandParser(ArgsInherited.class).parse("ArgsInherited", "-log", "3", "-child", "2");
         Assert.assertEquals(args.child.intValue(), 2);
         Assert.assertEquals(args.log.intValue(), 3);
     }
 
     public void negativeNumber()
     {
-        Args1 a = CommandParser.create(Args1.class).parse("-verbose", "-3");
+        Args1 a = singleCommandParser(Args1.class).parse("Args1", "-verbose", "-3");
         Assert.assertEquals(a.verbose.intValue(), -3);
     }
 
     @Test(expectedExceptions = ParseException.class)
     public void requiredMainParameters()
     {
-        CommandParser.create(ArgsRequired.class).parse();
+        singleCommandParser(ArgsRequired.class).parse("ArgsRequired");
     }
 
     private void verifyCommandOrdering(String[] commandNames, Class<?>... commands)
@@ -232,18 +242,18 @@ public class CommandTest
     @Test(expectedExceptions = ParseException.class)
     public void arity1Fail()
     {
-        CommandParser.create(Arity1.class).parse("-inspect");
+        singleCommandParser(Arity1.class).parse("Arity1", "-inspect");
     }
 
     public void arity1Success1()
     {
-        Arity1 arguments = CommandParser.create(Arity1.class).parse("-inspect", "true");
+        Arity1 arguments = singleCommandParser(Arity1.class).parse("Arity1", "-inspect", "true");
         Assert.assertTrue(arguments.inspect);
     }
 
     public void arity1Success2()
     {
-        Arity1 arguments = CommandParser.create(Arity1.class).parse("-inspect", "false");
+        Arity1 arguments = singleCommandParser(Arity1.class).parse("Arity1", "-inspect", "false");
         Assert.assertFalse(arguments.inspect);
     }
 
@@ -251,19 +261,19 @@ public class CommandTest
             description = "Verify that the main parameter's type is checked to be a List")
     public void wrongMainTypeShouldThrow()
     {
-        CommandParser.create(ArgsRequiredWrongMain.class).parse("f1", "f2");
+        singleCommandParser(ArgsRequiredWrongMain.class).parse("f1", "f2");
     }
 
     @Test(description = "This used to run out of memory")
     public void oom()
     {
-        CommandParser.create(ArgsOutOfMemory.class).parse();
+        singleCommandParser(ArgsOutOfMemory.class).parse("ArgsOutOfMemory");
     }
 
     @Test
     public void getParametersShouldNotNpe()
     {
-        CommandParser.create(Args1.class).parse();
+        singleCommandParser(Args1.class).parse("Args1");
     }
 
     private static final List<String> V = Arrays.asList("a", "b", "c", "d");
@@ -282,14 +292,14 @@ public class CommandTest
 
     public void enumArgs()
     {
-        ArgsEnum args = CommandParser.create(ArgsEnum.class).parse("-choice", "ONE");
+        ArgsEnum args = singleCommandParser(ArgsEnum.class).parse("ArgsEnum", "-choice", "ONE");
         Assert.assertEquals(args.choice, ArgsEnum.ChoiceType.ONE);
     }
 
     @Test(expectedExceptions = ParseException.class)
     public void enumArgsFail()
     {
-        CommandParser.create(ArgsEnum.class).parse("-choice", "A");
+        singleCommandParser(ArgsEnum.class).parse("-choice", "A");
     }
 
     @Test(expectedExceptions = ParseException.class)
@@ -301,7 +311,7 @@ public class CommandTest
             @Option(name = "-long")
             public long l;
         }
-        CommandParser.create(A.class).parse("-lon", "32");
+        singleCommandParser(A.class).parse("-lon", "32");
     }
 
     @Test(enabled = false)

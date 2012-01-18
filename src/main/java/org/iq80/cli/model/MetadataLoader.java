@@ -157,8 +157,12 @@ public class MetadataLoader
 
                     boolean required = optionAnnotation.required();
                     boolean hidden = optionAnnotation.hidden();
+                    List<String> allowedValues = ImmutableList.copyOf(optionAnnotation.allowedValues());
+                    if (allowedValues.isEmpty()) {
+                        allowedValues = null;
+                    }
 
-                    optionsSet.add(new OptionMetadata(optionType, options, name, description, arity, required, hidden, path));
+                    optionsSet.add(new OptionMetadata(optionType, options, name, description, arity, required, hidden, path, allowedValues));
                 }
             }
         }
