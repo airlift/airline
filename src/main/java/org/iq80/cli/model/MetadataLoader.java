@@ -12,6 +12,7 @@ import org.iq80.cli.Command;
 import org.iq80.cli.Option;
 import org.iq80.cli.OptionType;
 import org.iq80.cli.Options;
+import org.iq80.cli.Suggester;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -103,6 +104,13 @@ public class MetadataLoader
         return commandMetadata;
     }
 
+    public static SuggesterMetadata loadSuggester(Class<? extends Suggester> suggesterClass)
+    {
+        List<Accessor> metadataInjections = loadMetadataInjections(suggesterClass, ImmutableList.<Field>of());
+
+        return new SuggesterMetadata(suggesterClass, metadataInjections);
+    }
+
     public static List<OptionMetadata> loadOptionsSet(Class<?> type, OptionType optionType)
     {
         Preconditions.checkNotNull(type, "type is null");
@@ -179,7 +187,9 @@ public class MetadataLoader
 
                 Options optionsAnnotation = field.getAnnotation(Options.class);
                 if (optionsAnnotation != null) {
-                    if (field.getType().equals(GlobalMetadata.class)) {
+                    if (field.getType().equals(GlobalMetadata.class) ||
+                        field.getType().equals(CommandGroupMetadata.class) ||
+                        field.getType().equals(CommandMetadata.class)) {
                         metadataInjections.add(new Accessor(path));
                     }
                 }

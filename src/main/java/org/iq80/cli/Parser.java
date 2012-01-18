@@ -27,7 +27,12 @@ public class Parser
     // global> (option value*)* (group (option value*)*)? (command (option value* | arg)* '--'? args*)?
     public ParseState parse(String... params)
     {
-        PeekingIterator<String> tokens = Iterators.peekingIterator(Iterators.forArray(params));
+        return parse(ImmutableList.copyOf(params));
+    }
+
+    public ParseState parse(Iterable<String> params)
+    {
+        PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
 

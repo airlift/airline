@@ -21,21 +21,20 @@ package org.iq80.cli;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.MetadataLoader;
-import org.iq80.cli.model.OptionMetadata;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.iq80.cli.ParserUtil.createInstance;
 
 public class GitLikeCommandParser<C>
 {
@@ -89,6 +88,11 @@ public class GitLikeCommandParser<C>
 
     public C parse(String... args)
     {
+        return parse(ImmutableList.copyOf(args));
+    }
+    
+    public C parse(Iterable<String> args)
+    {
         Preconditions.checkNotNull(args, "args is null");
         
         Parser parser = new Parser(metadata);
@@ -113,9 +117,9 @@ public class GitLikeCommandParser<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                metadata);
+                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
     }
-
+    
     private void validate(ParseState state)
     {
         CommandMetadata command = state.getCommand();
@@ -135,44 +139,6 @@ public class GitLikeCommandParser<C>
         if (state.getLocation() == Context.OPTION) {
             throw new ParseException("Required values for option '%s' not provided", state.getCurrentOption().getTitle());
         }
-    }
-
-    private static <T> T createInstance(Class<?> type,
-            Iterable<OptionMetadata> options,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
-            ArgumentsMetadata arguments,
-            Iterable<Object> parsedArguments,
-            Iterable<Accessor> metadataInjection,
-            GlobalMetadata globalMetadata)
-    {
-        // create the command instance
-        T commandInstance = (T) ParserUtil.createInstance(type);
-
-        // inject options
-        for (OptionMetadata option : options) {
-            List<? extends Object> values = parsedOptions.get(option);
-            if (option.getArity() > 1 && !values.isEmpty()) {
-                // hack: flatten the collection
-                values = ImmutableList.copyOf(concat((Iterable<Iterable<Object>>) values));
-            }
-            if (values != null && !values.isEmpty()) {
-                for (Accessor accessor : option.getAccessors()) {
-                    accessor.addValues(commandInstance, values);
-                }
-            }
-        }
-
-        // inject args
-        if (arguments != null && parsedArguments != null) {
-            arguments.getAccessor().addValues(commandInstance, parsedArguments);
-        }
-
-        if (globalMetadata != null) {
-            for (Accessor accessor : metadataInjection) {
-                accessor.addValues(commandInstance, ImmutableList.of(globalMetadata));
-            }
-        }
-        return commandInstance;
     }
 
     //
