@@ -25,12 +25,12 @@ import org.iq80.cli.Options;
 
 import java.util.List;
 
-import static org.iq80.cli.OptionsType.GLOBAL;
+import static org.iq80.cli.OptionType.GLOBAL;
 
 @Command(name = "commit", description = "Record changes to the repository")
 public class CommandCommit
 {
-    @Options(GLOBAL)
+    @Options
     public CommandMain commandMain;
 
     @Arguments(description = "List of files")

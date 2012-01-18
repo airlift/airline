@@ -18,7 +18,7 @@
 
 package org.iq80.cli;
 
-import org.iq80.cli.GitLikeCommandParser.TypedGlobalCommandParserBuilder;
+import org.iq80.cli.GitLikeCommandParser.Builder;
 import org.iq80.cli.args.Args1;
 import org.iq80.cli.args.Args2;
 import org.iq80.cli.args.ArgsArityString;
@@ -33,6 +33,7 @@ import org.iq80.cli.args.ArgsRequired;
 import org.iq80.cli.args.Arity1;
 import org.iq80.cli.command.CommandAdd;
 import org.iq80.cli.command.CommandCommit;
+import org.iq80.cli.model.CommandMetadata;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -67,7 +68,7 @@ public class CommandTest
     public void repeatedArgs()
     {
         CommandParser<Args1> parser = CommandParser.create(Args1.class);
-        Assert.assertEquals(parser.getOptions().size(), 8);
+        Assert.assertEquals(parser.getMetadata().getAllOptions().size(), 8);
     }
 
     /**
@@ -76,7 +77,7 @@ public class CommandTest
     @Test(expectedExceptions = ParseException.class)
     public void nonexistentCommandShouldThrow()
     {
-        GitLikeCommandParser.builder("test").addCommand(Args1.class).build().parse("foo");
+        GitLikeCommandParser.parser("test").addCommand(Args1.class).build().parse("foo");
     }
 
     /**
@@ -115,7 +116,7 @@ public class CommandTest
         CommandParser.create(ArgsArityString.class).parse("-pairs", "pair0");
     }
 
-    @Test(expectedExceptions = ParseException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void multipleUnparsedFail()
     {
         CommandParser.create(ArgsMultipleUnparsed.class).parse();
@@ -193,17 +194,17 @@ public class CommandTest
 
     private void verifyCommandOrdering(String[] commandNames, Class<?>... commands)
     {
-        TypedGlobalCommandParserBuilder<Object> builder = GitLikeCommandParser.builder("foo");
+        Builder<Object> builder = GitLikeCommandParser.parser("foo");
         for (Class<?> command : commands) {
             builder = builder.addCommand(command);
         }
         GitLikeCommandParser<?> parser = builder.build();
 
-        final List<CommandParser<?>> commandParsers = parser.getGroupCommandParsers().get(0).getCommandParsers();
+        final List<CommandMetadata> commandParsers = parser.getMetadata().getDefaultGroupCommands();
         Assert.assertEquals(commandParsers.size(), commands.length);
 
         int i = 0;
-        for (CommandParser<?> commandParser : commandParsers) {
+        for (CommandMetadata commandParser : commandParsers) {
             Assert.assertEquals(commandParser.getName(), commandNames[i++]);
         }
     }

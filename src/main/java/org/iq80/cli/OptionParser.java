@@ -19,112 +19,57 @@
 package org.iq80.cli;
 
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import org.iq80.cli.model.OptionMetadata;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
 public class OptionParser
 {
-    private final String name;
-    private final List<String> options;
-    private final String description;
-    private final int arity;
-    private final boolean required;
-    private final boolean hidden;
-    private final Object defaultValue;
-    private final Accessor accessor;
+    private final OptionMetadata metadata;
+    private final TypeConverter typeConverter;
 
-    public OptionParser(Option optionAnnotation, List<Field> path, TypeConverter typeConverter)
+    public OptionParser(OptionMetadata metadata, TypeConverter typeConverter)
     {
-        Preconditions.checkNotNull(optionAnnotation, "optionAnnotation is null");
-        Preconditions.checkNotNull(path, "fields is null");
-        Preconditions.checkArgument(!path.isEmpty(), "fields is empty");
+        Preconditions.checkNotNull(metadata, "metadata is null");
         Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+        this.metadata = metadata;
+        this.typeConverter = typeConverter;
+    }
 
-        Field field = path.get(path.size() - 1);
-        if (!optionAnnotation.name().isEmpty()) {
-            this.name = optionAnnotation.name();
-        } else {
-            this.name = field.getName();
-        }
-
-        this.options = ImmutableList.copyOf(optionAnnotation.options());
-        this.description = optionAnnotation.description();
-
-        if (optionAnnotation.arity() != -1) {
-            this.arity = optionAnnotation.arity();
-        }
-        else {
-            Class<?> fieldType = field.getType();
-            if (Boolean.class.isAssignableFrom(fieldType) || boolean.class.isAssignableFrom(fieldType)) {
-                this.arity = 0;
+    public static List<OptionParser> from(final TypeConverter typeConverter, List<OptionMetadata> options)
+    {
+        return ImmutableList.copyOf(Lists.transform(options, new Function<OptionMetadata, OptionParser>()
+        {
+            @Override
+            public OptionParser apply(OptionMetadata optionMetadata)
+            {
+                return new OptionParser(optionMetadata, typeConverter);
             }
-            else {
-                this.arity = 1;
-            }
-        }
-
-        this.required = optionAnnotation.required();
-        this.hidden = optionAnnotation.hidden();
-
-        this.defaultValue = null;
-
-        accessor = new Accessor(name, path, typeConverter);
+        }));
     }
 
-    public String getName()
+    public OptionMetadata getMetadata()
     {
-        return name;
+        return metadata;
     }
 
-    public List<String> getOptions()
-    {
-        return options;
+    public boolean canParseOption(String currentArgument) {
+        return metadata.getOptions().contains(currentArgument);
     }
 
-    public String getDescription()
+    public List<Object> parseOption(String currentArgument, Iterator<String> args)
     {
-        return description;
-    }
+        ImmutableList.Builder<Object> values = ImmutableList.builder();
 
-    public int getArity()
-    {
-        return arity;
-    }
-
-    public boolean isRequired()
-    {
-        return required;
-    }
-
-    public boolean isHidden()
-    {
-        return hidden;
-    }
-
-    public Object getDefaultValue()
-    {
-        return defaultValue;
-    }
-
-    public String getPath()
-    {
-        return accessor.getPath();
-    }
-
-    public boolean isMultiOption()
-    {
-        return accessor.isMultiOption();
-    }
-
-    public void parseOption(Object instance, String currentArgument, Iterator<String> args)
-    {
+        int arity = metadata.getArity();
         if (arity == 0) {
             // this is a boolean argument
-            accessor.addValue(instance, "true");
+            values.add(true);
         }
         else {
             for (int i = 0; i < arity; i++) {
@@ -133,14 +78,16 @@ public class OptionParser
                             arity == 0 ? "a value" : arity + " values ",
                             currentArgument);
                 }
-                accessor.addValue(instance, args.next());
+                values.add(typeConverter.convert(metadata.getTitle(), metadata.getJavaType(), args.next()));
             }
         }
+
+        return values.build();
     }
 
     @Override
     public String toString()
     {
-        return "[OptionParser " + name + "]";
+        return "[OptionParser " + metadata + "]";
     }
 }

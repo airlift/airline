@@ -5,6 +5,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.iq80.cli.model.CommandGroupMetadata;
+import org.iq80.cli.model.CommandMetadata;
+import org.iq80.cli.model.GlobalMetadata;
+import org.iq80.cli.model.OptionMetadata;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -33,22 +37,22 @@ public class GlobalUsage
     /**
      * Display the help on System.out.
      */
-    public void usage(@Nullable String programName, GitLikeCommandParser<?> parser)
+    public void usage(@Nullable String programName, GlobalMetadata metadata)
     {
         StringBuilder stringBuilder = new StringBuilder();
-        usage(programName, parser, stringBuilder);
+        usage(programName, metadata, stringBuilder);
         System.out.println(stringBuilder.toString());
     }
 
     /**
      * Store the help in the passed string builder.
      */
-    public void usage(@Nullable String programName, GitLikeCommandParser<?> parser, StringBuilder out)
+    public void usage(@Nullable String programName, GlobalMetadata metadata, StringBuilder out)
     {
-        usage(programName, parser, new UsagePrinter(out, columnSize));
+        usage(programName, metadata, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable String programName, GitLikeCommandParser<?> parser, UsagePrinter out)
+    public void usage(@Nullable String programName, GlobalMetadata metadata, UsagePrinter out)
     {
         //
         // Usage
@@ -56,9 +60,9 @@ public class GlobalUsage
 
         // build arguments
         List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Collections2.transform(parser.getGlobalOptions(), new Function<OptionParser, String>()
+        commandArguments.addAll(Collections2.transform(metadata.getOptions(), new Function<OptionMetadata, String>()
         {
-            public String apply(OptionParser option)
+            public String apply(OptionMetadata option)
             {
                 if (option.isHidden()) {
                     return null;
@@ -67,7 +71,7 @@ public class GlobalUsage
             }
         }));
         out.append("usage:")
-                .append(parser.getName())
+                .append(metadata.getName())
                 .newIndentedPrinter(8) // hanging indent
                 .appendWords(commandArguments)
                 .append("<command> [<args>]")
@@ -79,18 +83,14 @@ public class GlobalUsage
         //
 
         Map<String, String> commands = newTreeMap();
-        for (GroupCommandParser<?> groupCommandParser : parser.getGroupCommandParsers()) {
-            if (groupCommandParser.getName().isEmpty()) {
-                for (CommandParser<?> commandParser : groupCommandParser.getCommandParsers()) {
-                    commands.put(commandParser.getName(), commandParser.getDescription());
-                }
-            }
-            else {
-                commands.put(groupCommandParser.getName(), "Manage " + groupCommandParser.getName() + "s");
-            }
+        for (CommandMetadata commandMetadata : metadata.getDefaultGroupCommands()) {
+            commands.put(commandMetadata.getName(), commandMetadata.getDescription());
+        }
+        for (CommandGroupMetadata commandGroupMetadata : metadata.getCommandGroups()) {
+            commands.put(commandGroupMetadata.getName(), commandGroupMetadata.getDescription());
         }
 
-        out.append("The most commonly used ").append(parser.getName()).append(" commands are:").newline();
+        out.append("The most commonly used ").append(metadata.getName()).append(" commands are:").newline();
         out.newIndentedPrinter(4).appendTable(Iterables.transform(commands.entrySet(), new Function<Entry<String, String>, Iterable<String>>()
         {
             public Iterable<String> apply(Entry<String, String> entry)
@@ -99,6 +99,6 @@ public class GlobalUsage
             }
         }));
         out.newline();
-        out.append("See '").append(parser.getName()).append(" help <command>' for more information on a specific command.").newline();
+        out.append("See '").append(metadata.getName()).append(" help <command>' for more information on a specific command.").newline();
     }
 }

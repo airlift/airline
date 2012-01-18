@@ -15,168 +15,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.iq80.cli;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.iq80.cli.ParserUtil.OptionsMetadata;
+import com.google.common.collect.ListMultimap;
+import org.iq80.cli.model.ArgumentsMetadata;
+import org.iq80.cli.model.CommandMetadata;
+import org.iq80.cli.model.MetadataLoader;
+import org.iq80.cli.model.OptionMetadata;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import static org.iq80.cli.ParserUtil.createInstance;
-import static org.iq80.cli.ParserUtil.expandArgs;
-
 public class CommandParser<T>
 {
-    public static <T> CommandParser<T> create(Class<? extends T> commandType)
+    public static <T> CommandParser<T> create(Class<T> type)
     {
-        return new CommandParser<T>(commandType);
+        return create(new TypeConverter(), MetadataLoader.loadCommand(type));
     }
 
-    private final Class<? extends T> commandType;
+    public static <T> CommandParser<T> create(TypeConverter typeConverter, CommandMetadata command)
+    {
+        return new CommandParser<T>(typeConverter, command);
+    }
 
-    private final String name;
+    public static <T> Map<String, CommandParser<T>> createIndex(final TypeConverter typeConverter, List<CommandMetadata> commands)
+    {
+        ImmutableMap.Builder<String, CommandParser<T>> index = ImmutableMap.builder();
+        for (CommandMetadata command : commands) {
+            index.put(command.getName(), CommandParser.<T>create(typeConverter, command));
+        }
+        return index.build();
+    }
 
-    /**
-     * Group to which this command belongs.
-     */
-    private final String group;
-
-    private final String description;
-
-    /**
-     * Is this the default command for the group?
-     */
-    private final boolean defaultCommand;
-
+    private final CommandMetadata metadata;
+    private final TypeConverter typeConverter;
     private final List<OptionParser> options;
 
-    private final Map<String, OptionParser> optionIndex;
-
-    private final ArgumentParser arguments;
-    private final Accessor globalOptionsAccessor;
-    private final Accessor groupOptionsAccessor;
-
-    private final String optionSeparators;
-
-    private CommandParser(Class<? extends T> commandType)
+    public CommandParser(TypeConverter typeConverter, CommandMetadata metadata)
     {
-        this(commandType, new TypeConverter(), null);
+        this.metadata = metadata;
+        this.typeConverter = typeConverter;
+
+        options = OptionParser.from(typeConverter, metadata.getAllOptions());
+
     }
 
-    public CommandParser(Class<? extends T> commandType, TypeConverter typeConverter, @Nullable String optionSeparators)
+    public CommandMetadata getMetadata()
     {
-        Preconditions.checkNotNull(commandType, "commandType is null");
-        Preconditions.checkNotNull(typeConverter, "typeConverter is null");
-
-        this.commandType = commandType;
-        this.optionSeparators = optionSeparators;
-
-        Command command = null;
-        for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
-            command = cls.getAnnotation(Command.class);
-        }
-        Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
-        this.name = command.name();
-        this.group = command.group();
-        this.description = command.description().isEmpty() ? null : command.description();
-        this.defaultCommand = command.defaultCommand();
-
-        OptionsMetadata optionsMetadata = ParserUtil.processAnnotations(commandType, typeConverter);
-        this.arguments = optionsMetadata.getArgumentParser();
-        this.options = ImmutableList.copyOf(optionsMetadata.getOptions());
-        this.globalOptionsAccessor = optionsMetadata.getGlobalOptionsAccessors();
-        this.groupOptionsAccessor = optionsMetadata.getGroupOptionsAccessor();
-
-        ImmutableMap.Builder<String, OptionParser> optionsIndex = ImmutableMap.builder();
-        for (OptionParser option : options) {
-            for (String name : option.getOptions()) {
-                optionsIndex.put(name, option);
-            }
-        }
-        this.optionIndex = optionsIndex.build();
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public String getGroup()
-    {
-        return group;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public boolean isDefaultCommand()
-    {
-        return defaultCommand;
-    }
-
-    public Accessor getGlobalOptionsAccessor()
-    {
-        return globalOptionsAccessor;
-    }
-
-    public Accessor getGroupOptionsAccessor()
-    {
-        return groupOptionsAccessor;
-    }
-
-    public List<OptionParser> getOptions()
-    {
-        return options;
-    }
-
-    public ArgumentParser getArguments()
-    {
-        return arguments;
+        return metadata;
     }
 
     public T parse(String... args)
     {
-        // unroll the args
-        List<String> unrolledArgs = expandArgs(ImmutableList.copyOf(args), optionSeparators);
-
-        Preconditions.checkNotNull(args, "args is null");
-        return parseInternal(null, null, true, unrolledArgs);
+        return parseInternal(ArrayListMultimap.<OptionMetadata, Object>create(), true, ImmutableList.copyOf(args));
     }
 
-    public T parseInternal(@Nullable Object globalOptions, @Nullable Object groupOptions, boolean validate, List<String> parameters)
+    public T parseInternal(ListMultimap<OptionMetadata, Object> parsedOptions,
+            boolean validate,
+            Iterable<String> parameters)
     {
-        // create the command instance
-        T commandInstance = createInstance(commandType);
+        // process options
+        List<String> commandArgs = ParserUtil.parseOptions(options, validate, false, parameters, parsedOptions);
 
-        // process the parameters
-        List<String> commandArgs = ParserUtil.parseOptions(commandInstance, optionIndex, validate, false, parameters);
+        // process arguments
+        ArgumentsMetadata arguments = metadata.getArguments();
         if (validate && arguments != null && arguments.isRequired() && commandArgs.isEmpty()) {
-            throw new ParseException("%s are required", arguments.getName());
+            throw new ParseException("%s are required", arguments.getTitle());
         }
-
-        // set command arguments
+        ImmutableList.Builder<Object> parsedArguments = ImmutableList.builder();
         if (!commandArgs.isEmpty()) {
             if (arguments == null) {
-                throw new ParseException("You can not pass arguments to %s", name);
+                throw new ParseException("You can not pass arguments to %s", metadata.getName());
             }
             for (String commandArg : commandArgs) {
-                arguments.addValue(commandInstance, commandArg);
+                parsedArguments.add(typeConverter.convert(arguments.getTitle(), arguments.getJavaType(), commandArg));
             }
         }
 
-        // set the global and group options
-        if (globalOptions != null && globalOptionsAccessor != null) {
-            globalOptionsAccessor.addValue(commandInstance, globalOptions);
+        // build the instance
+        return createInstance(metadata.getType(), metadata.getAllOptions(), parsedOptions, arguments, parsedArguments.build());
+    }
+
+    public static <T> T createInstance(Class<?> type,
+            Iterable<OptionMetadata> options,
+            ListMultimap<OptionMetadata, Object> parsedOptions,
+            ArgumentsMetadata arguments,
+            Iterable<Object> parsedArguments)
+    {
+        // create the command instance
+        T commandInstance = (T) ParserUtil.createInstance(type);
+
+        // inject options
+        for (OptionMetadata option : options) {
+            List<Object> values = parsedOptions.get(option);
+            if (values != null && !values.isEmpty()) {
+                for (Accessor accessor : option.getAccessors()) {
+                    accessor.addValues(commandInstance, values);
+                }
+            }
         }
-        if (groupOptions != null && groupOptionsAccessor != null) {
-            groupOptionsAccessor.addValue(commandInstance, groupOptions);
+
+        // inject args
+        if (arguments != null) {
+            arguments.getAccessor().addValues(commandInstance, parsedArguments);
         }
 
         return commandInstance;

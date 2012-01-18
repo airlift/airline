@@ -27,7 +27,15 @@ import static java.lang.annotation.ElementType.FIELD;
 @Target({FIELD})
 public @interface Option
 {
-    String name() default "";
+    /**
+     * Is this a command, group or global option
+     */
+    OptionType type() default OptionType.COMMAND;
+
+    /**
+     * Name use to identify the option value in documentation and error messages.
+     */
+    String title() default "";
 
     /**
      * An array of allowed command line parameters (e.g. "-n", "--name", etc...).
@@ -48,10 +56,11 @@ public @interface Option
      * How many parameter values this option will consume. For example,
      * an arity of 2 will allow "-pair value1 value2".
      */
-    int arity() default -1;
+    int arity() default Integer.MIN_VALUE;
 
     /**
      * If true, this parameter won't appear in the usage().
      */
     boolean hidden() default false;
+
 }

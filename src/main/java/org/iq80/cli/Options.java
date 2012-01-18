@@ -27,5 +27,4 @@ import static java.lang.annotation.ElementType.FIELD;
 @Target({FIELD})
 public @interface Options
 {
-    OptionsType value() default OptionsType.COMMAND;
 }

@@ -155,28 +155,6 @@ public class ParametersDelegateTest
     // ========================================================================================================================
 
     @Command(name = "command")
-    public static class MainParametersTest
-    {
-        public static class Delegate
-        {
-            @Arguments
-            public List<String> mainParams = newArrayList();
-        }
-
-        @Options
-        public Delegate delegate = new Delegate();
-    }
-
-    @Test
-    public void mainParametersTest()
-    {
-        MainParametersTest c = CommandParser.create(MainParametersTest.class).parse("main", "params");
-        Assert.assertEquals(c.delegate.mainParams, ImmutableList.of("main", "params"));
-    }
-
-    // ========================================================================================================================
-
-    @Command(name = "command")
     public static class NullDelegatesAreProhibited
     {
         public static class ComplexDelegate
@@ -189,18 +167,18 @@ public class ParametersDelegateTest
         public ComplexDelegate delegate;
     }
 
-    @Test(expectedExceptions = ParseException.class,
-            expectedExceptionsMessageRegExp = ".*delegate.*null.*")
-    public void nullDelegatesAreProhibited()
+    @Test
+    public void nullDelegatesAreAllowed()
     {
 
-        CommandParser.create(NullDelegatesAreProhibited.class).parse("-a");
+        NullDelegatesAreProhibited value = CommandParser.create(NullDelegatesAreProhibited.class).parse("-a");
+        Assert.assertEquals(value.delegate.a, true);
     }
 
     // ========================================================================================================================
 
     @Command(name = "command")
-    public static class DuplicateDelegateThrowDuplicateOptionException
+    public static class DuplicateDelegateAllowed
     {
         public static class Delegate
         {
@@ -214,12 +192,12 @@ public class ParametersDelegateTest
         public Delegate d2 = new Delegate();
     }
 
-    @Test(expectedExceptions = ParseException.class,
-            expectedExceptionsMessageRegExp = ".*-a.*")
-    public void duplicateDelegateThrowDuplicateOptionException()
+    @Test
+    public void duplicateDelegateAllowed()
     {
-
-        CommandParser.create(DuplicateDelegateThrowDuplicateOptionException.class).parse("-a", "value");
+        DuplicateDelegateAllowed value = CommandParser.create(DuplicateDelegateAllowed.class).parse("-a", "value");
+        Assert.assertEquals(value.d1.a, "value");
+        Assert.assertEquals(value.d2.a, "value");
     }
 
     // ========================================================================================================================

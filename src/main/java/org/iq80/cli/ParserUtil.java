@@ -5,7 +5,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import org.iq80.cli.model.OptionMetadata;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -19,24 +21,6 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class ParserUtil
 {
-    public static List<String> expandArgs(Iterable<String> originalArgs, String optionSeparators)
-    {
-        //
-        // Expand separators
-        //
-        List<String> expandedArgs = newArrayList();
-        for (String arg : originalArgs) {
-            if (isOption(arg) && optionSeparators != null) {
-                Iterables.addAll(expandedArgs, Splitter.onPattern("[" + optionSeparators + "]").limit(2).split(arg));
-            }
-            else {
-                expandedArgs.add(arg);
-            }
-        }
-
-        return ImmutableList.copyOf(expandedArgs);
-    }
-
     public static <T> T createInstance(Class<T> type)
     {
         if (type != null) {
@@ -50,15 +34,16 @@ public class ParserUtil
         return null;
     }
 
-    public static List<String> parseOptions(Object instance,
-            Map<String, OptionParser> optionsIndex,
+    public static List<String> parseOptions(
+            List<OptionParser> options,
             boolean validate,
             boolean stopAtFirstUnusedArg,
-            List<String> parameters)
+            Iterable<String> parameters,
+            ListMultimap<OptionMetadata, Object> parsedOptions)
     {
-        Preconditions.checkNotNull(instance, "instance is null");
-        Preconditions.checkNotNull(optionsIndex, "optionsIndex is null");
+        Preconditions.checkNotNull(options, "options is null");
         Preconditions.checkNotNull(parameters, "parameters is null");
+        Preconditions.checkNotNull(parsedOptions, "parsedOptions is null");
 
         // remember which options are used for validation
         List<OptionParser> usedOptions = newArrayList();
@@ -72,12 +57,18 @@ public class ParserUtil
                 break;
             }
             else if (ParserUtil.isOption(arg)) {
-                OptionParser optionParser = optionsIndex.get(arg);
+                OptionParser optionParser = null;
+                for (OptionParser option : options) {
+                    if (option.canParseOption(arg)) {
+                        optionParser = option;
+                        break;
+                    }
+                }
                 if (optionParser == null) {
                     throw new ParseException("Unknown option: %s", arg);
                 }
 
-                optionParser.parseOption(instance, arg, iterator);
+                parsedOptions.putAll(optionParser.getMetadata(), optionParser.parseOption(arg, iterator));
 
                 usedOptions.add(optionParser);
             }
@@ -91,66 +82,10 @@ public class ParserUtil
         }
 
         if (validate) {
-            validateOptions(optionsIndex.values(), usedOptions);
+            validateOptions(options, usedOptions);
         }
 
         return unusedArguments;
-    }
-
-    public static OptionsMetadata processAnnotations(Class<?> type, TypeConverter typeConverter)
-    {
-        OptionsMetadata optionsMetadata = new OptionsMetadata();
-        processAnnotations(type, typeConverter, optionsMetadata, Lists.<Field>newArrayList());
-        optionsMetadata.validate();
-        return optionsMetadata;
-    }
-
-    public static void processAnnotations(Class<?> type, TypeConverter typeConverter, OptionsMetadata optionsMetadata, List<Field> fields)
-    {
-        for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
-            for (Field field : cls.getDeclaredFields()) {
-                field.setAccessible(true);
-                ImmutableList<Field> path = concat(fields, field);
-
-                Options optionsAnnotation = field.getAnnotation(Options.class);
-                if (optionsAnnotation != null) {
-                    switch (optionsAnnotation.value()) {
-                        case GLOBAL:
-                            optionsMetadata.setGlobalOptionsAccessors(new Accessor(field.getName(), path, typeConverter));
-                            break;
-                        case GROUP:
-                            optionsMetadata.setGroupOptionsAccessor(new Accessor(field.getName(), path, typeConverter));
-                            break;
-                        case COMMAND:
-                            processAnnotations(field.getType(), typeConverter, optionsMetadata, path);
-                            break;
-                    }
-                }
-
-                Option optionAnnotation = field.getAnnotation(Option.class);
-                if (optionAnnotation != null) {
-                    OptionParser optionParser = new OptionParser(optionAnnotation, path, typeConverter);
-                    for (String name : optionParser.getOptions()) {
-                        for (OptionParser existingOption : optionsMetadata.getOptions()) {
-                            if (existingOption.getOptions().contains(name)) {
-                                throw new ParseException("Found the option %s multiple times", name);
-                            }
-                        }
-                    }
-                    optionsMetadata.getOptions().add(optionParser);
-                }
-
-                Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
-                if (argumentsAnnotation != null) {
-                    optionsMetadata.setArgumentParser(new ArgumentParser(argumentsAnnotation, path, typeConverter));
-                }
-            }
-        }
-    }
-
-    public static ImmutableList<Field> concat(Iterable<Field> fields, Field field)
-    {
-        return ImmutableList.<Field>builder().addAll(fields).add(field).build();
     }
 
     public static boolean isStringEmpty(String s)
@@ -167,7 +102,7 @@ public class ParserUtil
     {
         Set<OptionParser> missingOptions = newHashSet();
         for (OptionParser optionParser : allOptions) {
-            if (optionParser.isRequired() && !usedOptions.contains(optionParser)) {
+            if (optionParser.getMetadata().isRequired() && !usedOptions.contains(optionParser)) {
                 missingOptions.add(optionParser);
             }
         }
@@ -175,65 +110,9 @@ public class ParserUtil
         if (!missingOptions.isEmpty()) {
             StringBuilder missingFields = new StringBuilder();
             for (OptionParser optionParser : missingOptions) {
-                missingFields.append(optionParser.getOptions().get(0)).append(" ");
+                missingFields.append(optionParser.getMetadata().getOptions().iterator().next()).append(" ");
             }
             throw new ParseException("The following options are required: %s", missingFields);
-        }
-    }
-
-    public static class OptionsMetadata
-    {
-        private final List<Accessor> globalOptionsAccessors = newArrayList();
-        private final List<Accessor> groupOptionsAccessors = newArrayList();
-        private final Collection<OptionParser> options = newArrayList();
-        private final List<ArgumentParser> argumentParsers = newArrayList();
-
-        public Accessor getGlobalOptionsAccessors()
-        {
-            return Iterables.getFirst(globalOptionsAccessors, null);
-        }
-
-        public void setGlobalOptionsAccessors(Accessor globalOptionsAccessors)
-        {
-            this.globalOptionsAccessors.add(globalOptionsAccessors);
-        }
-
-        public Accessor getGroupOptionsAccessor()
-        {
-            return Iterables.getFirst(groupOptionsAccessors, null);
-        }
-
-        public void setGroupOptionsAccessor(Accessor groupOptionsAccessor)
-        {
-            this.groupOptionsAccessors.add(groupOptionsAccessor);
-        }
-
-        public Collection<OptionParser> getOptions()
-        {
-            return options;
-        }
-
-        public ArgumentParser getArgumentParser()
-        {
-            return Iterables.getFirst(argumentParsers, null);
-        }
-
-        public void setArgumentParser(ArgumentParser argumentParser)
-        {
-            this.argumentParsers.add(argumentParser);
-        }
-
-        public void validate()
-        {
-            if (argumentParsers.size() > 1) {
-                throw new ParseException("Only one field can be annotated with @Arguments, found: %s", argumentParsers);
-            }
-            if (globalOptionsAccessors.size() > 1) {
-                throw new ParseException("Only one field can be annotated with @Options(GLOBAL), found: %s", globalOptionsAccessors);
-            }
-            if (groupOptionsAccessors.size() > 1) {
-                throw new ParseException("Only one field can be annotated with @Options(GROUP), found: %s", groupOptionsAccessors);
-            }
         }
     }
 }

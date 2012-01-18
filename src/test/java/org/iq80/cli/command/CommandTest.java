@@ -30,8 +30,8 @@ public class CommandTest
     @Test
     public void namedCommandTest1()
     {
-        GitLikeCommandParser<Object> parser = GitLikeCommandParser
-                .builder("git")
+        GitLikeCommandParser<?> parser = GitLikeCommandParser
+                .parser("git")
                 .addCommand(CommandAdd.class)
                 .addCommand(CommandCommit.class)
                 .build();
@@ -53,8 +53,8 @@ public class CommandTest
     @Test
     public void commandTest2()
     {
-        GitLikeCommandParser<Object> parser = GitLikeCommandParser
-                .builder("git")
+        GitLikeCommandParser<?> parser = GitLikeCommandParser
+                .parser("git")
                 .addCommand(CommandAdd.class)
                 .addCommand(CommandCommit.class)
                 .build();

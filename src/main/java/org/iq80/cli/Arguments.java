@@ -30,7 +30,7 @@ public @interface Arguments
     /**
      * Name of the arguments.
      */
-    String name() default "";
+    String title() default "";
 
     /**
      * A description of the arguments.

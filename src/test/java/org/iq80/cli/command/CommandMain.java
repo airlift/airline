@@ -19,9 +19,12 @@
 package org.iq80.cli.command;
 
 import org.iq80.cli.Option;
+import org.iq80.cli.OptionType;
+
+import static org.iq80.cli.OptionType.GLOBAL;
 
 public class CommandMain
 {
-    @Option(options = "-v", description = "Verbose mode")
+    @Option(type = GLOBAL, options = "-v", description = "Verbose mode")
     public Boolean verbose = false;
 }

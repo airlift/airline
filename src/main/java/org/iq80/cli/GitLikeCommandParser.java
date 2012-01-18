@@ -18,112 +18,89 @@
 
 package org.iq80.cli;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import org.iq80.cli.ParserUtil.OptionsMetadata;
+import org.iq80.cli.model.CommandGroupMetadata;
+import org.iq80.cli.model.CommandMetadata;
+import org.iq80.cli.model.GlobalMetadata;
+import org.iq80.cli.model.MetadataLoader;
+import org.iq80.cli.model.OptionMetadata;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static org.iq80.cli.ParserUtil.createInstance;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class GitLikeCommandParser<C>
 {
-    public static UntypedGlobalCommandParserBuilder builder(String name)
+
+    public static Builder<Object> parser(String name)
     {
         Preconditions.checkNotNull(name, "name is null");
-        return new UntypedGlobalCommandParserBuilder(name, new TypeConverter(), null);
+        return new Builder<Object>(name);
     }
 
-    /**
-     * Name of the global command.
-     */
-    private final String name;
+    public static <T> Builder<T> parser(String name, Class<T> commandTypes)
+    {
+        Preconditions.checkNotNull(name, "name is null");
+        return new Builder<T>(name);
+    }
 
-    private final Class<?> globalOptionsType;
+    private final GlobalMetadata metadata;
 
-    private final Map<String, GroupCommandParser<C>> groupCommandParsers;
+    private final List<OptionParser> globalOptions;
+    private final CommandParser<C> defaultCommand;
+    private final Map<String, CommandParser<C>> defaultGroupCommands;
+    private final Map<String, CommandGroupParser<C>> commandGroups;
 
-    private final Map<String, OptionParser> globalOptionsIndex;
-
-    private final String optionSeparators;
-
-    public GitLikeCommandParser(String name, TypeConverter typeConverter, String optionSeparators, Iterable<Class<? extends C>> commands)
+    private GitLikeCommandParser(String name,
+            String description,
+            TypeConverter typeConverter,
+            Class<? extends C> defaultCommand,
+            Iterable<Class<? extends C>> defaultGroupCommands,
+            Iterable<CommandGroup<C>> groups)
     {
         Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(typeConverter, "typeConverter is null");
-        Preconditions.checkNotNull(commands, "commands is null");
 
-        this.name = name;
-        this.optionSeparators = optionSeparators;
-
-        Set<Class<?>> globalOptionsTypes = newHashSet();
-        ListMultimap<String, CommandParser<C>> commandsByGroup = ArrayListMultimap.create();
-        for (Class<? extends C> command : commands) {
-            CommandParser<C> commandParser = new CommandParser<C>(command, typeConverter, optionSeparators);
-            commandsByGroup.put(commandParser.getGroup(), commandParser);
-            if (commandParser.getGlobalOptionsAccessor() != null) {
-                globalOptionsTypes.add(commandParser.getGlobalOptionsAccessor().getType());
-            }
+        CommandMetadata defaultCommandMetadata = null;
+        if (defaultCommand != null) {
+            defaultCommandMetadata = MetadataLoader.loadCommand(defaultCommand);
         }
 
-        ImmutableMap.Builder<String, GroupCommandParser<C>> groupCommandParsers = ImmutableMap.builder();
-        for (Entry<String, Collection<CommandParser<C>>> entry : commandsByGroup.asMap().entrySet()) {
-            GroupCommandParser<C> groupCommandParser = new GroupCommandParser<C>(entry.getKey(), typeConverter, entry.getValue());
-            groupCommandParsers.put(groupCommandParser.getName(), groupCommandParser);
-        }
-        this.groupCommandParsers = groupCommandParsers.build();
+        List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
 
-        Preconditions.checkArgument(globalOptionsTypes.size() < 2, "Found multiple global options: %s", globalOptionsTypes);
-        if (!globalOptionsTypes.isEmpty()) {
-            this.globalOptionsType = globalOptionsTypes.iterator().next();
-            OptionsMetadata optionsMetadata = ParserUtil.processAnnotations(globalOptionsType, typeConverter);
-            if (optionsMetadata.getArgumentParser() != null) {
-                throw new ParseException("Global options can not be annotated with @Arguments, found: %s", optionsMetadata.getArgumentParser().getPath());
+        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<CommandGroup<C>, CommandGroupMetadata>()
+        {
+            public CommandGroupMetadata apply(CommandGroup<C> group)
+            {
+                return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
             }
-            if (optionsMetadata.getGlobalOptionsAccessors() != null) {
-                throw new ParseException("Global options can not be annotated with @Options(GLOBAL), found: %s", optionsMetadata.getGlobalOptionsAccessors().getPath());
-            }
-            if (optionsMetadata.getGroupOptionsAccessor() != null) {
-                throw new ParseException("Global options can not be annotated with @Options(GROUP), found: %s", optionsMetadata.getGroupOptionsAccessor().getPath());
-            }
+        }));
 
-            ImmutableMap.Builder<String, OptionParser> globalOptionsIndex = ImmutableMap.builder();
-            for (OptionParser globalOption : optionsMetadata.getOptions()) {
-                for (String optionName : globalOption.getOptions()) {
-                    globalOptionsIndex.put(optionName, globalOption);
-                }
-            }
-            this.globalOptionsIndex = globalOptionsIndex.build();
+        this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
+
+
+
+        this.globalOptions = OptionParser.from(typeConverter, metadata.getOptions());
+        if (metadata.getDefaultCommand() != null) {
+            this.defaultCommand = CommandParser.<C>create(typeConverter, metadata.getDefaultCommand());
         }
         else {
-            this.globalOptionsType = null;
-            this.globalOptionsIndex = null;
+            this.defaultCommand = null;
         }
+        this.defaultGroupCommands = CommandParser.createIndex(typeConverter, metadata.getDefaultGroupCommands());
+        this.commandGroups = CommandGroupParser.createIndex(typeConverter, metadata.getCommandGroups());
     }
 
-    public String getName()
+    public GlobalMetadata getMetadata()
     {
-        return name;
-    }
-
-    public Collection<OptionParser> getGlobalOptions()
-    {
-        return globalOptionsIndex.values();
-    }
-
-    public List<GroupCommandParser<C>> getGroupCommandParsers()
-    {
-        return ImmutableList.copyOf(groupCommandParsers.values());
+        return metadata;
     }
 
     public C parse(String... args)
@@ -134,36 +111,41 @@ public class GitLikeCommandParser<C>
 
     public C parse(boolean validate, Iterable<String> args)
     {
-        // unroll the args
-        List<String> parameters = ParserUtil.expandArgs(args, optionSeparators);
-
-        // create the global options instance
-        Object globalOptionsInstance = createInstance(globalOptionsType);
-
-        // process the arguments
-        if (globalOptionsInstance != null) {
-            parameters = ParserUtil.parseOptions(globalOptionsInstance, globalOptionsIndex, validate, true, parameters);
-        }
+        // process global options
+        ListMultimap<OptionMetadata, Object> parsedOptions = ArrayListMultimap.create();
+        List<String> parameters = ParserUtil.parseOptions(this.globalOptions, validate, true, args, parsedOptions);
 
         // select the command group
-        String groupName = Iterables.getFirst(parameters, null);
-        GroupCommandParser<C> group = groupCommandParsers.get(groupName);
-        if (group == null) {
-            // send args to the default group
-            group = groupCommandParsers.get("");
-            if (group == null) {
-                if (groupName == null) {
-                    throw new ParseException("No command specified");
-                }
-                else {
-                    throw new ParseException("Unknown command %s", groupName);
-                }
-            }
-        } else {
+        String name = Iterables.getFirst(parameters, null);
+        CommandGroupParser<C> commandGroup = commandGroups.get(name);
+        if (commandGroup != null) {
+            // remove group name from parameters list
             parameters = parameters.subList(1, parameters.size());
+            C commandResult = commandGroup.parseInternal(parsedOptions, validate, parameters);
+            return commandResult;
         }
 
-        C commandResult = group.parseInternal(globalOptionsInstance, validate, parameters);
+        // select a command in the default group
+        CommandParser<C> command = defaultGroupCommands.get(name);
+        if (command != null) {
+            // remove command name from parameters list
+            parameters = parameters.subList(1, parameters.size());
+        }
+        else {
+            // use the default command
+            command = defaultCommand;
+        }
+
+        if (command == null) {
+            if (name == null) {
+                throw new ParseException("No command specified");
+            }
+            else {
+                throw new ParseException("Unknown command %s", name);
+            }
+        }
+
+        C commandResult = command.parseInternal(parsedOptions, validate, parameters);
         return commandResult;
     }
 
@@ -171,76 +153,108 @@ public class GitLikeCommandParser<C>
     // Builder Classes
     //
 
-    public static class UntypedGlobalCommandParserBuilder extends TypedGlobalCommandParserBuilder<Object>
-    {
-        public UntypedGlobalCommandParserBuilder(String name,
-                @Nullable TypeConverter typeConverter,
-                @Nullable String optionSeparators)
-        {
-            super(name, typeConverter, optionSeparators, ImmutableList.<Class<?>>of());
-        }
-
-        public UntypedGlobalCommandParserBuilder withTypeConverter(TypeConverter typeConverter)
-        {
-            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
-            return new UntypedGlobalCommandParserBuilder(name, typeConverter, optionSeparators);
-        }
-
-        public UntypedGlobalCommandParserBuilder withOptionSeparators(String optionsSeparator)
-        {
-            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
-            return new UntypedGlobalCommandParserBuilder(name, typeConverter, optionsSeparator);
-        }
-
-        public <C> TypedGlobalCommandParserBuilder<C> withCommandType(Class<C> commandType)
-        {
-            Preconditions.checkNotNull(commandType, "commandType is null");
-            return new TypedGlobalCommandParserBuilder<C>(name, typeConverter, optionSeparators, ImmutableList.<Class<? extends C>>of());
-        }
-
-        public TypedGlobalCommandParserBuilder<Object> addCommand(Class<?> command)
-        {
-            Preconditions.checkNotNull(command, "command is null");
-            return new TypedGlobalCommandParserBuilder<Object>(
-                    name,
-                    typeConverter,
-                    optionSeparators,
-                    ImmutableList.<Class<?>>of(command));
-        }
-    }
-
-    public static class TypedGlobalCommandParserBuilder<C>
+    public static class Builder<C>
     {
         protected final String name;
-        protected final TypeConverter typeConverter;
-        protected final String optionSeparators;
-        protected final List<Class<? extends C>> commands;
+        protected String description;
+        protected TypeConverter typeConverter = new TypeConverter();
+        protected String optionSeparators;
+        private Class<? extends C> defaultCommand;
+        private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
+        protected final Map<String, CommandGroup<C>> groups = newHashMap();
 
-        public TypedGlobalCommandParserBuilder(String name,
-                @Nullable TypeConverter typeConverter,
-                @Nullable String optionSeparators,
-                Iterable<Class<? extends C>> commands)
+        public Builder(String name)
         {
             Preconditions.checkNotNull(name, "name is null");
+            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
             this.name = name;
-            this.typeConverter = typeConverter;
-            this.optionSeparators = optionSeparators;
-            this.commands = ImmutableList.copyOf(commands);
         }
 
-        public TypedGlobalCommandParserBuilder<C> addCommand(Class<? extends C> command)
+        public Builder<C> withDescription(String description)
         {
-            Preconditions.checkNotNull(command, "command is null");
-            return new TypedGlobalCommandParserBuilder<C>(
-                    name,
-                    typeConverter,
-                    optionSeparators,
-                    ImmutableList.<Class<? extends C>>builder().addAll(commands).add(command).build());
+            Preconditions.checkNotNull(description, "description is null");
+            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            this.description = description;
+            return this;
+        }
+
+        public Builder<C> withTypeConverter(TypeConverter typeConverter)
+        {
+            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+            this.typeConverter = typeConverter;
+            return this;
+        }
+
+        public Builder<C> withOptionSeparators(String optionsSeparator)
+        {
+            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
+            this.optionSeparators = optionsSeparator;
+            return this;
+        }
+
+        public Builder<C> defaultCommand(Class<? extends C> defaultCommand)
+        {
+            this.defaultCommand = defaultCommand;
+            return this;
+        }
+
+        public Builder<C> addCommand(Class<? extends C> command)
+        {
+            this.defaultCommandGroupCommands.add(command);
+            return this;
+        }
+
+        public CommandGroup<C> addGroup(String name)
+        {
+            Preconditions.checkNotNull(name, "name is null");
+            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
+            Preconditions.checkArgument(!groups.containsKey(name), "Group %s has already been declared", name);
+
+            CommandGroup<C> group = new CommandGroup<C>(name);
+            groups.put(name, group);
+            return group;
         }
 
         public GitLikeCommandParser<C> build()
         {
-            return new GitLikeCommandParser<C>(name, typeConverter, optionSeparators, commands);
+            return new GitLikeCommandParser<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+        }
+    }
+
+    public static class CommandGroup<C>
+    {
+        private final String name;
+        private String description;
+        private Class<? extends C> defaultCommand;
+
+        private final List<Class<? extends C>> commands = newArrayList();
+
+        private CommandGroup(String name)
+        {
+            Preconditions.checkNotNull(name, "name is null");
+            this.name = name;
+        }
+
+        public CommandGroup<C> withDescription(String description)
+        {
+            Preconditions.checkNotNull(description, "description is null");
+            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            this.description = description;
+            return this;
+        }
+
+        public CommandGroup<C> defaultCommand(Class<? extends C> defaultCommand)
+        {
+            Preconditions.checkNotNull(defaultCommand, "defaultCommand is null");
+            this.defaultCommand = defaultCommand;
+            return this;
+        }
+
+        public CommandGroup<C> addCommand(Class<? extends C> command)
+        {
+            Preconditions.checkNotNull(command, "command is null");
+            commands.add(command);
+            return this;
         }
     }
 }

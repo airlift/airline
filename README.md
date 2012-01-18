@@ -10,13 +10,20 @@ public class Git
 {
     public static void main(String[] args)
     {
-        GitLikeCommandParser<GitCommand> gitParser = GitLikeCommandParser.builder("git")
-                .withCommandType(GitCommand.class)
+        Builder<GitCommand> builder = parser("git", GitCommand.class)
+                .withDescription("the stupid content tracker")
                 .addCommand(Help.class)
                 .addCommand(Add.class)
                 .addCommand(RemoteShow.class)
+                .addCommand(RemoteAdd.class);
+
+        builder.addGroup("remote")
+                .withDescription("Manage set of tracked repositories")
+                .defaultCommand(RemoteShow.class)
                 .addCommand(RemoteAdd.class)
-                .build();
+                .addCommand(RemoteShow.class);
+
+        GitLikeCommandParser<GitCommand> gitParser = builder.build();
 
         gitParser.parse(args).execute();
     }
@@ -32,7 +39,7 @@ public class Git
         }
     }
 
-    @Command(name = "help", description = "Show help", defaultCommand = true)
+    @Command(name = "help", description = "Show help")
     public class Help extends GitCommand
     {
     }
@@ -47,16 +54,14 @@ public class Git
         public boolean interactive;
     }
 
-    @Command(group = "remote", name = "show",
-            description = "Gives some information about the remote <name>",
-            defaultCommand = true)
+    @Command(name = "show", description = "Gives some information about the remote <name>")
     public class RemoteShow extends GitCommand
     {
         @Arguments(description = "Remote to show")
         public String remote;
     }
 
-    @Command(group = "remote", name = "add", description = "Adds a remote")
+    @Command(name = "add", description = "Adds a remote")
     public class RemoteAdd extends GitCommand
     {
         @Arguments(description = "Remote repository to add")

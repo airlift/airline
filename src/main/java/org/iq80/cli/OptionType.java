@@ -1,6 +1,6 @@
 package org.iq80.cli;
 
-public enum OptionsType
+public enum OptionType
 {
     GLOBAL, GROUP, COMMAND
 }

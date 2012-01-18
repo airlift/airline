@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -21,44 +21,48 @@ import java.util.TreeSet;
 public class Accessor
 {
     private final String name;
+    private final Class<?> javaType;
     private final List<Field> path;
-    private final TypeConverter typeConverter;
-    private final Class<?> type;
+    private boolean multiValued;
 
-    public Accessor(String name, List<Field> path, TypeConverter typeConverter)
+    public Accessor(Field... path)
     {
-        Preconditions.checkNotNull(name, "name is null");
+        this(ImmutableList.copyOf(path));
+    }
+
+    public Accessor(Iterable<Field> path)
+    {
         Preconditions.checkNotNull(path, "path is null");
-        Preconditions.checkArgument(!path.isEmpty(), "path is empty");
-        Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
-        this.name = name;
         this.path = ImmutableList.copyOf(path);
-        this.typeConverter = typeConverter;
-
-        Field field = path.get(path.size() - 1);
-        type = field.getType();
-    }
-
-    public Class<?> getType()
-    {
-        return type;
-    }
-
-    public String getPath()
-    {
-        return Joiner.on(',').join(Lists.transform(path, new Function<Field, String>()
+        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()
         {
             public String apply(Field field)
             {
                 return field.getName();
             }
         }));
+
+
+        Field field = this.path.get(this.path.size() - 1);
+        multiValued = Collection.class.isAssignableFrom(field.getType());
+        javaType = getItemType(name, field.getGenericType());
     }
 
-    public boolean isMultiOption()
+    public String getName()
     {
-        return Collection.class.isAssignableFrom(type);
+        return name;
+    }
+
+    public Class<?> getJavaType()
+    {
+        return javaType;
+    }
+
+    public boolean isMultiValued()
+    {
+        return multiValued;
     }
 
     public Object getValue(Object instance)
@@ -71,69 +75,71 @@ public class Accessor
             pathName.append(intermediateField.getName());
 
             try {
-                instance = intermediateField.get(instance);
+                Object nextInstance = intermediateField.get(instance);
+                if (nextInstance == null) {
+                    nextInstance = ParserUtil.createInstance(intermediateField.getType());
+                    intermediateField.set(instance, nextInstance);
+                }
+                instance = nextInstance;
             }
-            catch (IllegalAccessException e) {
+            catch (Exception e) {
                 throw new ParseException(String.format("Error getting value of %s", pathName));
-            }
-            if (instance == null) {
-                throw new ParseException(String.format("Field %s is null", pathName));
             }
         }
         return instance;
     }
 
-    public void addValue(Object instance, Object value)
+    public void addValues(Object commandInstance, Iterable<Object> values)
     {
-        if (value instanceof String) {
-            value = coerce((String) value);
-        }
-
         // get the actual instance
-        instance = getValue(instance);
+        Object instance = getValue(commandInstance);
 
         Field field = path.get(path.size() - 1);
+        field.setAccessible(true);
         if (Collection.class.isAssignableFrom(field.getType())) {
             Collection<Object> collection = getOrCreateCollectionField(name, instance, field);
-
-            if (value instanceof Collection) {
-                collection.addAll((Collection<?>) value);
-            }
-            else {
-                collection.add(value);
-            }
+            Iterables.addAll(collection, values);
         }
         else {
             try {
-                field.set(instance, value);
+                field.set(instance, values.iterator().next());
             }
-            catch (IllegalAccessException e) {
+            catch (Exception e) {
                 throw new ParseException(String.format("Error setting collection field %s for argument %s", field.getName(), name));
             }
         }
+
     }
 
-    public Object coerce(String value)
+    @Override
+    public boolean equals(Object o)
     {
-        Field field = path.get(path.size() - 1);
-        Object convertedValue;
-        if (Collection.class.isAssignableFrom(field.getType())) {
-            convertedValue = typeConverter.convert(name, getRawType(getItemType(name, field.getGenericType())), value);
+        if (this == o) {
+            return true;
         }
-        else {
-            convertedValue = typeConverter.convert(name, getRawType(field.getType()), value);
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
-        return convertedValue;
+
+        Accessor accessor = (Accessor) o;
+
+        if (!path.equals(accessor.path)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return path.hashCode();
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Accessor");
-        sb.append("{path=").append(getPath());
-        sb.append('}');
-        return sb.toString();
+        return name;
     }
 
     //
@@ -168,7 +174,7 @@ public class Accessor
         try {
             collection = (Collection<Object>) field.get(object);
         }
-        catch (IllegalAccessException e) {
+        catch (Exception e) {
             throw new ParseException(String.format("Error getting collection field %s for argument %s", field.getName(), name));
         }
 
@@ -177,7 +183,7 @@ public class Accessor
             try {
                 field.set(object, collection);
             }
-            catch (IllegalAccessException e) {
+            catch (Exception e) {
                 throw new ParseException(String.format("Error setting collection field %s for argument %s", field.getName(), name));
             }
         }

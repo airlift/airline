@@ -42,14 +42,4 @@ public @interface Command
      * Description of the command.
      */
     String description() default "";
-
-    /**
-     * Is this the default command for the group?
-     */
-    boolean defaultCommand() default false;
-
-    /**
-     * Group to which this command belongs.
-     */
-    String group() default "";
 }

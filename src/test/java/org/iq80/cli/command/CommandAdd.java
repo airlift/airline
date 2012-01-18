@@ -25,12 +25,12 @@ import org.iq80.cli.Options;
 
 import java.util.List;
 
-import static org.iq80.cli.OptionsType.GLOBAL;
+import static org.iq80.cli.OptionType.GLOBAL;
 
 @Command(name = "add", description = "Add file contents to the index")
 public class CommandAdd
 {
-    @Options(GLOBAL)
+    @Options
     public CommandMain commandMain;
 
     @Arguments(description = "Patterns of files to be added")

@@ -81,6 +81,9 @@ public class UsagePrinter
 
     public UsagePrinter append(String value)
     {
+        if (value == null) {
+            return this;
+        }
         return appendWords(Splitter.onPattern("\\s+").omitEmptyStrings().trimResults().split(String.valueOf(value)));
     }
 
