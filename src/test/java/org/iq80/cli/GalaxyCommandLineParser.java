@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -39,16 +40,16 @@ public class GalaxyCommandLineParser
         parse("--debug", "stop", "-u", "b2");
         parse("--debug", "restart", "-u", "b2");
         parse("--debug", "reset-to-actual", "-u", "b2");
-        parse("--debug", "ssh", "-u", "b2", "--state", "r", "-x", "tail -F var/log/launcher.log");
-        parse("--debug", "ssh", "-u", "b2", "--state", "r", "--", "tail", "-F", "var/log/launcher.log");
+        parse("--debug", "ssh");
+        parse("--debug", "ssh", "-u", "b2", "--state", "r", "tail -F var/log/launcher.log");
         parse("--debug", "agent");
         parse("--debug", "agent", "show");
         parse("--debug", "agent", "add", "--count", "4", "t1.micro");
     }
 
-    private GitLikeCommandParser<?> createParser()
+    private GitLikeCommandParser<GalaxyCommand> createParser()
     {
-        Builder<Object> builder = GitLikeCommandParser.parser("galaxy")
+        Builder<GalaxyCommand> builder = GitLikeCommandParser.parser("galaxy", GalaxyCommand.class)
                 .defaultCommand(ShowCommand.class)
                 .addCommand(ShowCommand.class)
                 .addCommand(InstallCommand.class)
@@ -66,7 +67,7 @@ public class GalaxyCommandLineParser
                 .addCommand(AgentShowCommand.class)
                 .addCommand(AgentAddCommand.class);
 
-        GitLikeCommandParser<?> galaxy = builder.build();
+        GitLikeCommandParser<GalaxyCommand> galaxy = builder.build();
         return galaxy;
     }
 
@@ -135,12 +136,43 @@ public class GalaxyCommandLineParser
         }
     }
 
-    @Command(name = "show", description = "Show state of all slots")
-    public static class ShowCommand
+    public static class AgentFilter
+    {
+        @Option(options = {"-i", "--host"}, description = "Select slots on the given host")
+        public final List<String> host = newArrayList();
+
+        @Option(options = {"-I", "--ip"}, description = "Select slots at the given IP address")
+        public final List<String> ip = newArrayList();
+
+        @Option(options = {"-u", "--uuid"}, description = "Select slot with the given UUID")
+        public final List<String> uuid = newArrayList();
+
+        @Option(options = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
+        public final List<String> state = newArrayList();
+
+        @Override
+        public String toString()
+        {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Filter");
+            sb.append("{host=").append(host);
+            sb.append(", ip=").append(ip);
+            sb.append(", uuid=").append(uuid);
+            sb.append(", state=").append(state);
+            sb.append('}');
+            return sb.toString();
+        }
+    }
+
+    public static abstract class GalaxyCommand
     {
         @Options
         public GlobalOptions globalOptions = new GlobalOptions();
+    }
 
+    @Command(name = "show", description = "Show state of all slots")
+    public static class ShowCommand extends GalaxyCommand
+    {
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -157,20 +189,17 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "install", description = "Install software in a new slot")
-    public static class InstallCommand
+    public static class InstallCommand extends GalaxyCommand
     {
         @Option(options = {"--count"}, description = "Number of instances to install")
         public int count = 1;
 
         @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
-        @Options
-        public final SlotFilter slotFilter = new SlotFilter();
+        public final AgentFilter agentFilter = new AgentFilter();
 
         @Arguments(usage = "<groupId:artifactId[:packaging[:classifier]]:version> @<component:pools:version>",
                 description = "The binary and @configuration to install.  The default packaging is tar.gz")
-        public List<String> assignment = Lists.newArrayList();
+        public final List<String> assignment = Lists.newArrayList();
 
         @Override
         public String toString()
@@ -178,7 +207,7 @@ public class GalaxyCommandLineParser
             final StringBuilder sb = new StringBuilder();
             sb.append("InstallCommand");
             sb.append("{count=").append(count);
-            sb.append(", slotFilter=").append(slotFilter);
+            sb.append(", agentFilter=").append(agentFilter);
             sb.append(", assignment=").append(assignment);
             sb.append(", globalOptions=").append(globalOptions);
             sb.append('}');
@@ -187,17 +216,14 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "upgrade", description = "Upgrade software in a slot")
-    public static class UpgradeCommand
+    public static class UpgradeCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Arguments(usage = "[<binary-version>] [@<config-version>]",
                 description = "Version of the binary and/or @configuration")
-        public List<String> versions = Lists.newArrayList();
+        public final List<String> versions = Lists.newArrayList();
 
         @Override
         public String toString()
@@ -213,11 +239,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "terminate", description = "Terminate (remove) a slot")
-    public static class TerminateCommand
+    public static class TerminateCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -234,11 +257,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "start", description = "Start a server")
-    public static class StartCommand
+    public static class StartCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -255,11 +275,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "stop", description = "Stop a server")
-    public static class StopCommand
+    public static class StopCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -276,11 +293,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "restart", description = "Restart server")
-    public static class RestartCommand
+    public static class RestartCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -297,11 +311,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "reset-to-actual", description = "Reset slot expected state to actual")
-    public static class ResetToActualCommand
+    public static class ResetToActualCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
@@ -318,28 +329,21 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "ssh", description = "ssh to slot installation")
-    public static class SshCommand
+    public static class SshCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Options
         public final SlotFilter slotFilter = new SlotFilter();
 
-        @Option(options = {"-x", "--ssh-command"}, description = "Command to execute")
-        public String sshCommand;
-
-        @Arguments(title = "ssh-arg", description = "Ssh command line arguments")
-        public List<String> args = Lists.newArrayList();
+        @Arguments(description = "Command to execute on the remote host")
+        public String command;
 
         @Override
         public String toString()
         {
             final StringBuilder sb = new StringBuilder();
-            sb.append("InstallCommand");
+            sb.append("ResetToActualCommand");
             sb.append("{slotFilter=").append(slotFilter);
-            sb.append(", sshCommand='").append(sshCommand).append("'");
-            sb.append(", args=").append(args);
+            sb.append(", command='").append(command).append("'");
             sb.append(", globalOptions=").append(globalOptions);
             sb.append('}');
             return sb.toString();
@@ -347,11 +351,8 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "add", description = "Provision a new agent")
-    public static class AgentAddCommand
+    public static class AgentAddCommand extends GalaxyCommand
     {
-        @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
-
         @Option(options = {"--count"}, description = "Number of agents to provision")
         public int count = 1;
 
@@ -376,10 +377,10 @@ public class GalaxyCommandLineParser
     }
 
     @Command(name = "show", description = "Show agent details")
-    public static class AgentShowCommand
+    public static class AgentShowCommand extends GalaxyCommand
     {
         @Options
-        public GlobalOptions globalOptions = new GlobalOptions();
+        public final AgentFilter agentFilter = new AgentFilter();
 
         @Override
         public String toString()
@@ -387,10 +388,27 @@ public class GalaxyCommandLineParser
             final StringBuilder sb = new StringBuilder();
             sb.append("AgentShowCommand");
             sb.append("{globalOptions=").append(globalOptions);
+            sb.append(", agentFilter=").append(agentFilter);
             sb.append('}');
             return sb.toString();
         }
     }
 
+    @Command(name = "terminate", description = "Provision a new agent")
+    public static class AgentTerminateCommand extends GalaxyCommand
+    {
+        @Arguments(title = "agent-id", description = "Agent to terminate", required = true)
+        public String agentId;
 
+        @Override
+        public String toString()
+        {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("AgentTerminateCommand");
+            sb.append("{agentId='").append(agentId).append('\'');
+            sb.append(", globalOptions=").append(globalOptions);
+            sb.append('}');
+            return sb.toString();
+        }
+    }
 }
