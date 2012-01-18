@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.iq80.cli.GitLikeCommandParser.Builder;
 import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
+import org.iq80.cli.model.GlobalMetadata;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -19,12 +20,19 @@ public class GalaxyCommandLineParser
     public void test()
     {
         GitLikeCommandParser<?> parser = createParser();
-        new GlobalUsage(119).usage("galaxy", parser.getMetadata());
+        GlobalMetadata metadata = parser.getMetadata();
+        new GlobalUsage(119).usage("galaxy", metadata);
+
+        CommandGroupUsage commandGroupUsage = new CommandGroupUsage(119);
+        for (CommandGroupMetadata commandGroupMetadata : metadata.getCommandGroups()) {
+            commandGroupUsage.usage(metadata, commandGroupMetadata);
+        }
+
         CommandUsage commandUsage = new CommandUsage(119);
-        for (CommandMetadata command : parser.getMetadata().getDefaultGroupCommands()) {
+        for (CommandMetadata command : metadata.getDefaultGroupCommands()) {
             commandUsage.usage("galaxy", null, command);
         }
-        for (CommandGroupMetadata commandGroup : parser.getMetadata().getCommandGroups()) {
+        for (CommandGroupMetadata commandGroup : metadata.getCommandGroups()) {
             for (CommandMetadata command : commandGroup.getCommands()) {
                 commandUsage.usage("galaxy", commandGroup.getName(), command);
             }

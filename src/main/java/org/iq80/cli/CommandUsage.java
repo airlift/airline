@@ -1,9 +1,6 @@
 package org.iq80.cli;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Lists;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.OptionMetadata;
@@ -14,30 +11,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.iq80.cli.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
+import static org.iq80.cli.UsageHelper.DEFAULT_OPTION_COMPARATOR;
+import static org.iq80.cli.UsageHelper.toSynopsisUsage;
 
 public class CommandUsage
 {
     private final int columnSize;
     private final Comparator<? super OptionMetadata> optionComparator;
-
-    private static final Comparator<OptionMetadata> DEFAULT_OPTION_COMPARATOR = new Comparator<OptionMetadata>()
-    {
-        @Override
-        public int compare(OptionMetadata o1, OptionMetadata o2)
-        {
-            String option1 = o1.getOptions().iterator().next();
-            option1 = option1.replaceFirst("^-+", "");
-
-            String option2 = o2.getOptions().iterator().next();
-            option2 = option2.replaceFirst("^-+", "");
-
-            return ComparisonChain.start()
-                    .compare(option1.toLowerCase(), option2.toLowerCase())
-                    .compare(option2, option1) // print lower case letters before upper case
-                    .compare(System.identityHashCode(o1), System.identityHashCode(o2))
-                    .result();
-        }
-    };
 
     public CommandUsage()
     {
@@ -95,13 +76,17 @@ public class CommandUsage
         //
         out.append("SYNOPSIS").newline();
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
+        List<OptionMetadata> options = newArrayList();
         if (programName != null) {
             synopsis.append(programName).appendWords(toSynopsisUsage(command.getGlobalOptions()));
+            options.addAll(command.getGlobalOptions());
         }
         if (groupName != null) {
             synopsis.append(groupName).appendWords(toSynopsisUsage(command.getGroupOptions()));
+            options.addAll(command.getGroupOptions());
         }
         synopsis.append(command.getName()).appendWords(toSynopsisUsage(command.getCommandOptions()));
+        options.addAll(command.getCommandOptions());
 
         // command arguments (optional)
         ArgumentsMetadata arguments = command.getArguments();
@@ -115,7 +100,6 @@ public class CommandUsage
         //
         // OPTIONS
         //
-        List<OptionMetadata> options = newArrayList(command.getAllOptions());
         if (options.size() > 0 || arguments != null) {
             if (optionComparator != null) {
                 Collections.sort(options, optionComparator);
@@ -155,18 +139,5 @@ public class CommandUsage
             }
         }
 
-    }
-
-    private List<String> toSynopsisUsage(List<OptionMetadata> options)
-    {
-        List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Lists.transform(options, new Function<OptionMetadata, String>()
-        {
-            public String apply(OptionMetadata option)
-            {
-                return UsageHelper.toUsage(option);
-            }
-        }));
-        return commandArguments;
     }
 }
