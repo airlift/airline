@@ -132,11 +132,9 @@ public class GitLikeCommandParser<C>
             throw new ParseException("Found unexpected parameters: %s", state.getUnparsedInput());
         }
 
-        // TODO: verify that we're in a valid parse state
-        //   command != null
-        //   state != option
-        //   state == global && default command != null
-        //   state == group && default group command != null
+        if (state.getLocation() == Context.OPTION) {
+            throw new ParseException("Required values for option '%s' not provided", state.getCurrentOption().getTitle());
+        }
     }
 
     private static <T> T createInstance(Class<?> type,
