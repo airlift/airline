@@ -106,10 +106,10 @@ public class Accessor
         }
         else {
             try {
-                field.set(instance, values.iterator().next());
+                field.set(instance, Iterables.getLast(values));
             }
             catch (Exception e) {
-                throw new ParseException(String.format("Error setting collection field %s for argument %s", field.getName(), name));
+                throw new ParseException(String.format("Error setting %s for argument %s", field.getName(), name));
             }
         }
 
