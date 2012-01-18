@@ -5,41 +5,38 @@ import org.iq80.cli.GitLikeCommandParser.Builder;
 import java.util.List;
 
 import static org.iq80.cli.GitLikeCommandParser.parser;
+import static org.iq80.cli.OptionType.GLOBAL;
 
 public class Git
 {
     public static void main(String[] args)
     {
-        Builder<GitCommand> builder = parser("git", GitCommand.class)
+        Builder<Runnable> builder = parser("git", Runnable.class)
                 .withDescription("the stupid content tracker")
-                .addCommand(Help.class)
+                .defaultCommand(HelpCommand.class)
+                .addCommand(HelpCommand.class)
                 .addCommand(Add.class);
 
         builder.addGroup("remote")
                 .withDescription("Manage set of tracked repositories")
                 .defaultCommand(RemoteShow.class)
-                .addCommand(RemoteAdd.class)
-                .addCommand(RemoteShow.class);
+                .addCommand(RemoteShow.class)
+                .addCommand(RemoteAdd.class);
 
-        GitLikeCommandParser<GitCommand> gitParser = builder.build();
+        GitLikeCommandParser<Runnable> gitParser = builder.build();
 
-        gitParser.parse(args).execute();
+        gitParser.parse(args).run();
     }
 
-    public static class GitCommand
+    public static class GitCommand implements Runnable
     {
-        @Option(name = "-v", description = "Verbose mode")
+        @Option(type = GLOBAL, name = "-v", description = "Verbose mode")
         public boolean verbose;
 
-        public void execute()
+        public void run()
         {
             System.out.println(getClass().getSimpleName());
         }
-    }
-
-    @Command(name = "help", description = "Show help")
-    public static class Help extends GitCommand
-    {
     }
 
     @Command(name = "add", description = "Add file contents to the index")
@@ -48,13 +45,16 @@ public class Git
         @Arguments(description = "Patterns of files to be added")
         public List<String> patterns;
 
-        @Option(name = "-i")
+        @Option(name = "-i", description = "Add modified contents interactively.")
         public boolean interactive;
     }
 
     @Command(name = "show", description = "Gives some information about the remote <name>")
     public static class RemoteShow extends GitCommand
     {
+        @Option(name = "-n", description = "Do not query remote heads")
+        public boolean noQuery;
+
         @Arguments(description = "Remote to show")
         public String remote;
     }
@@ -62,6 +62,9 @@ public class Git
     @Command(name = "add", description = "Adds a remote")
     public static class RemoteAdd extends GitCommand
     {
+        @Option(name = "-t", description = "Track only a specific branch")
+        public String branch;
+
         @Arguments(description = "Remote repository to add")
         public List<String> remote;
     }

@@ -99,6 +99,6 @@ public class GlobalUsageSummary
             }
         }));
         out.newline();
-        out.append("See '").append(global.getName()).append(" help <command>' for more information on a specific command.").newline();
+        out.append("See").append("'" + global.getName()).append("help <command>' for more information on a specific command.").newline();
     }
 }
