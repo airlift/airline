@@ -21,6 +21,7 @@ public class GalaxyCommandLineParser
     {
         parse();
         parse("help");
+        parse("help", "galaxy");
         parse("help", "show");
         parse("help", "install");
         parse("help", "upgrade");
@@ -79,7 +80,7 @@ public class GalaxyCommandLineParser
 
     private void parse(String... args)
     {
-        System.out.println(Joiner.on(" ").join(args));
+        System.out.println("$ galaxy " + Joiner.on(" ").join(args));
         GalaxyCommand command = createParser().parse(args);
         System.out.println(command);
         System.out.println();
