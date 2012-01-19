@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 import static com.google.common.collect.Lists.newArrayList;
 
 @Command(name = "help", description = "Display help information")
-public class HelpCommand implements Runnable, Callable<Void>
+public class Help implements Runnable, Callable<Void>
 {
     @Inject
     public GlobalMetadata global;

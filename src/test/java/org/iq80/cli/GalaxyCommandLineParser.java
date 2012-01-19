@@ -4,14 +4,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import org.iq80.cli.GitLikeCommandParser.Builder;
-import org.iq80.cli.model.GlobalMetadata;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.HelpCommand.help;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -72,7 +70,8 @@ public class GalaxyCommandLineParser
                 .withDescription("Manage agents")
                 .defaultCommand(AgentShowCommand.class)
                 .addCommand(AgentShowCommand.class)
-                .addCommand(AgentAddCommand.class);
+                .addCommand(AgentAddCommand.class)
+                .addCommand(AgentTerminateCommand.class);
 
         GitLikeCommandParser<GalaxyCommand> galaxy = builder.build();
         return galaxy;
@@ -82,7 +81,7 @@ public class GalaxyCommandLineParser
     {
         System.out.println("$ galaxy " + Joiner.on(" ").join(args));
         GalaxyCommand command = createParser().parse(args);
-        System.out.println(command);
+        command.execute();
         System.out.println();
     }
 
@@ -174,23 +173,22 @@ public class GalaxyCommandLineParser
     {
         @Inject
         public GlobalOptions globalOptions = new GlobalOptions();
+
+        public void execute() {
+            System.out.println(this);
+        }
     }
 
     @Command(name = "help", description = "Display help information about galaxy")
     public static class HelpCommand extends GalaxyCommand
     {
         @Inject
-        public GlobalMetadata global;
-
-        @Arguments
-        public List<String> command = newArrayList();
+        public Help help;
 
         @Override
-        public String toString()
+        public void execute()
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            help(global, command, stringBuilder);
-            return stringBuilder.toString();
+            help.call();
         }
     }
 

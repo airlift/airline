@@ -13,9 +13,9 @@ public class Git
     {
         Builder<Runnable> builder = parser("git", Runnable.class)
                 .withDescription("the stupid content tracker")
-                .defaultCommand(HelpCommand.class)
+                .defaultCommand(Help.class)
                 .addCommand(SuggestCommand.class)
-                .addCommand(HelpCommand.class)
+                .addCommand(Help.class)
                 .addCommand(Add.class);
 
         builder.addGroup("remote")
