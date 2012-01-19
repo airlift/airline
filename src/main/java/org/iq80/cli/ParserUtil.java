@@ -38,7 +38,7 @@ public class ParserUtil
 
         // inject options
         for (OptionMetadata option : options) {
-            List<? extends Object> values = parsedOptions.get(option);
+            List<?> values = parsedOptions.get(option);
             if (option.getArity() > 1 && !values.isEmpty()) {
                 // hack: flatten the collection
                 values = ImmutableList.copyOf(concat((Iterable<Iterable<Object>>) values));
@@ -52,7 +52,9 @@ public class ParserUtil
 
         // inject args
         if (arguments != null && parsedArguments != null) {
-            arguments.getAccessor().addValues(commandInstance, parsedArguments);
+            for (Accessor accessor : arguments.getAccessors()) {
+                accessor.addValues(commandInstance, parsedArguments);
+            }
         }
 
         for (Accessor accessor : metadataInjection) {

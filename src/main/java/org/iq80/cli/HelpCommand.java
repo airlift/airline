@@ -4,6 +4,7 @@ import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -12,7 +13,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @Command(name = "help", description = "Display help information")
 public class HelpCommand implements Runnable, Callable<Void>
 {
-    @Options
+    @Inject
     public GlobalMetadata global;
 
     @Arguments

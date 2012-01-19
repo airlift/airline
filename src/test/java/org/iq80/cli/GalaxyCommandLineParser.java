@@ -2,12 +2,12 @@ package org.iq80.cli;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.iq80.cli.GitLikeCommandParser.Builder;
 import org.iq80.cli.model.GlobalMetadata;
 import org.testng.annotations.Test;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -172,14 +172,14 @@ public class GalaxyCommandLineParser
 
     public static abstract class GalaxyCommand
     {
-        @Options
+        @Inject
         public GlobalOptions globalOptions = new GlobalOptions();
     }
 
     @Command(name = "help", description = "Display help information about galaxy")
     public static class HelpCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public GlobalMetadata global;
 
         @Arguments
@@ -197,7 +197,7 @@ public class GalaxyCommandLineParser
     @Command(name = "show", description = "Show state of all slots")
     public static class ShowCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -218,7 +218,7 @@ public class GalaxyCommandLineParser
         @Option(name = {"--count"}, description = "Number of instances to install")
         public int count = 1;
 
-        @Options
+        @Inject
         public final AgentFilter agentFilter = new AgentFilter();
 
         @Arguments(usage = "<groupId:artifactId[:packaging[:classifier]]:version> @<component:pools:version>",
@@ -242,7 +242,7 @@ public class GalaxyCommandLineParser
     @Command(name = "upgrade", description = "Upgrade software in a slot")
     public static class UpgradeCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Arguments(usage = "[<binary-version>] [@<config-version>]",
@@ -265,7 +265,7 @@ public class GalaxyCommandLineParser
     @Command(name = "terminate", description = "Terminate (remove) a slot")
     public static class TerminateCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -283,7 +283,7 @@ public class GalaxyCommandLineParser
     @Command(name = "start", description = "Start a server")
     public static class StartCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -301,7 +301,7 @@ public class GalaxyCommandLineParser
     @Command(name = "stop", description = "Stop a server")
     public static class StopCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -319,7 +319,7 @@ public class GalaxyCommandLineParser
     @Command(name = "restart", description = "Restart server")
     public static class RestartCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -337,7 +337,7 @@ public class GalaxyCommandLineParser
     @Command(name = "reset-to-actual", description = "Reset slot expected state to actual")
     public static class ResetToActualCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Override
@@ -355,7 +355,7 @@ public class GalaxyCommandLineParser
     @Command(name = "ssh", description = "ssh to slot installation")
     public static class SshCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final SlotFilter slotFilter = new SlotFilter();
 
         @Arguments(description = "Command to execute on the remote host")
@@ -400,7 +400,7 @@ public class GalaxyCommandLineParser
     @Command(name = "show", description = "Show agent details")
     public static class AgentShowCommand extends GalaxyCommand
     {
-        @Options
+        @Inject
         public final AgentFilter agentFilter = new AgentFilter();
 
         @Override

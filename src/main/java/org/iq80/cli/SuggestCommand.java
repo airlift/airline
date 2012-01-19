@@ -11,6 +11,7 @@ import org.iq80.cli.model.MetadataLoader;
 import org.iq80.cli.model.OptionMetadata;
 import org.iq80.cli.model.SuggesterMetadata;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -28,7 +29,7 @@ public class SuggestCommand
             .put(Context.COMMAND, CommandSuggester.class)
             .build();
 
-    @Options
+    @Inject
     public GlobalMetadata metadata;
 
     @Arguments

@@ -7,9 +7,7 @@ import com.google.common.collect.Iterables;
 import org.iq80.cli.Accessor;
 import org.iq80.cli.OptionType;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -23,11 +21,26 @@ public class OptionMetadata
     private final int arity;
     private final boolean required;
     private final boolean hidden;
-    private final Set<Accessor> accessors;
     private final Set<String> allowedValues;
+    private final Set<Accessor> accessors;
 
-    public OptionMetadata(OptionType optionType, Iterable<String> options, String title, String description, int arity, boolean required, boolean hidden, Iterable<Field> path, Iterable<String> allowedValues)
+    public OptionMetadata(OptionType optionType,
+            Iterable<String> options,
+            String title,
+            String description,
+            int arity,
+            boolean required,
+            boolean hidden,
+            Iterable<String> allowedValues,
+            Iterable<Field> path)
     {
+        Preconditions.checkNotNull(optionType, "optionType is null");
+        Preconditions.checkNotNull(options, "options is null");
+        Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
+        Preconditions.checkNotNull(title, "title is null");
+        Preconditions.checkNotNull(path, "path is null");
+        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+
         this.optionType = optionType;
         this.options = ImmutableSet.copyOf(options);
         this.title = title;
@@ -35,7 +48,6 @@ public class OptionMetadata
         this.arity = arity;
         this.required = required;
         this.hidden = hidden;
-        this.accessors = ImmutableSet.of(new Accessor(path));
 
         if (allowedValues != null) {
             this.allowedValues = ImmutableSet.copyOf(allowedValues);
@@ -43,6 +55,8 @@ public class OptionMetadata
         else {
             this.allowedValues = null;
         }
+
+        this.accessors = ImmutableSet.of(new Accessor(path));
     }
 
     public OptionMetadata(Iterable<OptionMetadata> options)
@@ -59,6 +73,12 @@ public class OptionMetadata
         this.arity = option.arity;
         this.required = option.required;
         this.hidden = option.hidden;
+        if (option.allowedValues != null) {
+            this.allowedValues = ImmutableSet.copyOf(option.allowedValues);
+        }
+        else {
+            this.allowedValues = null;
+        }
 
         Set<Accessor> accessors = newHashSet();
         for (OptionMetadata other : options) {
@@ -68,13 +88,6 @@ public class OptionMetadata
             accessors.addAll(other.getAccessors());
         }
         this.accessors = ImmutableSet.copyOf(accessors);
-        
-        if (option.allowedValues != null) {
-            this.allowedValues = ImmutableSet.copyOf(option.allowedValues);
-        }
-        else {
-            this.allowedValues = null;
-        }
     }
 
     public OptionType getOptionType()
@@ -153,6 +166,9 @@ public class OptionMetadata
         if (required != that.required) {
             return false;
         }
+        if (allowedValues != null ? !allowedValues.equals(that.allowedValues) : that.allowedValues != null) {
+            return false;
+        }
         if (description != null ? !description.equals(that.description) : that.description != null) {
             return false;
         }
@@ -179,6 +195,7 @@ public class OptionMetadata
         result = 31 * result + arity;
         result = 31 * result + (required ? 1 : 0);
         result = 31 * result + (hidden ? 1 : 0);
+        result = 31 * result + (allowedValues != null ? allowedValues.hashCode() : 0);
         return result;
     }
 

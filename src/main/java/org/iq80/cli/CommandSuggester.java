@@ -1,13 +1,10 @@
 package org.iq80.cli;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
-import java.util.List;
+import javax.inject.Inject;
 
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
@@ -15,7 +12,7 @@ import static com.google.common.collect.Iterables.transform;
 public class CommandSuggester
         implements Suggester
 {
-    @Options
+    @Inject
     public CommandMetadata command;
 
     @Override

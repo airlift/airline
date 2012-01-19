@@ -4,13 +4,15 @@ import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
+import javax.inject.Inject;
+
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
 
 public class GroupSuggester
         implements Suggester
 {
-    @Options
+    @Inject
     public CommandGroupMetadata group;
 
     @Override

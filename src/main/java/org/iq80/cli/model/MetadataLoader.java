@@ -11,10 +11,10 @@ import org.iq80.cli.Arguments;
 import org.iq80.cli.Command;
 import org.iq80.cli.Option;
 import org.iq80.cli.OptionType;
-import org.iq80.cli.Options;
 import org.iq80.cli.Suggester;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
@@ -45,7 +45,6 @@ public class MetadataLoader
             }
         }
         List<OptionMetadata> globalOptions = mergeOptionSet(globalOptionsBuilder.build());
-        validateOptionsSet(globalOptions);
         return new GlobalMetadata(name, description, globalOptions, defaultCommand, defaultGroupCommands, groups);
     }
 
@@ -59,7 +58,6 @@ public class MetadataLoader
             groupOptionsBuilder.addAll(command.getGroupOptions());
         }
         List<OptionMetadata> groupOptions = mergeOptionSet(groupOptionsBuilder.build());
-        validateOptionsSet(groupOptions);
         return new CommandGroupMetadata(name, description, groupOptions, defaultCommand, commands);
     }
 
@@ -84,58 +82,57 @@ public class MetadataLoader
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
 
-        List<OptionMetadata> globalOptions = loadOptionsSet(commandType, OptionType.GLOBAL);
-        List<OptionMetadata> groupOptions = loadOptionsSet(commandType, OptionType.GROUP);
-        List<OptionMetadata> commandOptions = loadOptionsSet(commandType, OptionType.COMMAND);
-
-        ArgumentsMetadata arguments = loadArguments(commandType);
-
-        List<Accessor> metadataInjections = loadMetadataInjections(commandType, ImmutableList.<Field>of());
+        InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
 
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
                 description,
-                globalOptions,
-                groupOptions,
-                commandOptions,
-                arguments,
-                metadataInjections,
+                injectionMetadata.globalOptions,
+                injectionMetadata.groupOptions,
+                injectionMetadata.commandOptions,
+                Iterables.getFirst(injectionMetadata.arguments, null),
+                injectionMetadata.metadataInjections,
                 commandType);
+
         return commandMetadata;
+
     }
 
     public static SuggesterMetadata loadSuggester(Class<? extends Suggester> suggesterClass)
     {
-        List<Accessor> metadataInjections = loadMetadataInjections(suggesterClass, ImmutableList.<Field>of());
-
-        return new SuggesterMetadata(suggesterClass, metadataInjections);
+        InjectionMetadata injectionMetadata = loadInjectionMetadata(suggesterClass);
+        return new SuggesterMetadata(suggesterClass, injectionMetadata.metadataInjections);
     }
 
-    public static List<OptionMetadata> loadOptionsSet(Class<?> type, OptionType optionType)
+    public static InjectionMetadata loadInjectionMetadata(Class<?> type)
     {
-        Preconditions.checkNotNull(type, "type is null");
-        Preconditions.checkNotNull(optionType, "optionType is null");
-        List<OptionMetadata> options = loadOptionsSet(type, optionType, ImmutableList.<Field>of());
-        options = mergeOptionSet(options);
-        validateOptionsSet(options);
-        return options;
+        InjectionMetadata injectionMetadata = new InjectionMetadata();
+        loadInjectionMetadata(type, injectionMetadata, ImmutableList.<Field>of());
+        injectionMetadata.compact();
+        return injectionMetadata;
     }
 
-    private static List<OptionMetadata> loadOptionsSet(Class<?> type, OptionType optionType, List<Field> fields)
+    public static void loadInjectionMetadata(Class<?> type, InjectionMetadata injectionMetadata, List<Field> fields)
     {
-        ImmutableList.Builder<OptionMetadata> optionsSet = ImmutableList.builder();
         for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
             for (Field field : cls.getDeclaredFields()) {
                 field.setAccessible(true);
                 ImmutableList<Field> path = concat(fields, field);
 
-                Options optionsAnnotation = field.getAnnotation(Options.class);
-                if (optionsAnnotation != null) {
-                    optionsSet.addAll(loadOptionsSet(field.getType(), optionType, path));
+                Inject injectAnnotation = field.getAnnotation(Inject.class);
+                if (injectAnnotation != null) {
+                    if (field.getType().equals(GlobalMetadata.class) ||
+                            field.getType().equals(CommandGroupMetadata.class) ||
+                            field.getType().equals(CommandMetadata.class)) {
+                        injectionMetadata.metadataInjections.add(new Accessor(path));
+                    } else {
+                        loadInjectionMetadata(field.getType(), injectionMetadata, path);
+                    }
                 }
 
                 Option optionAnnotation = field.getAnnotation(Option.class);
-                if (optionAnnotation != null && optionAnnotation.type() == optionType) {
+                if (optionAnnotation != null) {
+                    OptionType optionType = optionAnnotation.type();
                     String name;
                     if (!optionAnnotation.title().isEmpty()) {
                         name = optionAnnotation.title();
@@ -170,42 +167,48 @@ public class MetadataLoader
                         allowedValues = null;
                     }
 
-                    optionsSet.add(new OptionMetadata(optionType, options, name, description, arity, required, hidden, path, allowedValues));
-                }
-            }
-        }
-        return optionsSet.build();
-    }
-
-    private static List<Accessor> loadMetadataInjections(Class<?> type, List<Field> fields)
-    {
-        ImmutableList.Builder<Accessor> metadataInjections = ImmutableList.builder();
-        for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
-            for (Field field : cls.getDeclaredFields()) {
-                field.setAccessible(true);
-                ImmutableList<Field> path = concat(fields, field);
-
-                Options optionsAnnotation = field.getAnnotation(Options.class);
-                if (optionsAnnotation != null) {
-                    if (field.getType().equals(GlobalMetadata.class) ||
-                        field.getType().equals(CommandGroupMetadata.class) ||
-                        field.getType().equals(CommandMetadata.class)) {
-                        metadataInjections.add(new Accessor(path));
+                    OptionMetadata optionMetadata = new OptionMetadata(optionType, options, name, description, arity, required, hidden, allowedValues, path);
+                    switch (optionType) {
+                        case GLOBAL:
+                            injectionMetadata.globalOptions.add(optionMetadata);
+                            break;
+                        case GROUP:
+                            injectionMetadata.groupOptions.add(optionMetadata);
+                            break;
+                        case COMMAND:
+                            injectionMetadata.commandOptions.add(optionMetadata);
+                            break;
                     }
                 }
+
+                Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
+                if (field.isAnnotationPresent(Arguments.class)) {
+                    String title;
+                    if (!argumentsAnnotation.title().isEmpty()) {
+                        title = argumentsAnnotation.title();
+                    }
+                    else {
+                        title = field.getName();
+                    }
+
+                    String description = argumentsAnnotation.description();
+                    String usage = argumentsAnnotation.usage();
+                    boolean required = argumentsAnnotation.required();
+
+                    injectionMetadata.arguments.add(new ArgumentsMetadata(title, description, usage, required, path));
+                }
             }
         }
-        return metadataInjections.build();
     }
 
-    private static List<OptionMetadata> mergeOptionSet(Iterable<OptionMetadata> options)
+    private static List<OptionMetadata> mergeOptionSet(List<OptionMetadata> options)
     {
-        ListMultimap<OptionMetadata, OptionMetadata> optionIndex = ArrayListMultimap.create();
+        ListMultimap<OptionMetadata, OptionMetadata> metadataIndex = ArrayListMultimap.create();
         for (OptionMetadata option : options) {
-            optionIndex.put(option, option);
+            metadataIndex.put(option, option);
         }
 
-        return ImmutableList.copyOf(transform(optionIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
+        options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
         {
             @Override
             public OptionMetadata apply(@Nullable Collection<OptionMetadata> options)
@@ -213,10 +216,7 @@ public class MetadataLoader
                 return new OptionMetadata(options);
             }
         }));
-    }
 
-    private static void validateOptionsSet(Iterable<OptionMetadata> options)
-    {
         Map<String, OptionMetadata> optionIndex = newHashMap();
         for (OptionMetadata option : options) {
             for (String optionName : option.getOptions()) {
@@ -229,44 +229,32 @@ public class MetadataLoader
                 optionIndex.put(optionName, option);
             }
         }
-    }
 
-    private static ArgumentsMetadata loadArguments(Class<?> type)
-    {
-        List<Field> argumentsFields = newArrayList();
-        for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
-            for (Field field : cls.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Arguments.class)) {
-                    argumentsFields.add(field);
-                }
-            }
-        }
-        if (argumentsFields.isEmpty()) {
-            return null;
-        }
-
-        Preconditions.checkArgument(argumentsFields.size() < 2, "Multiple fields in type %s are annotated with @Arguments: %s", type.getName(), argumentsFields);
-
-        Field field = argumentsFields.get(0);
-
-        Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
-        String title;
-        if (!argumentsAnnotation.title().isEmpty()) {
-            title = argumentsAnnotation.title();
-        }
-        else {
-            title = field.getName();
-        }
-
-        String description = argumentsAnnotation.description();
-        String usage = argumentsAnnotation.usage();
-        boolean required = argumentsAnnotation.required();
-
-        return new ArgumentsMetadata(title, description, usage, required, field);
+        return options;
     }
 
     private static <T> ImmutableList<T> concat(Iterable<T> iterable, T item)
     {
         return ImmutableList.<T>builder().addAll(iterable).add(item).build();
+    }
+
+    private static class InjectionMetadata
+    {
+        private List<OptionMetadata> globalOptions = newArrayList();
+        private List<OptionMetadata> groupOptions = newArrayList();
+        private List<OptionMetadata> commandOptions = newArrayList();
+        private List<ArgumentsMetadata> arguments = newArrayList();
+        private List<Accessor> metadataInjections = newArrayList();
+
+        private void compact()
+        {
+            globalOptions = mergeOptionSet(globalOptions);
+            groupOptions = mergeOptionSet(groupOptions);
+            commandOptions = mergeOptionSet(commandOptions);
+
+            if (arguments.size() > 1) {
+                arguments = ImmutableList.of(new ArgumentsMetadata(arguments));
+            }
+        }
     }
 }

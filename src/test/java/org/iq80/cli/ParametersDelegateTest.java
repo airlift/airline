@@ -1,8 +1,10 @@
 package org.iq80.cli;
 
+import com.google.common.collect.ImmutableList;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -27,7 +29,7 @@ public class ParametersDelegateTest
         public boolean isA;
         @Option(name = {"-b", "--long-b"})
         public String bValue = "";
-        @Options
+        @Inject
         public EmptyDelegate delegate = new EmptyDelegate();
     }
 
@@ -62,7 +64,7 @@ public class ParametersDelegateTest
         public boolean isA;
         @Option(name = {"-b", "--long-b"})
         public String bValue = "";
-        @Options
+        @Inject
         public ComplexDelegate delegate = new ComplexDelegate();
     }
 
@@ -95,7 +97,7 @@ public class ParametersDelegateTest
 
         public static class NestedDelegate1
         {
-            @Options
+            @Inject
             public LeafDelegate leafDelegate = new LeafDelegate();
 
             @Option(name = {"-d", "--long-d"})
@@ -107,7 +109,7 @@ public class ParametersDelegateTest
             @Option(name = "-c")
             public boolean isC;
 
-            @Options
+            @Inject
             public NestedDelegate1 nestedDelegate1 = new NestedDelegate1();
         }
 
@@ -117,7 +119,7 @@ public class ParametersDelegateTest
         @Option(name = {"-b", "--long-b"})
         public String bValue = "";
 
-        @Options
+        @Inject
         public NestedDelegate2 nestedDelegate2 = new NestedDelegate2();
     }
 
@@ -145,7 +147,7 @@ public class ParametersDelegateTest
             public String a = "b";
         }
 
-        @Options
+        @Inject
         public Delegate delegate = new Delegate();
     }
 
@@ -167,7 +169,7 @@ public class ParametersDelegateTest
             public boolean a;
         }
 
-        @Options
+        @Inject
         public ComplexDelegate delegate;
     }
 
@@ -190,9 +192,9 @@ public class ParametersDelegateTest
             public String a;
         }
 
-        @Options
+        @Inject
         public Delegate d1 = new Delegate();
-        @Options
+        @Inject
         public Delegate d2 = new Delegate();
     }
 
@@ -207,7 +209,7 @@ public class ParametersDelegateTest
     // ========================================================================================================================
 
     @Command(name = "command")
-    public static class DuplicateMainParametersAreNotAllowed
+    public static class DuplicateMainParametersAreAllowed
     {
         public static class Delegate1
         {
@@ -218,19 +220,52 @@ public class ParametersDelegateTest
         public static class Delegate2
         {
             @Arguments
-            public List<String> mainParams2 = newArrayList();
+            public List<String> mainParams1 = newArrayList();
         }
 
-        @Options
+        @Inject
         public Delegate1 delegate1 = new Delegate1();
 
-        @Options
+        @Inject
         public Delegate2 delegate2 = new Delegate2();
     }
 
-    @Test(expectedExceptions = ParseException.class)
-    public void duplicateMainParametersAreNotAllowed()
+    @Test
+    public void duplicateMainParametersAreAllowed()
     {
-        singleCommandParser(DuplicateMainParametersAreNotAllowed.class).parse("command", "main", "params");
+        DuplicateMainParametersAreAllowed value = singleCommandParser(DuplicateMainParametersAreAllowed.class).parse("command", "main", "params");
+        Assert.assertEquals(value.delegate1.mainParams1, ImmutableList.of("main", "params"));
+        Assert.assertEquals(value.delegate2.mainParams1, ImmutableList.of("main", "params"));
+    }
+
+    // ========================================================================================================================
+
+    @Command(name = "command")
+    public static class ConflictingMainParametersAreNotAllowed
+    {
+        public static class Delegate1
+        {
+            @Arguments(description = "foo")
+            public List<String> mainParams1 = newArrayList();
+        }
+
+        public static class Delegate2
+        {
+            @Arguments(description = "bar")
+            public List<String> mainParams1 = newArrayList();
+        }
+
+        @Inject
+        public Delegate1 delegate1 = new Delegate1();
+
+        @Inject
+        public Delegate2 delegate2 = new Delegate2();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void conflictingMainParametersAreNotAllowed()
+    {
+        singleCommandParser(ConflictingMainParametersAreNotAllowed.class).parse("command", "main", "params");
+
     }
 }

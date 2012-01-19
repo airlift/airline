@@ -13,6 +13,7 @@ public class Git
         Builder<Runnable> builder = parser("git", Runnable.class)
                 .withDescription("the stupid content tracker")
                 .defaultCommand(HelpCommand.class)
+                .addCommand(SuggestCommand.class)
                 .addCommand(HelpCommand.class)
                 .addCommand(Add.class);
 

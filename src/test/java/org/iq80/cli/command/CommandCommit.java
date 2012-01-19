@@ -21,14 +21,14 @@ package org.iq80.cli.command;
 import org.iq80.cli.Arguments;
 import org.iq80.cli.Command;
 import org.iq80.cli.Option;
-import org.iq80.cli.Options;
 
+import javax.inject.Inject;
 import java.util.List;
 
 @Command(name = "commit", description = "Record changes to the repository")
 public class CommandCommit
 {
-    @Options
+    @Inject
     public CommandMain commandMain;
 
     @Arguments(description = "List of files")

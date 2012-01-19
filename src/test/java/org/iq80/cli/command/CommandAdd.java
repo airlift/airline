@@ -21,14 +21,14 @@ package org.iq80.cli.command;
 import org.iq80.cli.Arguments;
 import org.iq80.cli.Command;
 import org.iq80.cli.Option;
-import org.iq80.cli.Options;
 
+import javax.inject.Inject;
 import java.util.List;
 
 @Command(name = "add", description = "Add file contents to the index")
 public class CommandAdd
 {
-    @Options
+    @Inject
     public CommandMain commandMain;
 
     @Arguments(description = "Patterns of files to be added")
