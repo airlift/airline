@@ -18,7 +18,7 @@
 
 package org.iq80.cli.command;
 
-import org.iq80.cli.GitLikeCommandParser;
+import org.iq80.cli.GitLikeCli;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,10 +31,10 @@ public class CommandTest
     @Test
     public void namedCommandTest1()
     {
-        GitLikeCommandParser<?> parser = GitLikeCommandParser
-                .parser("git")
-                .addCommand(CommandAdd.class)
-                .addCommand(CommandCommit.class)
+        GitLikeCli<?> parser = GitLikeCli
+                .buildCli("git")
+                .withCommand(CommandAdd.class)
+                .withCommand(CommandCommit.class)
                 .build();
 
         Object command = parser.parse("add", "-i", "A.java");
@@ -54,10 +54,10 @@ public class CommandTest
     @Test
     public void commandTest2()
     {
-        GitLikeCommandParser<?> parser = GitLikeCommandParser
-                .parser("git")
-                .addCommand(CommandAdd.class)
-                .addCommand(CommandCommit.class)
+        GitLikeCli<?> parser = GitLikeCli
+                .buildCli("git")
+                .withCommand(CommandAdd.class)
+                .withCommand(CommandCommit.class)
                 .build();
         parser.parse("-v", "commit", "--amend", "--author", "cbeust", "A.java", "B.java");
 

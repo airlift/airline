@@ -36,29 +36,29 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.iq80.cli.ParserUtil.createInstance;
 
-public class GitLikeCommandParser<C>
+public class GitLikeCli<C>
 {
 
-    public static Builder<Object> parser(String name)
+    public static CliBuilder<Object> buildCli(String name)
     {
         Preconditions.checkNotNull(name, "name is null");
-        return new Builder<Object>(name);
+        return new CliBuilder<Object>(name);
     }
 
-    public static <T> Builder<T> parser(String name, Class<T> commandTypes)
+    public static <T> CliBuilder<T> buildCli(String name, Class<T> commandTypes)
     {
         Preconditions.checkNotNull(name, "name is null");
-        return new Builder<T>(name);
+        return new CliBuilder<T>(name);
     }
 
     private final GlobalMetadata metadata;
 
-    private GitLikeCommandParser(String name,
+    private GitLikeCli(String name,
             String description,
             TypeConverter typeConverter,
             Class<? extends C> defaultCommand,
             Iterable<Class<? extends C>> defaultGroupCommands,
-            Iterable<CommandGroup<C>> groups)
+            Iterable<GroupBuilder<C>> groups)
     {
         Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(typeConverter, "typeConverter is null");
@@ -70,9 +70,9 @@ public class GitLikeCommandParser<C>
 
         List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
 
-        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<CommandGroup<C>, CommandGroupMetadata>()
+        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
         {
-            public CommandGroupMetadata apply(CommandGroup<C> group)
+            public CommandGroupMetadata apply(GroupBuilder<C> group)
             {
                 return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
             }
@@ -145,7 +145,7 @@ public class GitLikeCommandParser<C>
     // Builder Classes
     //
 
-    public static class Builder<C>
+    public static class CliBuilder<C>
     {
         protected final String name;
         protected String description;
@@ -153,16 +153,16 @@ public class GitLikeCommandParser<C>
         protected String optionSeparators;
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
-        protected final Map<String, CommandGroup<C>> groups = newHashMap();
+        protected final Map<String, GroupBuilder<C>> groups = newHashMap();
 
-        public Builder(String name)
+        public CliBuilder(String name)
         {
             Preconditions.checkNotNull(name, "name is null");
             Preconditions.checkArgument(!name.isEmpty(), "name is empty");
             this.name = name;
         }
 
-        public Builder<C> withDescription(String description)
+        public CliBuilder<C> withDescription(String description)
         {
             Preconditions.checkNotNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
@@ -170,50 +170,63 @@ public class GitLikeCommandParser<C>
             return this;
         }
 
-        public Builder<C> withTypeConverter(TypeConverter typeConverter)
+        public CliBuilder<C> withTypeConverter(TypeConverter typeConverter)
         {
             Preconditions.checkNotNull(typeConverter, "typeConverter is null");
             this.typeConverter = typeConverter;
             return this;
         }
 
-        public Builder<C> withOptionSeparators(String optionsSeparator)
+        public CliBuilder<C> withOptionSeparators(String optionsSeparator)
         {
             Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
             this.optionSeparators = optionsSeparator;
             return this;
         }
 
-        public Builder<C> defaultCommand(Class<? extends C> defaultCommand)
+        public CliBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
             this.defaultCommand = defaultCommand;
             return this;
         }
 
-        public Builder<C> addCommand(Class<? extends C> command)
+        public CliBuilder<C> withCommand(Class<? extends C> command)
         {
             this.defaultCommandGroupCommands.add(command);
             return this;
         }
 
-        public CommandGroup<C> addGroup(String name)
+        public CliBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
+        {
+            this.defaultCommandGroupCommands.add(command);
+            this.defaultCommandGroupCommands.addAll(ImmutableList.copyOf(moreCommands));
+            return this;
+        }
+
+        public CliBuilder<C> withCommands(Iterable<Class<? extends C>> commands)
+        {
+            this.defaultCommandGroupCommands.addAll(ImmutableList.copyOf(commands));
+            return this;
+        }
+
+        public GroupBuilder<C> withGroup(String name)
         {
             Preconditions.checkNotNull(name, "name is null");
             Preconditions.checkArgument(!name.isEmpty(), "name is empty");
             Preconditions.checkArgument(!groups.containsKey(name), "Group %s has already been declared", name);
 
-            CommandGroup<C> group = new CommandGroup<C>(name);
+            GroupBuilder<C> group = new GroupBuilder<C>(name);
             groups.put(name, group);
             return group;
         }
 
-        public GitLikeCommandParser<C> build()
+        public GitLikeCli<C> build()
         {
-            return new GitLikeCommandParser<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+            return new GitLikeCli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
         }
     }
 
-    public static class CommandGroup<C>
+    public static class GroupBuilder<C>
     {
         private final String name;
         private String description;
@@ -221,13 +234,13 @@ public class GitLikeCommandParser<C>
 
         private final List<Class<? extends C>> commands = newArrayList();
 
-        private CommandGroup(String name)
+        private GroupBuilder(String name)
         {
             Preconditions.checkNotNull(name, "name is null");
             this.name = name;
         }
 
-        public CommandGroup<C> withDescription(String description)
+        public GroupBuilder<C> withDescription(String description)
         {
             Preconditions.checkNotNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
@@ -235,17 +248,30 @@ public class GitLikeCommandParser<C>
             return this;
         }
 
-        public CommandGroup<C> defaultCommand(Class<? extends C> defaultCommand)
+        public GroupBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
             Preconditions.checkNotNull(defaultCommand, "defaultCommand is null");
             this.defaultCommand = defaultCommand;
             return this;
         }
 
-        public CommandGroup<C> addCommand(Class<? extends C> command)
+        public GroupBuilder<C> withCommand(Class<? extends C> command)
         {
             Preconditions.checkNotNull(command, "command is null");
             commands.add(command);
+            return this;
+        }
+
+        public GroupBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
+        {
+            this.commands.add(command);
+            this.commands.addAll(ImmutableList.copyOf(moreCommands));
+            return this;
+        }
+
+        public GroupBuilder<C> withCommands(Iterable<Class<? extends C>> commands)
+        {
+            this.commands.addAll(ImmutableList.copyOf(commands));
             return this;
         }
     }

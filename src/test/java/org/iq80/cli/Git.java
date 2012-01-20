@@ -1,30 +1,30 @@
 package org.iq80.cli;
 
-import org.iq80.cli.GitLikeCommandParser.Builder;
+import org.iq80.cli.GitLikeCli.CliBuilder;
 
 import java.util.List;
 
-import static org.iq80.cli.GitLikeCommandParser.parser;
+import static org.iq80.cli.GitLikeCli.buildCli;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class Git
 {
-    public static void main(String[] args)
+    public static void main(String... args)
     {
-        Builder<Runnable> builder = parser("git", Runnable.class)
+        CliBuilder<Runnable> builder = buildCli("git", Runnable.class)
                 .withDescription("the stupid content tracker")
-                .defaultCommand(Help.class)
-                .addCommand(SuggestCommand.class)
-                .addCommand(Help.class)
-                .addCommand(Add.class);
+                .withDefaultCommand(Help.class)
+                .withCommands(SuggestCommand.class,
+                        Help.class,
+                        Add.class);
 
-        builder.addGroup("remote")
+        builder.withGroup("remote")
                 .withDescription("Manage set of tracked repositories")
-                .defaultCommand(RemoteShow.class)
-                .addCommand(RemoteShow.class)
-                .addCommand(RemoteAdd.class);
+                .withDefaultCommand(RemoteShow.class)
+                .withCommands(RemoteShow.class,
+                        RemoteAdd.class);
 
-        GitLikeCommandParser<Runnable> gitParser = builder.build();
+        GitLikeCli<Runnable> gitParser = builder.build();
 
         gitParser.parse(args).run();
     }

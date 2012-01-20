@@ -1,5 +1,6 @@
 package org.iq80.cli;
 
+import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
 
 public class GitTest
@@ -7,17 +8,24 @@ public class GitTest
     @Test
     public void test()
     {
-        // show help
-        Git.main(new String[]{});
-        Git.main(new String[]{"help"});
-        Git.main(new String[]{"help", "git"});
-        Git.main(new String[]{"help", "add"});
-        Git.main(new String[]{"help", "remote"});
-        Git.main(new String[]{"help", "remote", "show"});
-
         // simple command parsing example
-        Git.main(new String[]{"add", "file"});
-        Git.main(new String[]{"remote", "add", "origin", "git@github.com:dain/git-like-cli.git"});
-        Git.main(new String[]{"remote", "show", "origin"});
+        git("add", "-p", "file");
+        git("remote", "add", "origin", "git@github.com:dain/git-like-cli.git");
+        git("-v", "remote", "show", "origin");
+
+        // show help
+        git();
+        git("help");
+        git("help", "git");
+        git("help", "add");
+        git("help", "remote");
+        git("help", "remote", "show");
+    }
+
+    private void git(String... args)
+    {
+        System.out.println("$ git " + Joiner.on(' ').join(args));
+        Git.main(args);
+        System.out.println();
     }
 }

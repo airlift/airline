@@ -3,13 +3,14 @@ package org.iq80.cli;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import org.iq80.cli.GitLikeCommandParser.Builder;
+import org.iq80.cli.GitLikeCli.CliBuilder;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.iq80.cli.GitLikeCli.buildCli;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -50,30 +51,30 @@ public class GalaxyCommandLineParser
         parse("--debug", "agent", "add", "--count", "4", "t1.micro");
     }
 
-    private GitLikeCommandParser<GalaxyCommand> createParser()
+    private GitLikeCli<GalaxyCommand> createParser()
     {
-        Builder<GalaxyCommand> builder = GitLikeCommandParser.parser("galaxy", GalaxyCommand.class)
+        CliBuilder<GalaxyCommand> builder = buildCli("galaxy", GalaxyCommand.class)
                 .withDescription("cloud management system")
-                .defaultCommand(HelpCommand.class)
-                .addCommand(HelpCommand.class)
-                .addCommand(ShowCommand.class)
-                .addCommand(InstallCommand.class)
-                .addCommand(UpgradeCommand.class)
-                .addCommand(TerminateCommand.class)
-                .addCommand(StartCommand.class)
-                .addCommand(StopCommand.class)
-                .addCommand(RestartCommand.class)
-                .addCommand(SshCommand.class)
-                .addCommand(ResetToActualCommand.class);
+                .withDefaultCommand(HelpCommand.class)
+                .withCommands(HelpCommand.class,
+                        ShowCommand.class,
+                        InstallCommand.class,
+                        UpgradeCommand.class,
+                        TerminateCommand.class,
+                        StartCommand.class,
+                        StopCommand.class,
+                        RestartCommand.class,
+                        SshCommand.class,
+                        ResetToActualCommand.class);
 
-        builder.addGroup("agent")
+        builder.withGroup("agent")
                 .withDescription("Manage agents")
-                .defaultCommand(AgentShowCommand.class)
-                .addCommand(AgentShowCommand.class)
-                .addCommand(AgentAddCommand.class)
-                .addCommand(AgentTerminateCommand.class);
+                .withDefaultCommand(AgentShowCommand.class)
+                .withCommands(AgentShowCommand.class,
+                        AgentAddCommand.class,
+                        AgentTerminateCommand.class);
 
-        GitLikeCommandParser<GalaxyCommand> galaxy = builder.build();
+        GitLikeCli<GalaxyCommand> galaxy = builder.build();
         return galaxy;
     }
 
@@ -174,7 +175,8 @@ public class GalaxyCommandLineParser
         @Inject
         public GlobalOptions globalOptions = new GlobalOptions();
 
-        public void execute() {
+        public void execute()
+        {
             System.out.println(this);
         }
     }

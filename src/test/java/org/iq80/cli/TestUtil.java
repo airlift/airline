@@ -2,10 +2,10 @@ package org.iq80.cli;
 
 public class TestUtil
 {
-    public static <T> GitLikeCommandParser<T> singleCommandParser(Class<T> commandClass)
+    public static <T> GitLikeCli<T> singleCommandParser(Class<T> commandClass)
     {
-         return GitLikeCommandParser.parser("parser", commandClass)
-                .addCommand(commandClass)
+         return GitLikeCli.buildCli("parser", commandClass)
+                .withCommand(commandClass)
                 .build();
     }
 }

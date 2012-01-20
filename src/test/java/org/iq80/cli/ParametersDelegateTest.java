@@ -36,8 +36,8 @@ public class ParametersDelegateTest
     @Test
     public void delegatingEmptyClassHasNoEffect()
     {
-        DelegatingEmptyClassHasNoEffect p = GitLikeCommandParser.parser("foo", DelegatingEmptyClassHasNoEffect.class)
-                .addCommand(DelegatingEmptyClassHasNoEffect.class)
+        DelegatingEmptyClassHasNoEffect p = GitLikeCli.buildCli("foo", DelegatingEmptyClassHasNoEffect.class)
+                .withCommand(DelegatingEmptyClassHasNoEffect.class)
                 .build()
                 .parse("command", "-a", "-b", "someValue");
 
