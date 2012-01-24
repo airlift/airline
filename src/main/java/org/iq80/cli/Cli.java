@@ -170,19 +170,19 @@ public class Cli<C>
             return this;
         }
 
-        public CliBuilder<C> withTypeConverter(TypeConverter typeConverter)
-        {
-            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
-            this.typeConverter = typeConverter;
-            return this;
-        }
+//        public CliBuilder<C> withTypeConverter(TypeConverter typeConverter)
+//        {
+//            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+//            this.typeConverter = typeConverter;
+//            return this;
+//        }
 
-        public CliBuilder<C> withOptionSeparators(String optionsSeparator)
-        {
-            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
-            this.optionSeparators = optionsSeparator;
-            return this;
-        }
+//        public CliBuilder<C> withOptionSeparators(String optionsSeparator)
+//        {
+//            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
+//            this.optionSeparators = optionsSeparator;
+//            return this;
+//        }
 
         public CliBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
