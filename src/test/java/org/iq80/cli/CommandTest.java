@@ -19,7 +19,7 @@
 package org.iq80.cli;
 
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.GitLikeCli.CliBuilder;
+import org.iq80.cli.Cli.CliBuilder;
 import org.iq80.cli.args.Args1;
 import org.iq80.cli.args.Args2;
 import org.iq80.cli.args.ArgsArityString;
@@ -73,7 +73,7 @@ public class CommandTest
      */
     public void repeatedArgs()
     {
-        GitLikeCli<Args1> parser = singleCommandParser(Args1.class);
+        Cli<Args1> parser = singleCommandParser(Args1.class);
         CommandMetadata command = find(parser.getMetadata().getDefaultGroupCommands(), compose(equalTo("Args1"), CommandMetadata.nameGetter()));
         Assert.assertEquals(command.getAllOptions().size(), 8);
     }
@@ -204,11 +204,11 @@ public class CommandTest
 
     private void verifyCommandOrdering(String[] commandNames, Class<?>... commands)
     {
-        CliBuilder<Object> builder = GitLikeCli.buildCli("foo");
+        CliBuilder<Object> builder = Cli.buildCli("foo");
         for (Class<?> command : commands) {
             builder = builder.withCommand(command);
         }
-        GitLikeCli<?> parser = builder.build();
+        Cli<?> parser = builder.build();
 
         final List<CommandMetadata> commandParsers = parser.getMetadata().getDefaultGroupCommands();
         Assert.assertEquals(commandParsers.size(), commands.length);

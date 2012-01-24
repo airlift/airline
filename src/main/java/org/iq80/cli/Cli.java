@@ -36,7 +36,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.iq80.cli.ParserUtil.createInstance;
 
-public class GitLikeCli<C>
+public class Cli<C>
 {
 
     public static CliBuilder<Object> buildCli(String name)
@@ -53,7 +53,7 @@ public class GitLikeCli<C>
 
     private final GlobalMetadata metadata;
 
-    private GitLikeCli(String name,
+    private Cli(String name,
             String description,
             TypeConverter typeConverter,
             Class<? extends C> defaultCommand,
@@ -220,9 +220,9 @@ public class GitLikeCli<C>
             return group;
         }
 
-        public GitLikeCli<C> build()
+        public Cli<C> build()
         {
-            return new GitLikeCli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+            return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
         }
     }
 

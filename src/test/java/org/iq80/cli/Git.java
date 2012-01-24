@@ -1,10 +1,10 @@
 package org.iq80.cli;
 
-import org.iq80.cli.GitLikeCli.CliBuilder;
+import org.iq80.cli.Cli.CliBuilder;
 
 import java.util.List;
 
-import static org.iq80.cli.GitLikeCli.buildCli;
+import static org.iq80.cli.Cli.buildCli;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class Git
@@ -24,7 +24,7 @@ public class Git
                 .withCommands(RemoteShow.class,
                         RemoteAdd.class);
 
-        GitLikeCli<Runnable> gitParser = builder.build();
+        Cli<Runnable> gitParser = builder.build();
 
         gitParser.parse(args).run();
     }

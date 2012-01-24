@@ -3,14 +3,14 @@ package org.iq80.cli;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import org.iq80.cli.GitLikeCli.CliBuilder;
+import org.iq80.cli.Cli.CliBuilder;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.GitLikeCli.buildCli;
+import static org.iq80.cli.Cli.buildCli;
 import static org.iq80.cli.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -51,7 +51,7 @@ public class GalaxyCommandLineParser
         parse("--debug", "agent", "add", "--count", "4", "t1.micro");
     }
 
-    private GitLikeCli<GalaxyCommand> createParser()
+    private Cli<GalaxyCommand> createParser()
     {
         CliBuilder<GalaxyCommand> builder = buildCli("galaxy", GalaxyCommand.class)
                 .withDescription("cloud management system")
@@ -74,7 +74,7 @@ public class GalaxyCommandLineParser
                         AgentAddCommand.class,
                         AgentTerminateCommand.class);
 
-        GitLikeCli<GalaxyCommand> galaxy = builder.build();
+        Cli<GalaxyCommand> galaxy = builder.build();
         return galaxy;
     }
 

@@ -18,7 +18,7 @@
 
 package org.iq80.cli.command;
 
-import org.iq80.cli.GitLikeCli;
+import org.iq80.cli.Cli;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ public class CommandTest
     @Test
     public void namedCommandTest1()
     {
-        GitLikeCli<?> parser = GitLikeCli
+        Cli<?> parser = Cli
                 .buildCli("git")
                 .withCommand(CommandAdd.class)
                 .withCommand(CommandCommit.class)
@@ -54,7 +54,7 @@ public class CommandTest
     @Test
     public void commandTest2()
     {
-        GitLikeCli<?> parser = GitLikeCli
+        Cli<?> parser = Cli
                 .buildCli("git")
                 .withCommand(CommandAdd.class)
                 .withCommand(CommandCommit.class)
