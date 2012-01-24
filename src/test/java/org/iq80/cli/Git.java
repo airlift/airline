@@ -14,8 +14,7 @@ public class Git
         CliBuilder<Runnable> builder = buildCli("git", Runnable.class)
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
-                .withCommands(SuggestCommand.class,
-                        Help.class,
+                .withCommands(Help.class,
                         Add.class);
 
         builder.withGroup("remote")
