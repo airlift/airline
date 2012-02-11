@@ -32,6 +32,7 @@ import org.iq80.cli.args.ArgsOutOfMemory;
 import org.iq80.cli.args.ArgsPrivate;
 import org.iq80.cli.args.ArgsRequired;
 import org.iq80.cli.args.Arity1;
+import org.iq80.cli.args.OptionsRequired;
 import org.iq80.cli.command.CommandAdd;
 import org.iq80.cli.command.CommandCommit;
 import org.iq80.cli.model.CommandMetadata;
@@ -200,6 +201,18 @@ public class CommandTest
     public void requiredMainParameters()
     {
         singleCommandParser(ArgsRequired.class).parse("ArgsRequired");
+    }
+
+    @Test(expectedExceptions = ParseException.class, expectedExceptionsMessageRegExp = ".*option.*missing.*")
+    public void requiredOptions()
+    {
+        singleCommandParser(OptionsRequired.class).parse("OptionsRequired");
+    }
+
+    @Test
+    public void ignoresOptionalOptions()
+    {
+        singleCommandParser(OptionsRequired.class).parse("OptionsRequired", "--required", "foo");
     }
 
     private void verifyCommandOrdering(String[] commandNames, Class<?>... commands)

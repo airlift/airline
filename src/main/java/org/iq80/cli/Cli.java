@@ -23,11 +23,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandGroupMetadata;
 import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.MetadataLoader;
+import org.iq80.cli.model.OptionMetadata;
 
 import java.util.List;
 import java.util.Map;
@@ -138,6 +140,12 @@ public class Cli<C>
 
         if (state.getLocation() == Context.OPTION) {
             throw new ParseException("Required values for option '%s' not provided", state.getCurrentOption().getTitle());
+        }
+
+        for (OptionMetadata option : command.getAllOptions()) {
+            if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
+                throw new ParseException("Required option '%s' is missing", option.getOptions().iterator().next());
+            }
         }
     }
 
