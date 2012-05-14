@@ -3,6 +3,8 @@ Git-like-cli
 
 Git-like-cli is a Java annotation-based framework for parsing Git like command line structures.
 
+Latest release is 0.3, available from Maven Central.
+
 Here is a quick example:
 
 ```java
@@ -10,7 +12,7 @@ public class Git
 {
     public static void main(String[] args)
     {
-        CliBuilder<Runnable> builder = buildCli("git", Runnable.class)
+        CliBuilder<Runnable> builder = Cli.buildCli("git", Runnable.class)
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -22,14 +24,14 @@ public class Git
                 .withCommands(RemoteShow.class,
                         RemoteAdd.class);
 
-        GitLikeCli<Runnable> gitParser = builder.build();
+        Cli<Runnable> gitParser = builder.build();
 
         gitParser.parse(args).run();
     }
 
     public static class GitCommand implements Runnable
     {
-        @Option(type = GLOBAL, name = "-v", description = "Verbose mode")
+        @Option(type = OptionType.GLOBAL, name = "-v", description = "Verbose mode")
         public boolean verbose;
 
         public void run()
