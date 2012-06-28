@@ -111,7 +111,7 @@ public class Parser
                 }
             }
             else {
-                throw new UnsupportedOperationException("arity > 1 not yet supported");
+                throw new UnsupportedOperationException("arity < 0 not yet supported");
             }
         }
 
