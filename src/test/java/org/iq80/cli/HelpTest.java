@@ -11,6 +11,7 @@ import org.iq80.cli.args.ArgsArityString;
 import org.iq80.cli.args.ArgsBooleanArity;
 import org.iq80.cli.args.ArgsInherited;
 import org.iq80.cli.args.ArgsRequired;
+import org.iq80.cli.args.CommandHidden;
 import org.iq80.cli.args.OptionsHidden;
 import org.iq80.cli.args.OptionsRequired;
 import org.testng.Assert;
@@ -396,6 +397,41 @@ public class HelpTest
                 "        --optional <optionalOption>\n" +
                 "\n" +
                 "\n");
+    }
+
+    public void testCommandHidden()
+    {
+        CliBuilder<Object> builder = buildCli("test", Object.class)
+                .withDescription("Test commandline")
+                .withDefaultCommand(Help.class)
+                .withCommands(Help.class,
+                        ArgsRequired.class, CommandHidden.class);
+
+        Cli<Object> parser = builder.build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.<String>of(), out);
+        Assert.assertEquals(out.toString(), "usage: test <command> [<args>]\n" +
+                "\n" +
+                "The most commonly used test commands are:\n" +
+                "    ArgsRequired\n" +
+                "    help           Display help information\n" +
+                "\n" +
+                "See 'test help <command>' for more information on a specific command.\n");
+
+        out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.of("CommandHidden"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        test CommandHidden -\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        test CommandHidden [--optional <optionalOption>]\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        --optional <optionalOption>\n" +
+                "\n" +
+                "\n");
+
     }
 
 }

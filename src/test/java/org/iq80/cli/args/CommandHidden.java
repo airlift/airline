@@ -16,35 +16,17 @@
  * limitations under the License.
  */
 
-package org.iq80.cli;
+package org.iq80.cli.args;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.iq80.cli.Command;
+import org.iq80.cli.Option;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-/**
- * Marks a class as a command.
- */
-@Target(TYPE)
-@Retention(RUNTIME)
-@Documented
-public @interface Command
+@Command(name="CommandHidden", hidden = true)
+public class CommandHidden
 {
-    /**
-     * Name of the command.  Command name is split on white space to form a multi-word name.
-     */
-    String name();
+    @Option(name = "--hidden", hidden = true)
+    public String hiddenOption;
 
-    /**
-     * Description of the command.
-     */
-    String description() default "";
-
-    /**
-     * If true, this command won't appear in the usage().
-     */
-    boolean hidden() default false;
+    @Option(name = "--optional", hidden = false)
+    public String optionalOption;
 }

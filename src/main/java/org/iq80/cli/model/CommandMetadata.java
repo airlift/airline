@@ -11,6 +11,7 @@ public class CommandMetadata
 {
     private final String name;
     private final String description;
+    private final boolean hidden;
     private final List<OptionMetadata> globalOptions;
     private final List<OptionMetadata> groupOptions;
     private final List<OptionMetadata> commandOptions;
@@ -20,7 +21,7 @@ public class CommandMetadata
 
     public CommandMetadata(String name,
             String description,
-            Iterable<OptionMetadata> globalOptions,
+            boolean hidden, Iterable<OptionMetadata> globalOptions,
             Iterable<OptionMetadata> groupOptions,
             Iterable<OptionMetadata> commandOptions,
             ArgumentsMetadata arguments,
@@ -29,6 +30,7 @@ public class CommandMetadata
     {
         this.name = name;
         this.description = description;
+        this.hidden = hidden;
         this.globalOptions = ImmutableList.copyOf(globalOptions);
         this.groupOptions = ImmutableList.copyOf(groupOptions);
         this.commandOptions = ImmutableList.copyOf(commandOptions);
@@ -45,6 +47,11 @@ public class CommandMetadata
     public String getDescription()
     {
         return description;
+    }
+
+    public boolean isHidden()
+    {
+        return hidden;
     }
 
     public List<OptionMetadata> getAllOptions()

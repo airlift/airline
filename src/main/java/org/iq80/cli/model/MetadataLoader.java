@@ -81,13 +81,14 @@ public class MetadataLoader
         Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
+        boolean hidden = command.hidden();
 
         InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
 
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
                 description,
-                injectionMetadata.globalOptions,
+                hidden, injectionMetadata.globalOptions,
                 injectionMetadata.groupOptions,
                 injectionMetadata.commandOptions,
                 Iterables.getFirst(injectionMetadata.arguments, null),
