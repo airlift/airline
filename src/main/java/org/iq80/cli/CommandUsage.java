@@ -6,6 +6,8 @@ import org.iq80.cli.model.CommandMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -78,14 +80,26 @@ public class CommandUsage
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
         List<OptionMetadata> options = newArrayList();
         if (programName != null) {
-            synopsis.append(programName).appendWords(toSynopsisUsage(command.getGlobalOptions()));
+            List<OptionMetadata> globalOptions = new ArrayList<OptionMetadata>(command.getGlobalOptions());
+            if (optionComparator != null) {
+                  Collections.sort(globalOptions, optionComparator);
+            }
+            synopsis.append(programName).appendWords(toSynopsisUsage(globalOptions));
             options.addAll(command.getGlobalOptions());
         }
         if (groupName != null) {
-            synopsis.append(groupName).appendWords(toSynopsisUsage(command.getGroupOptions()));
+            List<OptionMetadata> groupOptions = new ArrayList<OptionMetadata>(command.getGroupOptions());
+            if (optionComparator != null) {
+                  Collections.sort(groupOptions, optionComparator);
+            }
+            synopsis.append(groupName).appendWords(toSynopsisUsage(groupOptions));
             options.addAll(command.getGroupOptions());
         }
-        synopsis.append(command.getName()).appendWords(toSynopsisUsage(command.getCommandOptions()));
+        List<OptionMetadata> commandOptions = new ArrayList<OptionMetadata>(command.getCommandOptions());
+        if (optionComparator != null) {
+              Collections.sort(commandOptions, optionComparator);
+        }
+        synopsis.append(command.getName()).appendWords(toSynopsisUsage(commandOptions));
         options.addAll(command.getCommandOptions());
 
         // command arguments (optional)
