@@ -122,15 +122,17 @@ public class CommandUsage
             out.append("OPTIONS").newline();
 
             for (OptionMetadata option : options) {
-                // option names
-                UsagePrinter optionPrinter = out.newIndentedPrinter(8);
-                optionPrinter.append(UsageHelper.toDescription(option)).newline();
+                if (!option.isHidden()) {
+                    // option names
+                    UsagePrinter optionPrinter = out.newIndentedPrinter(8);
+                    optionPrinter.append(UsageHelper.toDescription(option)).newline();
 
-                // description
-                UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
-                descriptionPrinter.append(option.getDescription()).newline();
+                    // description
+                    UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
+                    descriptionPrinter.append(option.getDescription()).newline();
 
-                descriptionPrinter.newline();
+                    descriptionPrinter.newline();
+                }
             }
 
             if (arguments != null) {

@@ -97,24 +97,26 @@ public class UsagePrinter
     public UsagePrinter appendWords(Iterable<String> words)
     {
         for (String word : words) {
-            if (currentPosition.get() == 0) {
-                // beginning of line
-                out.append(spaces(indent));
-                currentPosition.getAndAdd((indent));
-            }
-            else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize) {
-                // between words
-                out.append(" ");
-                currentPosition.getAndIncrement();
-            }
-            else {
-                // wrap line
-                out.append("\n").append(spaces(indent)).append(spaces(hangingIndent));
-                currentPosition.set(indent);
-            }
+            if (word != null) {
+                if (currentPosition.get() == 0) {
+                    // beginning of line
+                    out.append(spaces(indent));
+                    currentPosition.getAndAdd((indent));
+                }
+                else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize) {
+                    // between words
+                    out.append(" ");
+                    currentPosition.getAndIncrement();
+                }
+                else {
+                    // wrap line
+                    out.append("\n").append(spaces(indent)).append(spaces(hangingIndent));
+                    currentPosition.set(indent);
+                }
 
-            out.append(word);
-            currentPosition.getAndAdd((word.length()));
+                out.append(word);
+                currentPosition.getAndAdd((word.length()));
+            }
         }
         return this;
     }

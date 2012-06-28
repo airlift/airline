@@ -2,6 +2,7 @@ package org.iq80.cli;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -173,10 +174,13 @@ public class UsageHelper
     public static List<String> toSynopsisUsage(List<OptionMetadata> options)
     {
         List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Lists.transform(options, new Function<OptionMetadata, String>()
+        commandArguments.addAll(Collections2.transform(options, new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
             {
+                if (option.isHidden()) {
+                    return null;
+                }
                 return toUsage(option);
             }
         }));

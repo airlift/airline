@@ -9,7 +9,6 @@ import org.iq80.cli.args.Args1;
 import org.iq80.cli.args.Args2;
 import org.iq80.cli.args.ArgsArityString;
 import org.iq80.cli.args.ArgsBooleanArity;
-import org.iq80.cli.args.ArgsEnum;
 import org.iq80.cli.args.ArgsInherited;
 import org.iq80.cli.args.ArgsRequired;
 import org.iq80.cli.args.OptionsHidden;
@@ -374,4 +373,29 @@ public class HelpTest
                 "\n" +
                 "\n");
     }
+
+    public void testOptionsHidden()
+    {
+        CliBuilder<Object> builder = buildCli("test", Object.class)
+                .withDescription("Test commandline")
+                .withDefaultCommand(Help.class)
+                .withCommands(Help.class,
+                        OptionsHidden.class);
+
+        Cli<Object> parser = builder.build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.of("OptionsHidden"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        test OptionsHidden -\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        test OptionsHidden [--optional <optionalOption>]\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        --optional <optionalOption>\n" +
+                "\n" +
+                "\n");
+    }
+
 }
