@@ -128,6 +128,53 @@ public class Parser
                 }
             }
 
+            // Handle classic getopt syntax
+            if (option == null && tokens.peek().matches("-[^-].*")) {
+                String tokenLeft = tokens.peek().substring(1);
+                boolean eatToken = true;
+                ParseState potentialState = state;
+                while (potentialState != null && !tokenLeft.isEmpty()) {
+                    option = findOption(allowedOptions, "-" + tokenLeft.substring(0, 1));
+                    tokenLeft = tokenLeft.substring(1);
+                    if (option == null) {
+                        potentialState = null;
+                    }
+                    else if (option.getArity() == 0) {
+                        potentialState = potentialState.withOption(option).withOptionValue(option, Boolean.TRUE);
+                    }
+                    else if (option.getArity() == 1) {
+                        if (!tokenLeft.isEmpty()) {
+                            Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokenLeft);
+                            tokenLeft = "";
+                            potentialState = potentialState.withOption(option).withOptionValue(option, value);
+                        }
+                        else {
+                            eatToken = false;
+                            tokens.next();
+                            potentialState = potentialState.pushContext(Context.OPTION).withOption(option);
+                            if (tokens.hasNext()) {
+                                Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
+                                potentialState = potentialState.withOptionValue(option, value)
+                                        .popContext();
+                            }
+                         }
+                    }
+                    else {
+                        potentialState = null;
+                    }
+                }
+
+                if (potentialState == null) {
+                    option = null;
+                }
+                else {
+                    state = potentialState;
+                    if (eatToken) {
+                        tokens.next();
+                    }
+                }
+            }
+
             if (option == null) {
                 break;
             }
