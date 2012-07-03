@@ -68,6 +68,22 @@ public class CommandTest
         Assert.assertEquals(args.bigd, new BigDecimal("1.4"));
     }
 
+    public void equalsArgs()
+            throws ParseException
+    {
+        Args1 args = singleCommandParser(Args1.class).parse("Args1",
+                "-debug", "-log=2", "-float=1.2", "-double=1.3", "-bigdecimal=1.4",
+                "-groups=unit", "a", "b", "c");
+
+        Assert.assertTrue(args.debug);
+        Assert.assertEquals(args.verbose.intValue(), 2);
+        Assert.assertEquals(args.groups, "unit");
+        Assert.assertEquals(args.parameters, Arrays.asList("a", "b", "c"));
+        Assert.assertEquals(args.floa, 1.2f, 0.1f);
+        Assert.assertEquals(args.doub, 1.3f, 0.1f);
+        Assert.assertEquals(args.bigd, new BigDecimal("1.4"));
+    }
+
     /**
      * Make sure that if there are args with multiple names (e.g. "-log" and "-verbose"),
      * the usage will only display it once.
