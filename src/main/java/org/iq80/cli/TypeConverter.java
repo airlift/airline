@@ -47,6 +47,15 @@ public class TypeConverter
         catch (Exception ignored) {
         }
 
+        // Look for a static fromString(String) method
+        try {
+            Method valueOf = type.getMethod("fromString", String.class);
+            if (valueOf.getReturnType().isAssignableFrom(type)) {
+                return valueOf.invoke(null, value);
+            }
+        } catch (Throwable ignored) {
+        }
+
         // Look for a static valueOf(String) method (this covers enums which have a valueOf method)
         try {
             Method valueOf = type.getMethod("valueOf", String.class);
@@ -65,6 +74,6 @@ public class TypeConverter
         catch (Throwable ignored) {
         }
 
-        throw new ParseException(String.format("%s: couldn't convert \"%s\" to a %s", name, value, type.getSimpleName()));
+        throw new ParseException(String.format("%s: can not convert \"%s\" to a %s", name, value, type.getSimpleName()));
     }
 }
