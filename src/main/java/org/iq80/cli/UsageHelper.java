@@ -2,10 +2,8 @@ package org.iq80.cli;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.iq80.cli.model.ArgumentsMetadata;
 import org.iq80.cli.model.CommandMetadata;
@@ -16,7 +14,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
+import static org.iq80.cli.model.OptionMetadata.isHiddenPredicate;
 
 public class UsageHelper
 {
@@ -69,7 +69,7 @@ public class UsageHelper
             argumentString = null;
         }
 
-        Joiner.on(", ").appendTo(stringBuilder, Iterables.transform(options, new Function<String, String>()
+        Joiner.on(", ").appendTo(stringBuilder, transform(options, new Function<String, String>()
         {
             public String apply(@Nullable String option)
             {
@@ -108,7 +108,7 @@ public class UsageHelper
 
         final String argumentString;
         if (option.getArity() > 0) {
-            argumentString = Joiner.on(" ").join(Iterables.transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
+            argumentString = Joiner.on(" ").join(transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
             {
                 public String apply(@Nullable String argument)
                 {
@@ -120,7 +120,7 @@ public class UsageHelper
             argumentString = null;
         }
 
-        Joiner.on(" | ").appendTo(stringBuilder, Iterables.transform(options, new Function<String, String>()
+        Joiner.on(" | ").appendTo(stringBuilder, transform(options, new Function<String, String>()
         {
             public String apply(@Nullable String option)
             {
@@ -173,17 +173,12 @@ public class UsageHelper
 
     public static List<String> toSynopsisUsage(List<OptionMetadata> options)
     {
-        List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Collections2.transform(options, new Function<OptionMetadata, String>()
+        return ImmutableList.copyOf(transform(filter(options, isHiddenPredicate()), new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
             {
-                if (option.isHidden()) {
-                    return null;
-                }
                 return toUsage(option);
             }
         }));
-        return commandArguments;
     }
 }

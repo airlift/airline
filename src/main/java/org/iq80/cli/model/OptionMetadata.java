@@ -2,11 +2,13 @@ package org.iq80.cli.model;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.iq80.cli.Accessor;
 import org.iq80.cli.OptionType;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Set;
 
@@ -223,6 +225,17 @@ public class OptionMetadata
             public Set<String> apply(OptionMetadata input)
             {
                 return input.getOptions();
+            }
+        };
+    }
+
+    public static Predicate<OptionMetadata> isHiddenPredicate()
+    {
+        return new Predicate<OptionMetadata>() {
+            @Override
+            public boolean apply(@Nullable OptionMetadata input)
+            {
+                return !input.isHidden();
             }
         };
     }

@@ -7,13 +7,11 @@ import org.iq80.cli.model.OptionMetadata;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
 import static org.iq80.cli.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 import static org.iq80.cli.UsageHelper.toSynopsisUsage;
 
@@ -80,26 +78,14 @@ public class CommandUsage
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
         List<OptionMetadata> options = newArrayList();
         if (programName != null) {
-            List<OptionMetadata> globalOptions = new ArrayList<OptionMetadata>(command.getGlobalOptions());
-            if (optionComparator != null) {
-                  Collections.sort(globalOptions, optionComparator);
-            }
-            synopsis.append(programName).appendWords(toSynopsisUsage(globalOptions));
+            synopsis.append(programName).appendWords(toSynopsisUsage(sortOptions(command.getGlobalOptions())));
             options.addAll(command.getGlobalOptions());
         }
         if (groupName != null) {
-            List<OptionMetadata> groupOptions = new ArrayList<OptionMetadata>(command.getGroupOptions());
-            if (optionComparator != null) {
-                  Collections.sort(groupOptions, optionComparator);
-            }
-            synopsis.append(groupName).appendWords(toSynopsisUsage(groupOptions));
+            synopsis.append(groupName).appendWords(toSynopsisUsage(sortOptions(command.getGroupOptions())));
             options.addAll(command.getGroupOptions());
         }
-        List<OptionMetadata> commandOptions = new ArrayList<OptionMetadata>(command.getCommandOptions());
-        if (optionComparator != null) {
-              Collections.sort(commandOptions, optionComparator);
-        }
-        synopsis.append(command.getName()).appendWords(toSynopsisUsage(commandOptions));
+        synopsis.append(command.getName()).appendWords(toSynopsisUsage(sortOptions(command.getCommandOptions())));
         options.addAll(command.getCommandOptions());
 
         // command arguments (optional)
@@ -115,24 +101,25 @@ public class CommandUsage
         // OPTIONS
         //
         if (options.size() > 0 || arguments != null) {
-            if (optionComparator != null) {
-                Collections.sort(options, optionComparator);
-            }
+            options = sortOptions(options);
 
             out.append("OPTIONS").newline();
 
             for (OptionMetadata option : options) {
-                if (!option.isHidden()) {
-                    // option names
-                    UsagePrinter optionPrinter = out.newIndentedPrinter(8);
-                    optionPrinter.append(UsageHelper.toDescription(option)).newline();
-
-                    // description
-                    UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
-                    descriptionPrinter.append(option.getDescription()).newline();
-
-                    descriptionPrinter.newline();
+                // skip hidden options
+                if (option.isHidden()) {
+                    continue;
                 }
+
+                // option names
+                UsagePrinter optionPrinter = out.newIndentedPrinter(8);
+                optionPrinter.append(UsageHelper.toDescription(option)).newline();
+
+                // description
+                UsagePrinter descriptionPrinter = optionPrinter.newIndentedPrinter(4);
+                descriptionPrinter.append(option.getDescription()).newline();
+
+                descriptionPrinter.newline();
             }
 
             if (arguments != null) {
@@ -155,5 +142,14 @@ public class CommandUsage
             }
         }
 
+    }
+
+    private List<OptionMetadata> sortOptions(List<OptionMetadata> options)
+    {
+        if (optionComparator != null) {
+            options = new ArrayList<OptionMetadata>(options);
+            Collections.sort(options, optionComparator);
+        }
+        return options;
     }
 }
