@@ -43,6 +43,9 @@ public class ArgsSingleChar
     @Option(name = "-s", description = "A string")
     public String s = null;
 
+    @Option(name = "-p", description = "A path")
+    public String p = null;
+
     @Option(name = "-n", description = "No action")
     public boolean n = false;
 

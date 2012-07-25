@@ -89,12 +89,13 @@ public class CommandTest
             throws ParseException
     {
         ArgsSingleChar args = singleCommandParser(ArgsSingleChar.class).parse("ArgsSingleChar",
-                "-lg", "-dsn", "-2f", "-z", "--Dfoo");
+                "-lg", "-dsn", "-pa-p", "-2f", "-z", "--Dfoo");
 
         Assert.assertTrue(args.l);
         Assert.assertTrue(args.g);
         Assert.assertTrue(args.d);
         Assert.assertEquals(args.s, "n");
+        Assert.assertEquals(args.p, "a-p");
         Assert.assertFalse(args.n);
         Assert.assertTrue(args.two);
         Assert.assertEquals(args.f, "-z");

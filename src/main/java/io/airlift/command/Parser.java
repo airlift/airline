@@ -19,7 +19,7 @@ import static com.google.common.collect.Iterables.find;
 
 public class Parser
 {
-    private static final Pattern GNU_SHORT_OPTIONS_PATTERN = Pattern.compile("-[^-]+");
+    private static final Pattern SHORT_OPTIONS_PATTERN = Pattern.compile("-[^-].*");
     private final GlobalMetadata metadata;
 
     public Parser(GlobalMetadata metadata)
@@ -98,7 +98,7 @@ public class Parser
             }
 
             // Handle classic getopt syntax: -abc
-            nextState = parseShortGnuGetOpt(tokens, state, allowedOptions);
+            nextState = parseClassicGetOpt(tokens, state, allowedOptions);
             if (nextState != null) {
                 state = nextState;
                 continue;
@@ -171,9 +171,9 @@ public class Parser
         return state;
     }
 
-    private ParseState parseShortGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseClassicGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
-        if (!GNU_SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
+        if (!SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
             return null;
         }
 
