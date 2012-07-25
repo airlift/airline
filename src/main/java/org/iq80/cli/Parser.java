@@ -1,5 +1,6 @@
 package org.iq80.cli;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
@@ -10,6 +11,7 @@ import org.iq80.cli.model.GlobalMetadata;
 import org.iq80.cli.model.OptionMetadata;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Predicates.compose;
 import static com.google.common.base.Predicates.equalTo;
@@ -17,13 +19,14 @@ import static com.google.common.collect.Iterables.find;
 
 public class Parser
 {
+    private static final Pattern GNU_SHORT_OPTIONS_PATTERN = Pattern.compile("-[^-]+");
     private final GlobalMetadata metadata;
 
     public Parser(GlobalMetadata metadata)
     {
         this.metadata = metadata;
     }
-    
+
     // global> (option value*)* (group (option value*)*)? (command (option value* | arg)* '--'? args*)?
     public ParseState parse(String... params)
     {
@@ -67,7 +70,7 @@ public class Parser
 
                     state = parseArgs(state, tokens, command.getArguments());
                 }
-           }
+            }
         }
 
         return state;
@@ -76,111 +79,152 @@ public class Parser
     private ParseState parseOptions(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         while (tokens.hasNext()) {
-            OptionMetadata option = findOption(allowedOptions, tokens.peek());
-            if (option != null) {
-                tokens.next();
-                state = state.pushContext(Context.OPTION).withOption(option);
+            //
+            // Try to parse next option(s) using different styles.  If code matches it returns
+            // the next parser state, otherwise it returns null.
 
-                Object value;
-                if (option.getArity() == 0) {
-                    state = state.withOptionValue(option, Boolean.TRUE)
-                            .popContext();
-                }
-                else if (option.getArity() == 1) {
-                    if (tokens.hasNext()) {
-                        value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
-                        state = state.withOptionValue(option, value)
-                                .popContext();
-                    }
-                }
-                else if (option.getArity() > 1) {
-                    ImmutableList.Builder<Object> values = ImmutableList.builder();
-
-                    int count = 0;
-                    while (count < option.getArity() && tokens.hasNext()) {
-                        values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
-                        ++count;
-                    }
-
-                    if (count == option.getArity()) {
-                        state = state.withOptionValue(option, values.build())
-                                .popContext();
-                    }
-                }
-                else {
-                    throw new UnsupportedOperationException("arity > 1 not yet supported");
-                }
+            // Parse a simple option
+            ParseState nextState = parseSimpleOption(tokens, state, allowedOptions);
+            if (nextState != null) {
+                state = nextState;
+                continue;
             }
 
-            // Handle GNU getopt long-form: --option=value
-            if (option == null) {
-                String[] split = tokens.peek().split("=", 2);
-                if (split.length > 1) {
-                    option = findOption(allowedOptions, split[0]);
-                    if (option != null && option.getArity() == 1) {
-                        Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), split[1]);
-                        state = state.withOption(option).withOptionValue(option, value);
-                        tokens.next();
-                    }
-                    else {
-                        option = null;
-                    }
-                }
+            // Parse GNU getopt long-form: --option=value
+            nextState = parseLongGnuGetOpt(tokens, state, allowedOptions);
+            if (nextState != null) {
+                state = nextState;
+                continue;
             }
 
-            // Handle classic getopt syntax
-            if (option == null && tokens.peek().matches("-[^-].*")) {
-                String tokenLeft = tokens.peek().substring(1);
-                boolean eatToken = true;
-                ParseState potentialState = state;
-                while (potentialState != null && !tokenLeft.isEmpty()) {
-                    option = findOption(allowedOptions, "-" + tokenLeft.substring(0, 1));
-                    tokenLeft = tokenLeft.substring(1);
-                    if (option == null) {
-                        potentialState = null;
-                    }
-                    else if (option.getArity() == 0) {
-                        potentialState = potentialState.withOption(option).withOptionValue(option, Boolean.TRUE);
-                    }
-                    else if (option.getArity() == 1) {
-                        if (!tokenLeft.isEmpty()) {
-                            Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokenLeft);
-                            tokenLeft = "";
-                            potentialState = potentialState.withOption(option).withOptionValue(option, value);
-                        }
-                        else {
-                            eatToken = false;
-                            tokens.next();
-                            potentialState = potentialState.pushContext(Context.OPTION).withOption(option);
-                            if (tokens.hasNext()) {
-                                Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
-                                potentialState = potentialState.withOptionValue(option, value)
-                                        .popContext();
-                            }
-                         }
-                    }
-                    else {
-                        potentialState = null;
-                    }
-                }
-
-                if (potentialState == null) {
-                    option = null;
-                }
-                else {
-                    state = potentialState;
-                    if (eatToken) {
-                        tokens.next();
-                    }
-                }
+            // Handle classic getopt syntax: -abc
+            nextState = parseShortGnuGetOpt(tokens, state, allowedOptions);
+            if (nextState != null) {
+                state = nextState;
+                continue;
             }
 
-            if (option == null) {
-                break;
-            }
+            // did not match an option
+            break;
         }
 
         return state;
+    }
+
+    private ParseState parseSimpleOption(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    {
+        OptionMetadata option = findOption(allowedOptions, tokens.peek());
+        if (option == null) {
+            return null;
+        }
+
+        tokens.next();
+        state = state.pushContext(Context.OPTION).withOption(option);
+
+        Object value;
+        if (option.getArity() == 0) {
+            state = state.withOptionValue(option, Boolean.TRUE).popContext();
+        }
+        else if (option.getArity() == 1) {
+            if (tokens.hasNext()) {
+                value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
+                state = state.withOptionValue(option, value).popContext();
+            }
+        }
+        else {
+            ImmutableList.Builder<Object> values = ImmutableList.builder();
+
+            int count = 0;
+            while (count < option.getArity() && tokens.hasNext()) {
+                values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
+                ++count;
+            }
+
+            if (count == option.getArity()) {
+                state = state.withOptionValue(option, values.build()).popContext();
+            }
+        }
+        return state;
+    }
+
+    private ParseState parseLongGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    {
+        List<String> parts = ImmutableList.copyOf(Splitter.on('=').limit(2).split(tokens.peek()));
+        if (parts.size() != 2) {
+            return null;
+        }
+
+        OptionMetadata option = findOption(allowedOptions, parts.get(0));
+        if (option == null || option.getArity() != 1) {
+            // TODO: this is not exactly correct. It should be an error condition
+            return null;
+        }
+
+        // we have a match so consume the token
+        tokens.next();
+
+        // update state
+        state = state.pushContext(Context.OPTION).withOption(option);
+        Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), parts.get(1));
+        state = state.withOption(option).withOptionValue(option, value).popContext();
+
+        return state;
+    }
+
+    private ParseState parseShortGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    {
+        if (!GNU_SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
+            return null;
+        }
+
+        // remove leading dash from token
+        String remainingToken = tokens.peek().substring(1);
+
+        ParseState nextState = state;
+        while (!remainingToken.isEmpty()) {
+            char tokenCharacter = remainingToken.charAt(0);
+
+            // is the current token character a single letter option?
+            OptionMetadata option = findOption(allowedOptions, "-" + tokenCharacter);
+            if (option == null) {
+                return null;
+            }
+
+            nextState = nextState.pushContext(Context.OPTION).withOption(option);
+
+            // remove current token character
+            remainingToken = remainingToken.substring(1);
+
+            // for no argument options, process the option and remove the character from the token
+            if (option.getArity() == 0) {
+                nextState = nextState.withOptionValue(option, Boolean.TRUE).popContext();
+                continue;
+            }
+
+            if (option.getArity() == 1) {
+                // we must, consume the current token so we can see the next token
+                tokens.next();
+
+                // if current token has more characters, this is the value; otherwise it is the next token
+                if (!remainingToken.isEmpty()) {
+                    Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), remainingToken);
+                    nextState = nextState.withOptionValue(option, value).popContext();
+                }
+                else if (tokens.hasNext()) {
+                    Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
+                    nextState = nextState.withOptionValue(option, value).popContext();
+                }
+
+                return nextState;
+            }
+
+            throw new UnsupportedOperationException("Short options style can not be used with option " + option.getAllowedValues());
+        }
+
+        // consume the current token
+        tokens.next();
+
+        return nextState;
     }
 
     private ParseState parseArgs(ParseState state, PeekingIterator<String> tokens, ArgumentsMetadata arguments)
