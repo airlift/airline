@@ -15,26 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.Cli.CliBuilder;
-import org.iq80.cli.Git.Add;
-import org.iq80.cli.Git.RemoteAdd;
-import org.iq80.cli.Git.RemoteShow;
-import org.iq80.cli.args.Args1;
-import org.iq80.cli.args.Args2;
-import org.iq80.cli.args.ArgsArityString;
-import org.iq80.cli.args.ArgsBooleanArity;
-import org.iq80.cli.args.ArgsInherited;
-import org.iq80.cli.args.ArgsRequired;
-import org.iq80.cli.args.CommandHidden;
-import org.iq80.cli.args.OptionsHidden;
-import org.iq80.cli.args.OptionsRequired;
+import io.airlift.command.Cli.CliBuilder;
+import io.airlift.command.Git.Add;
+import io.airlift.command.Git.RemoteAdd;
+import io.airlift.command.Git.RemoteShow;
+import io.airlift.command.args.Args1;
+import io.airlift.command.args.Args2;
+import io.airlift.command.args.ArgsArityString;
+import io.airlift.command.args.ArgsBooleanArity;
+import io.airlift.command.args.ArgsInherited;
+import io.airlift.command.args.ArgsRequired;
+import io.airlift.command.args.CommandHidden;
+import io.airlift.command.args.OptionsHidden;
+import io.airlift.command.args.OptionsRequired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.iq80.cli.Cli.buildCli;
+import static io.airlift.command.Cli.buildCli;
 
 @Test
 public class HelpTest

@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-package org.iq80.cli.command;
+package io.airlift.command.command;
 
-import org.iq80.cli.Cli;
+import io.airlift.command.Cli;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-import static org.iq80.cli.TestUtil.singleCommandParser;
+import static io.airlift.command.TestUtil.singleCommandParser;
 
 public class CommandTest
 {

@@ -1,7 +1,7 @@
-package org.iq80.cli.args;
+package io.airlift.command.args;
 
-import org.iq80.cli.Command;
-import org.iq80.cli.Option;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
 
 @Command(name="Arity1")
 public class Arity1

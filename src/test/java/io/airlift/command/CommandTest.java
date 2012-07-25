@@ -16,27 +16,27 @@
  * limitations under the License.
  */
 
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.Cli.CliBuilder;
-import org.iq80.cli.args.Args1;
-import org.iq80.cli.args.Args2;
-import org.iq80.cli.args.ArgsArityString;
-import org.iq80.cli.args.ArgsBooleanArity;
-import org.iq80.cli.args.ArgsBooleanArity0;
-import org.iq80.cli.args.ArgsEnum;
-import org.iq80.cli.args.ArgsInherited;
-import org.iq80.cli.args.ArgsMultipleUnparsed;
-import org.iq80.cli.args.ArgsOutOfMemory;
-import org.iq80.cli.args.ArgsPrivate;
-import org.iq80.cli.args.ArgsRequired;
-import org.iq80.cli.args.ArgsSingleChar;
-import org.iq80.cli.args.Arity1;
-import org.iq80.cli.args.OptionsRequired;
-import org.iq80.cli.command.CommandAdd;
-import org.iq80.cli.command.CommandCommit;
-import org.iq80.cli.model.CommandMetadata;
+import io.airlift.command.Cli.CliBuilder;
+import io.airlift.command.args.Args1;
+import io.airlift.command.args.Args2;
+import io.airlift.command.args.ArgsArityString;
+import io.airlift.command.args.ArgsBooleanArity;
+import io.airlift.command.args.ArgsBooleanArity0;
+import io.airlift.command.args.ArgsEnum;
+import io.airlift.command.args.ArgsInherited;
+import io.airlift.command.args.ArgsMultipleUnparsed;
+import io.airlift.command.args.ArgsOutOfMemory;
+import io.airlift.command.args.ArgsPrivate;
+import io.airlift.command.args.ArgsRequired;
+import io.airlift.command.args.ArgsSingleChar;
+import io.airlift.command.args.Arity1;
+import io.airlift.command.args.OptionsRequired;
+import io.airlift.command.command.CommandAdd;
+import io.airlift.command.command.CommandCommit;
+import io.airlift.command.model.CommandMetadata;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,7 +48,7 @@ import java.util.List;
 import static com.google.common.base.Predicates.compose;
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.collect.Iterables.find;
-import static org.iq80.cli.TestUtil.singleCommandParser;
+import static io.airlift.command.TestUtil.singleCommandParser;
 
 @Test
 public class CommandTest

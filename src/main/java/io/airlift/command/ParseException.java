@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.iq80.cli;
+package io.airlift.command;
 
 public class ParseException extends RuntimeException
 {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -24,19 +24,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import org.iq80.cli.model.ArgumentsMetadata;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
-import org.iq80.cli.model.MetadataLoader;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.ArgumentsMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
+import io.airlift.command.model.MetadataLoader;
+import io.airlift.command.model.OptionMetadata;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static org.iq80.cli.ParserUtil.createInstance;
+import static io.airlift.command.ParserUtil.createInstance;
 
 public class Cli<C>
 {

@@ -1,4 +1,4 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -6,10 +6,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newTreeMap;
-import static org.iq80.cli.UsageHelper.toUsage;
+import static io.airlift.command.UsageHelper.toUsage;
 
 public class GlobalUsageSummary
 {

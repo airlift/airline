@@ -1,12 +1,12 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import org.iq80.cli.Accessor;
-import org.iq80.cli.OptionType;
+import io.airlift.command.Accessor;
+import io.airlift.command.OptionType;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;

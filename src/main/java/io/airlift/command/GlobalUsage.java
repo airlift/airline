@@ -1,10 +1,10 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Preconditions;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -12,8 +12,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
-import static org.iq80.cli.UsageHelper.DEFAULT_OPTION_COMPARATOR;
+import static io.airlift.command.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
+import static io.airlift.command.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 
 public class GlobalUsage
 {

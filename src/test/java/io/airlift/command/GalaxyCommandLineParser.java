@@ -1,17 +1,17 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import org.iq80.cli.Cli.CliBuilder;
+import io.airlift.command.Cli.CliBuilder;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.Cli.buildCli;
-import static org.iq80.cli.OptionType.GLOBAL;
+import static io.airlift.command.Cli.buildCli;
+import static io.airlift.command.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
 {

@@ -1,4 +1,4 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -6,12 +6,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import org.iq80.cli.Accessor;
-import org.iq80.cli.Arguments;
-import org.iq80.cli.Command;
-import org.iq80.cli.Option;
-import org.iq80.cli.OptionType;
-import org.iq80.cli.Suggester;
+import io.airlift.command.Accessor;
+import io.airlift.command.Arguments;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
+import io.airlift.command.OptionType;
+import io.airlift.command.Suggester;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

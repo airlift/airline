@@ -1,14 +1,14 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import org.iq80.cli.model.ArgumentsMetadata;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.ArgumentsMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import java.util.List;
 import java.util.regex.Pattern;

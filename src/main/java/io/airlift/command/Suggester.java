@@ -1,4 +1,4 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 public interface Suggester
 {

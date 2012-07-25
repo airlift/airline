@@ -1,8 +1,8 @@
-package org.iq80.cli;
+package io.airlift.command;
 
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
 
 import javax.inject.Inject;
 import java.util.List;

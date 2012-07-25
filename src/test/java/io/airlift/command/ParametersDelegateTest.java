@@ -1,4 +1,4 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.collect.ImmutableList;
 import org.testng.Assert;
@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.TestUtil.singleCommandParser;
+import static io.airlift.command.TestUtil.singleCommandParser;
 
 /**
  * @author dain

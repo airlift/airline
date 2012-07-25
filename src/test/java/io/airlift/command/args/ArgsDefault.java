@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package org.iq80.cli.args;
+package io.airlift.command.args;
 
 import com.google.common.collect.Lists;
-import org.iq80.cli.Arguments;
-import org.iq80.cli.Option;
+import io.airlift.command.Arguments;
+import io.airlift.command.Option;
 
 import java.util.List;
 

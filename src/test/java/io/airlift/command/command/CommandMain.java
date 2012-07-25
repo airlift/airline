@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package org.iq80.cli.command;
+package io.airlift.command.command;
 
-import org.iq80.cli.Option;
+import io.airlift.command.Option;
 
-import static org.iq80.cli.OptionType.GLOBAL;
+import static io.airlift.command.OptionType.GLOBAL;
 
 public class CommandMain
 {

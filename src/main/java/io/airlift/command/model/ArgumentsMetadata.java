@@ -1,9 +1,9 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import org.iq80.cli.Accessor;
+import io.airlift.command.Accessor;
 
 import java.lang.reflect.Field;
 import java.util.Set;

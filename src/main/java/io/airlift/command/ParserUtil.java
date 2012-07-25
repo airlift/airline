@@ -1,9 +1,9 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
-import org.iq80.cli.model.ArgumentsMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.ArgumentsMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.collect.ImmutableList;
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.iq80.cli;
+package io.airlift.command;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

@@ -1,15 +1,15 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.iq80.cli.model.CommandGroupMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.GlobalMetadata;
-import org.iq80.cli.model.MetadataLoader;
-import org.iq80.cli.model.OptionMetadata;
-import org.iq80.cli.model.SuggesterMetadata;
+import io.airlift.command.model.CommandGroupMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.GlobalMetadata;
+import io.airlift.command.model.MetadataLoader;
+import io.airlift.command.model.OptionMetadata;
+import io.airlift.command.model.SuggesterMetadata;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.iq80.cli.ParserUtil.createInstance;
+import static io.airlift.command.ParserUtil.createInstance;
 
 @Command(name = "suggest")
 public class SuggestCommand

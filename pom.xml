@@ -20,14 +20,14 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.iq80.cli</groupId>
-    <artifactId>git-like-cli</artifactId>
+    <groupId>io.airlift</groupId>
+    <artifactId>airline</artifactId>
     <packaging>jar</packaging>
     <name>cli</name>
     <version>0.4-SNAPSHOT</version>
 
-    <description>Git-like-cli is a Java annotation-based framework for parsing Git like command line structures.</description>
-    <url>https://github.com/dain/git-like-cli</url>
+    <description>Airline is a Java annotation-based framework for parsing Git like command line structures.</description>
+    <url>https://github.com/airlift/airline</url>
 
     <inceptionYear>2012</inceptionYear>
 
@@ -48,9 +48,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:dain/git-like-cli.git</connection>
-        <developerConnection>scm:git:git@github.com:dain/git-like-cli.git</developerConnection>
-        <url>http://github.com/dain/git-like-cli/tree/master</url>
+        <connection>scm:git:git@github.com:airlift/airline.git</connection>
+        <developerConnection>scm:git:git@github.com:airlift/airline.git</developerConnection>
+        <url>http://github.com/airlift/airline/tree/master</url>
     </scm>
 
     <properties>

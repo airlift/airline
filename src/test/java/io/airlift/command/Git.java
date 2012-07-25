@@ -1,11 +1,11 @@
-package org.iq80.cli;
+package io.airlift.command;
 
-import org.iq80.cli.Cli.CliBuilder;
+import io.airlift.command.Cli.CliBuilder;
 
 import java.util.List;
 
-import static org.iq80.cli.Cli.buildCli;
-import static org.iq80.cli.OptionType.GLOBAL;
+import static io.airlift.command.Cli.buildCli;
+import static io.airlift.command.OptionType.GLOBAL;
 
 public class Git
 {

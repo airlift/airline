@@ -1,8 +1,8 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.Accessor;
-import org.iq80.cli.Suggester;
+import io.airlift.command.Accessor;
+import io.airlift.command.Suggester;
 
 import java.util.List;
 

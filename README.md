@@ -1,7 +1,7 @@
-Git-like-cli
-============
+Airline
+=======
 
-Git-like-cli is a Java annotation-based framework for parsing Git like command line structures.
+Airline is a Java annotation-based framework for parsing Git like command line structures.
 
 Latest release is 0.3, available from Maven Central.
 
@@ -77,7 +77,7 @@ Assuming you have packaged this as an executable program named 'git', you would 
 ```shell
 $ git add -p file
 
-$ git remote add origin git@github.com:dain/git-like-cli.git
+$ git remote add origin git@github.com:airlift/airline.git
 
 $ git -v remote show origin
 ```
@@ -87,10 +87,10 @@ $ git -v remote show origin
 Help System
 ===========
 
-Git-like-cli contains a fully automated help system, which generates man-page-like documentation driven by the Java
+Airline contains a fully automated help system, which generates man-page-like documentation driven by the Java
 annotations.
 
-As you may have noticed in the code above, we added Help.class to the cli.  This command is provided by Git-like-cli and works as follows:
+As you may have noticed in the code above, we added Help.class to the cli.  This command is provided by Airline and works as follows:
 
 ```shell
 $ git help

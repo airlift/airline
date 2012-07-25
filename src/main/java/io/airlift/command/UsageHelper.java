@@ -1,13 +1,13 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.iq80.cli.model.ArgumentsMetadata;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.ArgumentsMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
-import static org.iq80.cli.model.OptionMetadata.isHiddenPredicate;
+import static io.airlift.command.model.OptionMetadata.isHiddenPredicate;
 
 public class UsageHelper
 {

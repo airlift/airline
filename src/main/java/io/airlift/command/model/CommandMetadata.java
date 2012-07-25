@@ -1,8 +1,8 @@
-package org.iq80.cli.model;
+package io.airlift.command.model;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.Accessor;
+import io.airlift.command.Accessor;
 
 import javax.annotation.Nullable;
 import java.util.List;

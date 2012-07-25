@@ -1,4 +1,4 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
@@ -10,7 +10,7 @@ public class GitTest
     {
         // simple command parsing example
         git("add", "-p", "file");
-        git("remote", "add", "origin", "git@github.com:dain/git-like-cli.git");
+        git("remote", "add", "origin", "git@github.com:airlift/airline.git");
         git("-v", "remote", "show", "origin");
 
         // show help

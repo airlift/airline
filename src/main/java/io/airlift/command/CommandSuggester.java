@@ -1,8 +1,8 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 import com.google.common.collect.ImmutableList;
-import org.iq80.cli.model.CommandMetadata;
-import org.iq80.cli.model.OptionMetadata;
+import io.airlift.command.model.CommandMetadata;
+import io.airlift.command.model.OptionMetadata;
 
 import javax.inject.Inject;
 

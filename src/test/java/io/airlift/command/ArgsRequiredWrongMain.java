@@ -1,4 +1,4 @@
-package org.iq80.cli;
+package io.airlift.command;
 
 @Command(name="ArgsRequiredWrongMain")
 public class ArgsRequiredWrongMain
