@@ -83,7 +83,7 @@ public class Accessor
                 instance = nextInstance;
             }
             catch (Exception e) {
-                throw new ParseException("Error getting value of %s", pathName);
+                throw new ParseException(e, "Error getting value of %s", pathName);
             }
         }
         return instance;
@@ -109,7 +109,7 @@ public class Accessor
                 field.set(instance, Iterables.getLast(values));
             }
             catch (Exception e) {
-                throw new ParseException("Error setting %s for argument %s", field.getName(), name);
+                throw new ParseException(e, "Error setting %s for argument %s", field.getName(), name);
             }
         }
 
@@ -166,7 +166,7 @@ public class Accessor
         try {
             return (Collection<Object>) type.getConstructor().newInstance();
         }
-        catch (Exception e) {
+        catch (Exception ignored) {
         }
 
         throw new ParseException("Parameters of Collection type '%s' are not supported. Please use List or Set instead.", type.getSimpleName());
@@ -179,7 +179,7 @@ public class Accessor
             collection = (Collection<Object>) field.get(object);
         }
         catch (Exception e) {
-            throw new ParseException("Error getting collection field %s for argument %s", field.getName(), name);
+            throw new ParseException(e, "Error getting collection field %s for argument %s", field.getName(), name);
         }
 
         if (collection == null) {
@@ -188,7 +188,7 @@ public class Accessor
                 field.set(object, collection);
             }
             catch (Exception e) {
-                throw new ParseException("Error setting collection field %s for argument %s", field.getName(), name);
+                throw new ParseException(e, "Error setting collection field %s for argument %s", field.getName(), name);
             }
         }
         return collection;
