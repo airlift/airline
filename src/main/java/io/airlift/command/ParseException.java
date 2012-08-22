@@ -24,4 +24,9 @@ public class ParseException extends RuntimeException
     {
         super(String.format(string, args));
     }
+
+    public ParseException(Exception cause, String string, Object... args)
+    {
+        super(String.format(string, args), cause);
+    }
 }

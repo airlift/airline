@@ -19,7 +19,7 @@ public class ParserUtil
                 return type.getConstructor().newInstance();
             }
             catch (Exception e) {
-                throw new ParseException("Unable to create instance %s", type.getName());
+                throw new ParseException(e, "Unable to create instance %s", type.getName());
             }
         }
         return null;
