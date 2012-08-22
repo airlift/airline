@@ -126,7 +126,13 @@ public class Cli<C>
     {
         CommandMetadata command = state.getCommand();
         if (command == null) {
-            throw new ParseException("No command specified");
+            List<String> unparsedInput = state.getUnparsedInput();
+            if (unparsedInput.isEmpty()) {
+                throw new ParseException("No command specified");
+            }
+            else {
+                throw new ParseException("Command '%s' not recognized", unparsedInput.get(0));
+            }
         }
 
         ArgumentsMetadata arguments = command.getArguments();
