@@ -74,6 +74,6 @@ public class TypeConverter
         catch (Throwable ignored) {
         }
 
-        throw new ParseException(String.format("%s: can not convert \"%s\" to a %s", name, value, type.getSimpleName()));
+        throw new ParseException("%s: can not convert \"%s\" to a %s", name, value, type.getSimpleName());
     }
 }
