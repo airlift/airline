@@ -129,8 +129,17 @@ public class CommandTest
     /**
      * Getting the description of a nonexistent command should throw an exception.
      */
-    @Test(expectedExceptions = ParseException.class)
+    @Test(expectedExceptions = ParseException.class, expectedExceptionsMessageRegExp = "No command specified")
     public void nonexistentCommandShouldThrow()
+    {
+        singleCommandParser(Args1.class).parse();
+    }
+
+    /**
+     * Getting the description of a nonexistent command should throw an exception.
+     */
+    @Test(expectedExceptions = ParseException.class, expectedExceptionsMessageRegExp = "Command 'foo' not recognized")
+    public void unrecognizedCommandShouldThrow()
     {
         singleCommandParser(Args1.class).parse("foo");
     }
