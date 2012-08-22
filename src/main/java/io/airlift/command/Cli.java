@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import io.airlift.command.model.ArgumentsMetadata;
 import io.airlift.command.model.CommandGroupMetadata;
 import io.airlift.command.model.CommandMetadata;
@@ -128,29 +127,29 @@ public class Cli<C>
         if (command == null) {
             List<String> unparsedInput = state.getUnparsedInput();
             if (unparsedInput.isEmpty()) {
-                throw new ParseException("No command specified");
+                throw new ParseCommandMissingException();
             }
             else {
-                throw new ParseException("Command '%s' not recognized", unparsedInput.get(0));
+                throw new ParseCommandUnrecognizedException(unparsedInput);
             }
         }
 
         ArgumentsMetadata arguments = command.getArguments();
         if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
-            throw new ParseException("Required parameters are missing: %s", arguments.getTitle());
+            throw new ParseArgumentsMissingException(arguments.getTitle());
         }
         
         if (!state.getUnparsedInput().isEmpty()) {
-            throw new ParseException("Found unexpected parameters: %s", state.getUnparsedInput());
+            throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
         }
 
         if (state.getLocation() == Context.OPTION) {
-            throw new ParseException("Required values for option '%s' not provided", state.getCurrentOption().getTitle());
+            throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
         }
 
         for (OptionMetadata option : command.getAllOptions()) {
             if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
-                throw new ParseException("Required option '%s' is missing", option.getOptions().iterator().next());
+                throw new ParseOptionMissingException(option.getOptions().iterator().next());
             }
         }
     }
