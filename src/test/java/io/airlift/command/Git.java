@@ -4,14 +4,13 @@ import io.airlift.command.Cli.CliBuilder;
 
 import java.util.List;
 
-import static io.airlift.command.Cli.buildCli;
 import static io.airlift.command.OptionType.GLOBAL;
 
 public class Git
 {
     public static void main(String... args)
     {
-        CliBuilder<Runnable> builder = buildCli("git", Runnable.class)
+        CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,

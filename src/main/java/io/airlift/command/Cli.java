@@ -39,17 +39,22 @@ import static io.airlift.command.ParserUtil.createInstance;
 
 public class Cli<C>
 {
-
-    public static CliBuilder<Object> buildCli(String name)
-    {
-        Preconditions.checkNotNull(name, "name is null");
-        return new CliBuilder<Object>(name);
-    }
-
-    public static <T> CliBuilder<T> buildCli(String name, Class<T> commandTypes)
+    public static <T> CliBuilder<T> builder(String name)
     {
         Preconditions.checkNotNull(name, "name is null");
         return new CliBuilder<T>(name);
+    }
+
+    @Deprecated
+    public static CliBuilder<Object> buildCli(String name)
+    {
+        return builder(name);
+    }
+
+    @Deprecated
+    public static <T> CliBuilder<T> buildCli(String name, Class<T> commandTypes)
+    {
+        return builder(name);
     }
 
     private final GlobalMetadata metadata;

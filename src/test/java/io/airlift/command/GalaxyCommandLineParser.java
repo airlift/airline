@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.command.Cli.buildCli;
 import static io.airlift.command.OptionType.GLOBAL;
 
 public class GalaxyCommandLineParser
@@ -53,7 +52,7 @@ public class GalaxyCommandLineParser
 
     private Cli<GalaxyCommand> createParser()
     {
-        CliBuilder<GalaxyCommand> builder = buildCli("galaxy", GalaxyCommand.class)
+        CliBuilder<GalaxyCommand> builder = Cli.<GalaxyCommand>builder("galaxy")
                 .withDescription("cloud management system")
                 .withDefaultCommand(HelpCommand.class)
                 .withCommands(HelpCommand.class,

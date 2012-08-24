@@ -34,14 +34,12 @@ import io.airlift.command.args.OptionsRequired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static io.airlift.command.Cli.buildCli;
-
 @Test
 public class HelpTest
 {
     public void testGit()
     {
-        CliBuilder<Runnable> builder = buildCli("git", Runnable.class)
+        CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -121,7 +119,7 @@ public class HelpTest
 
     public void testArgs1()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -177,7 +175,7 @@ public class HelpTest
 
    public void testArgs2()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -219,7 +217,7 @@ public class HelpTest
 
     public void testArgsAritySting()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -251,7 +249,7 @@ public class HelpTest
 
     public void testArgsBooleanArity()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -275,7 +273,7 @@ public class HelpTest
 
     public void testArgsInherited()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -320,7 +318,7 @@ public class HelpTest
 
     public void testArgsRequired()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -349,7 +347,7 @@ public class HelpTest
 
     public void testOptionsRequired()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -377,7 +375,7 @@ public class HelpTest
 
     public void testOptionsHidden()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,
@@ -401,7 +399,7 @@ public class HelpTest
 
     public void testCommandHidden()
     {
-        CliBuilder<Object> builder = buildCli("test", Object.class)
+        CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class,

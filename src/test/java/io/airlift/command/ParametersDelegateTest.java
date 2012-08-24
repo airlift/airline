@@ -36,7 +36,7 @@ public class ParametersDelegateTest
     @Test
     public void delegatingEmptyClassHasNoEffect()
     {
-        DelegatingEmptyClassHasNoEffect p = Cli.buildCli("foo", DelegatingEmptyClassHasNoEffect.class)
+        DelegatingEmptyClassHasNoEffect p = Cli.<DelegatingEmptyClassHasNoEffect>builder("foo")
                 .withCommand(DelegatingEmptyClassHasNoEffect.class)
                 .build()
                 .parse("command", "-a", "-b", "someValue");

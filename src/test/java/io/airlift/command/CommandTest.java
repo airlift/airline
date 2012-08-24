@@ -273,7 +273,7 @@ public class CommandTest
 
     private void verifyCommandOrdering(String[] commandNames, Class<?>... commands)
     {
-        CliBuilder<Object> builder = Cli.buildCli("foo");
+        CliBuilder<Object> builder = Cli.builder("foo");
         for (Class<?> command : commands) {
             builder = builder.withCommand(command);
         }
