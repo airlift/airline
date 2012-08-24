@@ -31,8 +31,7 @@ public class CommandTest
     @Test
     public void namedCommandTest1()
     {
-        Cli<?> parser = Cli
-                .buildCli("git")
+        Cli<?> parser = Cli.builder("git")
                 .withCommand(CommandAdd.class)
                 .withCommand(CommandCommit.class)
                 .build();
@@ -54,8 +53,7 @@ public class CommandTest
     @Test
     public void commandTest2()
     {
-        Cli<?> parser = Cli
-                .buildCli("git")
+        Cli<?> parser = Cli.builder("git")
                 .withCommand(CommandAdd.class)
                 .withCommand(CommandCommit.class)
                 .build();
