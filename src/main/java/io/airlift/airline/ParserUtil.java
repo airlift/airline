@@ -31,10 +31,11 @@ public class ParserUtil
             ArgumentsMetadata arguments,
             Iterable<Object> parsedArguments,
             Iterable<Accessor> metadataInjection,
-            Map<Class<?>, Object> bindings)
+            Map<Class<?>, Object> bindings,
+            CommandFactory<T> commandFactory)
     {
         // create the command instance
-        T commandInstance = (T) ParserUtil.createInstance(type);
+        T commandInstance = commandFactory.createInstance(type);
 
         // inject options
         for (OptionMetadata option : options) {

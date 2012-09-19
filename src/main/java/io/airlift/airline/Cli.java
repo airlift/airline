@@ -100,6 +100,16 @@ public class Cli<C>
 
     public C parse(Iterable<String> args)
     {
+        return parse(new DefaultCommandFactory<C>(), args);
+    }
+
+    public C parse(CommandFactory<C> commandFactory, String... args)
+    {
+        return parse(commandFactory, ImmutableList.copyOf(args));
+    }
+
+    public C parse(CommandFactory<C> commandFactory, Iterable<String> args)
+    {
         Preconditions.checkNotNull(args, "args is null");
 
         Parser parser = new Parser();
@@ -124,7 +134,8 @@ public class Cli<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata),
+                commandFactory);
     }
 
     private void validate(ParseState state)
@@ -173,6 +184,7 @@ public class Cli<C>
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
         protected final Map<String, GroupBuilder<C>> groups = newHashMap();
+        protected CommandFactory<C> commandFactory;
 
         public CliBuilder(String name)
         {
@@ -186,6 +198,13 @@ public class Cli<C>
             Preconditions.checkNotNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
             this.description = description;
+            return this;
+        }
+
+        public CliBuilder<C> withCommandFactory(CommandFactory<C> commandFactory)
+        {
+            Preconditions.checkNotNull(commandFactory, "commandFactory is null");
+            this.commandFactory = commandFactory;
             return this;
         }
 

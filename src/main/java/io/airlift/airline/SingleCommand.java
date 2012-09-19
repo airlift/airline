@@ -72,7 +72,8 @@ public class SingleCommand<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
+                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata),
+                new DefaultCommandFactory<C>());
     }
 
     private void validate(ParseState state)
