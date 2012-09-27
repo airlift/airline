@@ -131,6 +131,39 @@ public class Cli<C>
                 ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata),
                 commandFactory);
     }
+
+    public C parse(C commandInstance, String... args)
+    {
+        Preconditions.checkNotNull(args, "args is null");
+        
+        Parser parser = new Parser(metadata);
+        ParseState state = parser.parse(args);
+
+        if (state.getCommand() == null) {
+            if (state.getGroup() != null) {
+                state = state.withCommand(state.getGroup().getDefaultCommand());
+            }
+            else {
+                state = state.withCommand(metadata.getDefaultCommand());
+            }
+        }
+
+        validate(state);
+
+        CommandMetadata command = state.getCommand();
+
+        C c = (C) ParserUtil.injectOptions(commandInstance,
+            command.getAllOptions(),
+            state.getParsedOptions(),
+            command.getArguments(),
+            state.getParsedArguments(),
+            command.getMetadataInjections(),
+            ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+        
+        return c;
+    }
+    
+    
     
     private void validate(ParseState state)
     {

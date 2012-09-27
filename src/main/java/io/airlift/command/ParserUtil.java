@@ -37,18 +37,14 @@ public class ParserUtil
     }
     
     
-    public static <T> T createInstance(Class<?> type,
-            Iterable<OptionMetadata> options,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
-            ArgumentsMetadata arguments,
-            Iterable<Object> parsedArguments,
-            Iterable<Accessor> metadataInjection,
-            Map<Class<?>, Object> bindings,
-            CommandFactory<T> commandFactory)
-    {
-        // create the command instance
-        T commandInstance = (T) commandFactory.createInstance(type);
-
+    public static <T> T injectOptions(T commandInstance,
+        Iterable<OptionMetadata> options,
+        ListMultimap<OptionMetadata, Object> parsedOptions,
+        ArgumentsMetadata arguments,
+        Iterable<Object> parsedArguments,
+        Iterable<Accessor> metadataInjection,
+        Map<Class<?>, Object> bindings)
+    {      
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);
@@ -62,23 +58,38 @@ public class ParserUtil
                 }
             }
         }
-
+  
         // inject args
         if (arguments != null && parsedArguments != null) {
             for (Accessor accessor : arguments.getAccessors()) {
                 accessor.addValues(commandInstance, parsedArguments);
             }
         }
-
+  
         for (Accessor accessor : metadataInjection) {
             Object injectee = bindings.get(accessor.getJavaType());
-
+  
             if (injectee != null) {
                 accessor.addValues(commandInstance, ImmutableList.of(injectee));
             }
         }
-
+  
         return commandInstance;
     }
+    
+    
+    public static <T> T createInstance(Class<?> type,
+            Iterable<OptionMetadata> options,
+            ListMultimap<OptionMetadata, Object> parsedOptions,
+            ArgumentsMetadata arguments,
+            Iterable<Object> parsedArguments,
+            Iterable<Accessor> metadataInjection,
+            Map<Class<?>, Object> bindings,
+            CommandFactory<T> commandFactory)
+    {
+        // create the command instance
+        T commandInstance = (T) commandFactory.createInstance(type);
 
+        return injectOptions(commandInstance, options, parsedOptions, arguments, parsedArguments, metadataInjection, bindings);        
+    }
 }
