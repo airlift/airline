@@ -47,4 +47,10 @@ public @interface Command
      * If true, this command won't appear in the usage().
      */
     boolean hidden() default false;
+
+    /**
+     *  the group(s) this command should belong to.
+     *  if left empty the command will belong to the default command group
+     */
+    String[] groupNames() default {};
 }

@@ -27,7 +27,7 @@
     </parent>
     <groupId>io.tesla</groupId>
     <artifactId>airline</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>cli</name>
     <version>0.6-SNAPSHOT</version>
 
@@ -100,6 +100,23 @@
 
         <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <_nouses>true</_nouses>
+                        <Export-Package>
+                            io.airlift.command*
+                            ,io.airlift.command.model*
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
