@@ -23,14 +23,12 @@ public class Git
         CliBuilder<Runnable> builder = Cli.builder<Runnable>("git")
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        Add.class);
+                .withCommands(Help.class, Add.class);
 
         builder.withGroup("remote")
                 .withDescription("Manage set of tracked repositories")
                 .withDefaultCommand(RemoteShow.class)
-                .withCommands(RemoteShow.class,
-                        RemoteAdd.class);
+                .withCommands(RemoteShow.class, RemoteAdd.class);
 
         Cli<Runnable> gitParser = builder.build();
 
