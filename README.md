@@ -20,7 +20,7 @@ public class Git
 {
     public static void main(String[] args)
     {
-        CliBuilder<Runnable> builder = Cli.builder<Runnable>("git")
+        CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class, Add.class);
