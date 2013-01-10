@@ -24,7 +24,7 @@
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
     <name>cli</name>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
 
     <description>Airline is a Java annotation-based framework for parsing Git like command line structures.</description>
     <url>https://github.com/airlift/airline</url>
