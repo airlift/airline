@@ -167,18 +167,20 @@ public class Cli<C>
         Parser parser = new Parser(metadata);
         ParseState state = parser.parse(args);
 
-        if (state.getCommand() == null) {
-            if (state.getGroup() != null) {
-                state = state.withCommand(state.getGroup().getDefaultCommand());
-            }
-            else {
-                state = state.withCommand(metadata.getDefaultCommand());
-            }
-        }
+        CommandMetadata command = MetadataLoader.loadCommand(commandInstance.getClass());
+
+        state = state.withCommand(command);
 
         validate(state);
 
-        CommandMetadata command = state.getCommand();
+
+        ImmutableMap.Builder<Class<?>, Object> bindings = ImmutableMap.<Class<?>, Object>builder().put(GlobalMetadata.class, metadata);
+
+        if (state.getGroup() != null) {
+            bindings.put(CommandGroupMetadata.class, state.getGroup());
+        }
+
+        bindings.put(CommandMetadata.class, command);
 
         C c = (C) ParserUtil.injectOptions(commandInstance,
             command.getAllOptions(),
@@ -186,7 +188,7 @@ public class Cli<C>
             command.getArguments(),
             state.getParsedArguments(),
             command.getMetadataInjections(),
-            ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+            bindings.build());
         
         return c;
     }
