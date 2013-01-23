@@ -19,14 +19,19 @@ public class CommandMetadata
     private final List<Accessor> metadataInjections;
     private final Class<?> type;
 
+    private final List<String> examples;
+    private final String discussion;
+
     public CommandMetadata(String name,
-            String description,
-            boolean hidden, Iterable<OptionMetadata> globalOptions,
-            Iterable<OptionMetadata> groupOptions,
-            Iterable<OptionMetadata> commandOptions,
-            ArgumentsMetadata arguments,
-            Iterable<Accessor> metadataInjections,
-            Class<?> type)
+                           String description,
+                           final String discussion,
+                           final List<String> examples,
+                           boolean hidden, Iterable<OptionMetadata> globalOptions,
+                           Iterable<OptionMetadata> groupOptions,
+                           Iterable<OptionMetadata> commandOptions,
+                           ArgumentsMetadata arguments,
+                           Iterable<Accessor> metadataInjections,
+                           Class<?> type)
     {
         this.name = name;
         this.description = description;
@@ -37,6 +42,8 @@ public class CommandMetadata
         this.arguments = arguments;
         this.metadataInjections = ImmutableList.copyOf(metadataInjections);
         this.type = type;
+        this.discussion = discussion;
+        this.examples = examples;
     }
 
     public String getName()
@@ -58,6 +65,14 @@ public class CommandMetadata
     {
         return ImmutableList.<OptionMetadata>builder().addAll(globalOptions).addAll(groupOptions).addAll(commandOptions).build();
 
+    }
+
+    public List<String> getExamples() {
+        return examples;
+    }
+
+    public String getDiscussion() {
+        return discussion;
     }
 
     public List<OptionMetadata> getGlobalOptions()
@@ -97,6 +112,8 @@ public class CommandMetadata
         sb.append("CommandMetadata");
         sb.append("{name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
+        sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", examples='").append(examples).append('\'');
         sb.append(", globalOptions=").append(globalOptions);
         sb.append(", groupOptions=").append(groupOptions);
         sb.append(", commandOptions=").append(commandOptions);

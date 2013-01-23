@@ -47,4 +47,8 @@ public @interface Command
      * If true, this command won't appear in the usage().
      */
     boolean hidden() default false;
+
+    String[] examples() default {};
+
+    String discussion() default "";
 }

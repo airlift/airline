@@ -80,7 +80,7 @@ public class UsagePrinter
                 line.append("   ");
                 column++;
             }
-            out.append(spaces(indent)).append(line.toString().trim()).append("\n");
+            out.append(spaces(indent)).append(line.toString()).append("\n");
         }
 
         return this;

@@ -6,6 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import io.airlift.command.Accessor;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
@@ -92,6 +93,8 @@ public class MetadataLoader
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
                 description,
+                command.discussion().isEmpty() ? null : command.discussion(),
+                command.examples().length == 0 ? null : Lists.newArrayList(command.examples()),
                 hidden, injectionMetadata.globalOptions,
                 injectionMetadata.groupOptions,
                 injectionMetadata.commandOptions,

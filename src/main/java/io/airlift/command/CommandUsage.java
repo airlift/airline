@@ -1,6 +1,8 @@
 package io.airlift.command;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import io.airlift.command.model.ArgumentsMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.OptionMetadata;
@@ -9,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -142,6 +145,39 @@ public class CommandUsage
             }
         }
 
+        if (command.getDiscussion() != null) {
+            out.append("DISCUSSION").newline();
+            UsagePrinter disc = out.newIndentedPrinter(8);
+
+            disc.append(command.getDiscussion())
+                .newline()
+                .newline();
+        }
+
+        if (command.getExamples() != null && !command.getExamples().isEmpty()) {
+            out.append("EXAMPLES").newline();
+            UsagePrinter ex = out.newIndentedPrinter(8);
+
+//            ex.append(command.getExamples()).newline().newline();
+
+            ex.appendTable(Iterables.partition(command.getExamples(), 1));
+
+//            for (String aEx : command.getExamples()) {
+//                if (aEx.isEmpty()) {
+//                    ex.newline();
+//                    continue;
+//                }
+//
+//                final Iterator<String> aStrings = Splitter.on("\n").split(aEx).iterator();
+//                if (aStrings.hasNext()) {
+//                    UsagePrinter ex2 = ex.newIndentedPrinter(4);
+//                    ex2.append("* " + aStrings.next()).newline();
+//                    while (aStrings.hasNext()) {
+//                        ex2.append(aStrings.next()).newline();
+//                    }
+//                }
+//            }
+        }
     }
 
     private List<OptionMetadata> sortOptions(List<OptionMetadata> options)
