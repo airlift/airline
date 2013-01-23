@@ -74,6 +74,10 @@ public class MetadataLoader
 
     public static CommandMetadata loadCommand(Class<?> commandType)
     {
+        if (commandType == null) {
+            return null;
+        }
+        
         Command command = null;
         for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
             command = cls.getAnnotation(Command.class);
