@@ -60,14 +60,20 @@ public class Parser
         }
 
         if (tokens.hasNext()) {
-            CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()), null);
+            CommandMetadata command = find(expectedCommands,
+                                           compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()),
+                                           state.getGroup() != null ? state.getGroup().getDefaultCommand() : null);
+
             if (command == null) {
                 while (tokens.hasNext()) {
                     state = state.withUnparsedInput(tokens.next());
                 }
             }
             else {
-                tokens.next();
+                if (tokens.peek().equals(command.getName())) {
+                    tokens.next();
+                }
+
                 state = state.withCommand(command).pushContext(Context.COMMAND);
 
                 while (tokens.hasNext()) {
