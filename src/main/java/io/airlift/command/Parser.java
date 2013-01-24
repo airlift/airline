@@ -61,6 +61,9 @@ public class Parser
 
         if (tokens.hasNext()) {
             CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()), null);
+			if (command == null && state.getGroup() != null && state.getGroup().getDefaultCommand() != null) {
+				command = state.getGroup().getDefaultCommand();
+			}
             if (command == null) {
                 while (tokens.hasNext()) {
                     state = state.withUnparsedInput(tokens.next());

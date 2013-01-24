@@ -12,6 +12,11 @@ public class GitTest
         git("add", "-p", "file");
         git("remote", "add", "origin", "git@github.com:airlift/airline.git");
         git("-v", "remote", "show", "origin");
+        // test default command
+        git("remote");
+        git("remote", "origin");
+        git("remote", "-n", "origin");
+        git("-v", "remote", "origin");
 
         // show help
         git();
