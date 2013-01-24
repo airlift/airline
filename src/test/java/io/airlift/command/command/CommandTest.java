@@ -18,11 +18,14 @@
 
 package io.airlift.command.command;
 
+import com.google.common.collect.Lists;
 import io.airlift.command.Cli;
+import io.airlift.command.model.CommandMetadata;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static io.airlift.command.TestUtil.singleCommandParser;
 
@@ -68,5 +71,57 @@ public class CommandTest
         Assert.assertTrue(commit.amend);
         Assert.assertEquals(commit.author, "cbeust");
         Assert.assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
+    }
+
+    @Test
+    public void testExample() {
+        Cli<?> parser = Cli.builder("git")
+            .withCommand(CommandRemove.class)
+            .build();
+
+        final List<CommandMetadata> commandParsers = parser.getMetadata().getDefaultGroupCommands();
+
+        Assert.assertEquals(1, commandParsers.size());
+
+        CommandMetadata aMeta = commandParsers.get(0);
+
+        Assert.assertEquals("remove", aMeta.getName());
+
+        Assert.assertEquals(Lists.newArrayList("* The following is a usage example:",
+                                               "\t$ git remove -i myfile.java"), aMeta.getExamples());
+    }
+
+    @Test
+    public void testDiscussion() {
+        Cli<?> parser = Cli.builder("git")
+            .withCommand(CommandRemove.class)
+            .build();
+
+        final List<CommandMetadata> commandParsers = parser.getMetadata().getDefaultGroupCommands();
+
+        Assert.assertEquals(1, commandParsers.size());
+
+        CommandMetadata aMeta = commandParsers.get(0);
+
+        Assert.assertEquals("remove", aMeta.getName());
+
+        Assert.assertEquals("More details about how this removes files from the index.", aMeta.getDiscussion());
+    }
+
+    @Test
+    public void testDefaultCommandInGroup() {
+        Cli<?> parser = Cli.builder("git")
+            .withCommand(CommandAdd.class)
+            .withCommand(CommandCommit.class)
+            .withDefaultCommand(CommandAdd.class)
+            .build();
+
+        Object command = parser.parse("-i", "A.java");
+
+        Assert.assertNotNull(command, "command is null");
+        Assert.assertTrue(command instanceof CommandAdd);
+        CommandAdd add = (CommandAdd) command;
+        Assert.assertEquals(add.interactive.booleanValue(), true);
+        Assert.assertEquals(add.patterns, Arrays.asList("A.java"));
     }
 }

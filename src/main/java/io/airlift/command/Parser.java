@@ -64,6 +64,10 @@ public class Parser
                                            compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()),
                                            state.getGroup() != null ? state.getGroup().getDefaultCommand() : null);
 
+            if (command == null && state.getGroup() == null && metadata.getDefaultCommand() != null) {
+                command = metadata.getDefaultCommand();
+            }
+
             if (command == null) {
                 while (tokens.hasNext()) {
                     state = state.withUnparsedInput(tokens.next());

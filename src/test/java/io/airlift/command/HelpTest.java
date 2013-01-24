@@ -17,6 +17,8 @@
  */
 package io.airlift.command;
 
+import java.util.Arrays;
+
 import com.google.common.collect.ImmutableList;
 import io.airlift.command.Cli.CliBuilder;
 import io.airlift.command.Git.Add;
@@ -31,6 +33,7 @@ import io.airlift.command.args.ArgsRequired;
 import io.airlift.command.args.CommandHidden;
 import io.airlift.command.args.OptionsHidden;
 import io.airlift.command.args.OptionsRequired;
+import io.airlift.command.command.CommandRemove;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -432,4 +435,24 @@ public class HelpTest
 
     }
 
+    @Test
+    public void testExamplesAndDiscussion() {
+        Cli<?> parser = Cli.builder("git")
+            .withCommand(CommandRemove.class)
+            .build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.<String>of("remove"), out);
+
+        String discussion = "DISCUSSION\n" +
+        "        More details about how this removes files from the index.\n" +
+        "\n";
+
+        String examples = "EXAMPLES\n" +
+        "        * The following is a usage example:\n" +
+        "        \t$ git remove -i myfile.java\n";
+
+        Assert.assertTrue(out.toString().contains(discussion), "Expected the discussion section to be present in the help");
+        Assert.assertTrue(out.toString().contains(examples), "Expected the examples section to be present in the help");
+    }
 }
