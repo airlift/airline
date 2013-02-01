@@ -92,6 +92,12 @@ public class GlobalUsage
             out.append("OPTIONS").newline();
 
             for (OptionMetadata option : options) {
+
+                if (option.isHidden())
+                {
+                    continue;
+                }
+                
                 // option names
                 UsagePrinter optionPrinter = out.newIndentedPrinter(8);
                 optionPrinter.append(UsageHelper.toDescription(option)).newline();

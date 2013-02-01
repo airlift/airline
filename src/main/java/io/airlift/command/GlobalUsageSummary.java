@@ -11,6 +11,7 @@ import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.GlobalMetadata;
 import io.airlift.command.model.OptionMetadata;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,16 +61,19 @@ public class GlobalUsageSummary
 
         // build arguments
         List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
+        Collection<String> args = Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
             {
-                if (option.isHidden()) {
-                    return null;
+                if (option.isHidden())
+                {
+                    return "";
                 }
                 return toUsage(option);
             }
-        }));
+        });
+        
+        commandArguments.addAll(args);
         out.newPrinterWithHangingIndent(8)
                 .append("usage:")
                 .append(global.getName())
