@@ -177,6 +177,11 @@ public class UsageHelper
         {
             public String apply(OptionMetadata option)
             {
+                if (option.isHidden())
+                {
+                    return "";
+                }
+                
                 return toUsage(option);
             }
         }));
