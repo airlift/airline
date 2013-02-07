@@ -43,7 +43,7 @@ public @interface Arguments
     String usage() default "";
 
     /**
-     * Whether this arguments are required.
+     * Whether these arguments are required.
      */
     boolean required() default false;
 }

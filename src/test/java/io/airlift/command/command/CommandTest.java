@@ -124,4 +124,20 @@ public class CommandTest
         Assert.assertEquals(add.interactive.booleanValue(), true);
         Assert.assertEquals(add.patterns, Arrays.asList("A.java"));
     }
+    
+    @Test
+    public void testCommandWithArgsSeparator() {
+    	Cli<?> parser = Cli.builder("git")
+    	                .withCommand(CommandHighArityOption.class)
+    	                .build();
+
+    	        Object command = parser.parse("-v", "cmd", "--option", "val1", "val2", "val3", "val4", "--", "arg1", "arg2", "arg3");
+    	        Assert.assertNotNull(command, "command is null");
+    	        Assert.assertTrue(command instanceof CommandHighArityOption);
+    	        CommandHighArityOption cmdHighArity = (CommandHighArityOption) command;
+
+    	        Assert.assertTrue(cmdHighArity.commandMain.verbose);
+    	        Assert.assertEquals(cmdHighArity.option, Arrays.asList("val1", "val2", "val3", "val4"));
+    	        Assert.assertEquals(cmdHighArity.args, Arrays.asList("arg1", "arg2", "arg3"));
+    }
 }
