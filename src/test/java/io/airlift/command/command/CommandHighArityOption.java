@@ -13,7 +13,7 @@ public class CommandHighArityOption {
 	@Inject
 	public CommandMain commandMain;
 	
-	@Option(name = "--option", description = "An option with high arity", arity = 5)
+	@Option(name = "--option", description = "An option with high arity", arity = Integer.MAX_VALUE)
 	public List<String> option;
 	
 	@Arguments(description = "The rest of arguments")
