@@ -82,7 +82,7 @@ public class Parser
 
                 while (tokens.hasNext()) {
                     state = parseOptions(tokens, state, command.getCommandOptions());
-
+                    
                     state = parseArgs(state, tokens, command.getArguments());
                 }
             }
@@ -150,12 +150,15 @@ public class Parser
             ImmutableList.Builder<Object> values = ImmutableList.builder();
 
             int count = 0;
-            while (count < option.getArity() && tokens.hasNext()) {
+            boolean hasSeparator = false;
+            while (count < option.getArity() && tokens.hasNext() && !hasSeparator) {
+            	hasSeparator = tokens.peek().equals("--") ? true : false;
+            	if (hasSeparator) break;
                 values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
                 ++count;
             }
 
-            if (count == option.getArity()) {
+            if (count == option.getArity() || hasSeparator) {
                 state = state.withOptionValue(option, values.build()).popContext();
             }
         }
