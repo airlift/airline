@@ -151,14 +151,18 @@ public class Parser
 
             int count = 0;
             boolean hasSeparator = false;
+            boolean foundNextOption = false;
             while (count < option.getArity() && tokens.hasNext() && !hasSeparator) {
-            	hasSeparator = tokens.peek().equals("--") ? true : false;
-            	if (hasSeparator) break;
+            	String peekedToken = tokens.peek();
+            	hasSeparator = peekedToken.equals("--");
+            	foundNextOption = findOption(allowedOptions, peekedToken) != null;
+            	
+            	if (hasSeparator || foundNextOption) break;
                 values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
                 ++count;
             }
 
-            if (count == option.getArity() || hasSeparator) {
+            if (count == option.getArity() || hasSeparator || foundNextOption) {
                 state = state.withOptionValue(option, values.build()).popContext();
             }
         }

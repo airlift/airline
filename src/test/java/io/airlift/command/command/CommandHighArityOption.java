@@ -16,6 +16,9 @@ public class CommandHighArityOption {
 	@Option(name = "--option", description = "An option with high arity", arity = Integer.MAX_VALUE)
 	public List<String> option;
 	
+	@Option(name = "--option2", description = "Just another option")
+	public String option2;
+	
 	@Arguments(description = "The rest of arguments")
 	public List<String> args;
 }
