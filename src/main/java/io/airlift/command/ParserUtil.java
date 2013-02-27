@@ -26,15 +26,28 @@ public class ParserUtil
     }
 
     public static <T> T createInstance(Class<?> type,
+        Iterable<OptionMetadata> options,
+        ListMultimap<OptionMetadata, Object> parsedOptions,
+        ArgumentsMetadata arguments,
+        Iterable<Object> parsedArguments,
+        Iterable<Accessor> metadataInjection,
+        Map<Class<?>, Object> bindings)
+    {
+        return createInstance(type, options, parsedOptions, arguments, parsedArguments, metadataInjection, bindings, new CommandFactoryDefault<T>());
+    }
+    
+    
+    public static <T> T createInstance(Class<?> type,
             Iterable<OptionMetadata> options,
             ListMultimap<OptionMetadata, Object> parsedOptions,
             ArgumentsMetadata arguments,
             Iterable<Object> parsedArguments,
             Iterable<Accessor> metadataInjection,
-            Map<Class<?>, Object> bindings)
+            Map<Class<?>, Object> bindings,
+            CommandFactory<T> commandFactory)
     {
         // create the command instance
-        T commandInstance = (T) ParserUtil.createInstance(type);
+        T commandInstance = (T) commandFactory.createInstance(type);
 
         // inject options
         for (OptionMetadata option : options) {
