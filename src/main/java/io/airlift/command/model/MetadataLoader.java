@@ -146,6 +146,11 @@ public class MetadataLoader
 
     public static void loadInjectionMetadata(Class<?> type, InjectionMetadata injectionMetadata, List<Field> fields)
     {
+        if(type.isInterface())
+        {
+            return;
+        }
+        
         for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
             for (Field field : cls.getDeclaredFields()) {
                 field.setAccessible(true);
