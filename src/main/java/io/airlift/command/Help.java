@@ -4,6 +4,7 @@ import io.airlift.command.model.CommandGroupMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.GlobalMetadata;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -14,6 +15,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class Help implements Runnable, Callable<Void>
 {
     @Inject
+    @Nullable
     public GlobalMetadata global;
 
     @Arguments
