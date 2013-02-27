@@ -273,51 +273,12 @@ public class MetadataLoader
     public static void loadCommandsIntoGroupsByAnnotation(List<CommandMetadata> allCommands, List<CommandGroupMetadata> commandGroups, List<CommandMetadata> defaultCommandGroup)
     {
         List<CommandMetadata> newCommands = new ArrayList<CommandMetadata>();
+
+        // first, create any groups explicitly annotated
+        createGroupsFromAnnotations(allCommands,newCommands,commandGroups,defaultCommandGroup);
+        
         for (CommandMetadata command : allCommands) {
             boolean added = false;
-            
-            // first, create any groups explicitly annotated
-            for(Group groupAnno : command.getGroups())
-            {
-                Class defaultCommandClass = null;
-                CommandMetadata defaultCommand = null;
-                
-                //load default command if needed
-                if(!groupAnno.defaultCommand().equals(Group.DEFAULT.class))
-                {
-                    defaultCommandClass = groupAnno.defaultCommand();
-                    defaultCommand = find(allCommands, compose(equalTo(defaultCommandClass), CommandMetadata.typeGetter()), null);
-                    if(null == defaultCommand)
-                    {
-                        defaultCommand = loadCommand(defaultCommandClass);
-                        newCommands.add(defaultCommand);
-                    }
-                }
-                
-                //load other commands if needed
-                List<CommandMetadata> groupCommands = new ArrayList<CommandMetadata>(groupAnno.commands().length);
-                CommandMetadata groupCommand = null;
-                for(Class commandClass : groupAnno.commands())
-                {
-                    groupCommand = find(allCommands, compose(equalTo(commandClass), CommandMetadata.typeGetter()), null);
-                    if(null == groupCommand)
-                    {
-                        groupCommand = loadCommand(commandClass);
-                        newCommands.add(groupCommand);
-                        groupCommands.add(groupCommand);
-                    }
-                }
-
-                CommandGroupMetadata groupMetadata = find(commandGroups, compose(equalTo(groupAnno.name()), CommandGroupMetadata.nameGetter()), null);
-                if(null == groupMetadata)
-                {
-                    groupMetadata = loadCommandGroup(groupAnno.name(),groupAnno.description(),defaultCommand, groupCommands);
-                    commandGroups.add(groupMetadata);
-                }
-                
-                groupMetadata.addCommand(command);
-                added = true;
-            }
             
             //now add the command to any groupNames specified in the Command annotation
             for(String groupName : command.getGroupNames())
@@ -344,6 +305,61 @@ public class MetadataLoader
         }
         
         allCommands.addAll(newCommands);
+    }
+
+    private static void createGroupsFromAnnotations(List<CommandMetadata> allCommands, List<CommandMetadata> newCommands, List<CommandGroupMetadata> commandGroups, List<CommandMetadata> defaultCommandGroup)
+    {
+        for (CommandMetadata command : allCommands) {
+            boolean added = false;
+
+            // first, create any groups explicitly annotated
+            for(Group groupAnno : command.getGroups())
+            {
+                Class defaultCommandClass = null;
+                CommandMetadata defaultCommand = null;
+
+                //load default command if needed
+                if(!groupAnno.defaultCommand().equals(Group.DEFAULT.class))
+                {
+                    defaultCommandClass = groupAnno.defaultCommand();
+                    defaultCommand = find(allCommands, compose(equalTo(defaultCommandClass), CommandMetadata.typeGetter()), null);
+                    if(null == defaultCommand)
+                    {
+                        defaultCommand = loadCommand(defaultCommandClass);
+                        newCommands.add(defaultCommand);
+                    }
+                }
+
+                //load other commands if needed
+                List<CommandMetadata> groupCommands = new ArrayList<CommandMetadata>(groupAnno.commands().length);
+                CommandMetadata groupCommand = null;
+                for(Class commandClass : groupAnno.commands())
+                {
+                    groupCommand = find(allCommands, compose(equalTo(commandClass), CommandMetadata.typeGetter()), null);
+                    if(null == groupCommand)
+                    {
+                        groupCommand = loadCommand(commandClass);
+                        newCommands.add(groupCommand);
+                        groupCommands.add(groupCommand);
+                    }
+                }
+
+                CommandGroupMetadata groupMetadata = find(commandGroups, compose(equalTo(groupAnno.name()), CommandGroupMetadata.nameGetter()), null);
+                if(null == groupMetadata)
+                {
+                    groupMetadata = loadCommandGroup(groupAnno.name(),groupAnno.description(),defaultCommand, groupCommands);
+                    commandGroups.add(groupMetadata);
+                }
+
+                groupMetadata.addCommand(command);
+                added = true;
+            }
+
+            if(added && defaultCommandGroup.contains(command))
+            {
+                defaultCommandGroup.remove(command);
+            }
+        }
     }
 
     private static class InjectionMetadata
