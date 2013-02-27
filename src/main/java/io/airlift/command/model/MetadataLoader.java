@@ -19,6 +19,8 @@ import io.airlift.command.Suggester;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -165,6 +167,28 @@ public class MetadataLoader
                     } else {
                         loadInjectionMetadata(field.getType(), injectionMetadata, path);
                     }
+                }
+
+                try {
+                    @SuppressWarnings("unchecked")
+                    Annotation aGuiceInject = field.getAnnotation((Class<? extends Annotation>)Class.forName("com.google.inject.Inject"));
+                    if (aGuiceInject != null) {
+                        if (field.getType().equals(GlobalMetadata.class) ||
+                            field.getType().equals(CommandGroupMetadata.class) ||
+                            field.getType().equals(CommandMetadata.class)) {
+                            injectionMetadata.metadataInjections.add(new Accessor(path));
+                        } else {
+                            loadInjectionMetadata(field.getType(), injectionMetadata, path);
+                        }
+                    }
+                }
+                catch (ClassNotFoundException e) {
+                    // this is ok, means Guice is not on the class path, so probably not being used
+                    // and thus, ok that this did not work.
+                }
+                catch (ClassCastException e) {
+                    // ignore this too, we're doing some funky cross your fingers type reflect stuff to play
+                    // nicely with Guice
                 }
 
                 Option optionAnnotation = field.getAnnotation(Option.class);

@@ -62,15 +62,21 @@ public class Cli<C>
 
     private final GlobalMetadata metadata;
 
+    private final CommandFactory<C> mCommandFactory;
+
     private Cli(String name,
             String description,
             TypeConverter typeConverter,
             Class<? extends C> defaultCommand,
+            CommandFactory<C> theCommandFactory,
             Iterable<Class<? extends C>> defaultGroupCommands,
             Iterable<GroupBuilder<C>> groups)
     {
         Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+        Preconditions.checkNotNull(theCommandFactory);
+
+        mCommandFactory = theCommandFactory;
 
         CommandMetadata defaultCommandMetadata = null;
         if (defaultCommand != null) {
@@ -117,12 +123,12 @@ public class Cli<C>
     
     public C parse(String... args)
     {
-        return parse(new CommandFactoryDefault<C>(), ImmutableList.copyOf(args));
+        return parse(mCommandFactory, ImmutableList.copyOf(args));
     }
 
     public C parse(Iterable<String> args) 
     {
-        return parse(new CommandFactoryDefault<C>(), args);
+        return parse(mCommandFactory, args);
     }
 
     public C parse(CommandFactory<C> commandFactory, Iterable<String> args)
@@ -177,7 +183,6 @@ public class Cli<C>
         state = state.withCommand(command);
 
         validate(state);
-
 
         ImmutableMap.Builder<Class<?>, Object> bindings = ImmutableMap.<Class<?>, Object>builder().put(GlobalMetadata.class, metadata);
 
@@ -244,7 +249,7 @@ public class Cli<C>
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
         protected final Map<String, GroupBuilder<C>> groups = newHashMap();
-        protected CommandFactory<C> commandFactory;
+        protected CommandFactory<C> commandFactory = new CommandFactoryDefault<C>();
 
         public CliBuilder(String name)
         {
@@ -327,7 +332,7 @@ public class Cli<C>
 
         public Cli<C> build()
         {
-            return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+            return new Cli<C>(name, description, typeConverter, defaultCommand, commandFactory, defaultCommandGroupCommands, groups.values());
         }
     }
 
