@@ -92,6 +92,12 @@ public class GlobalUsage
             out.append("OPTIONS").newline();
 
             for (OptionMetadata option : options) {
+
+                if (option.isHidden())
+                {
+                    continue;
+                }
+                
                 // option names
                 UsagePrinter optionPrinter = out.newIndentedPrinter(8);
                 optionPrinter.append(UsageHelper.toDescription(option)).newline();
@@ -122,13 +128,16 @@ public class GlobalUsage
 
     private void printCommandDescription(UsagePrinter commandPrinter, @Nullable CommandGroupMetadata group, CommandMetadata command)
     {
-        if (group != null) {
-            commandPrinter.append(group.getName());
+        if(!command.isHidden())
+        {
+            if (group != null) {
+                commandPrinter.append(group.getName());
+            }
+            commandPrinter.append(command.getName()).newline();
+            if (command.getDescription() != null) {
+                commandPrinter.newIndentedPrinter(4).append(command.getDescription()).newline();
+            }
+            commandPrinter.newline();
         }
-        commandPrinter.append(command.getName()).newline();
-        if (command.getDescription() != null) {
-            commandPrinter.newIndentedPrinter(4).append(command.getDescription()).newline();
-        }
-        commandPrinter.newline();
     }
 }

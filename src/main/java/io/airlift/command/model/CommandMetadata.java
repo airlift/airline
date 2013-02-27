@@ -3,8 +3,8 @@ package io.airlift.command.model;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import io.airlift.command.Accessor;
+import io.airlift.command.Group;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class CommandMetadata
@@ -18,6 +18,8 @@ public class CommandMetadata
     private final ArgumentsMetadata arguments;
     private final List<Accessor> metadataInjections;
     private final Class<?> type;
+    private final List<String> groupNames;
+    private final List<Group> groups;
 
     private final List<String> examples;
     private final String discussion;
@@ -31,7 +33,9 @@ public class CommandMetadata
                            Iterable<OptionMetadata> commandOptions,
                            ArgumentsMetadata arguments,
                            Iterable<Accessor> metadataInjections,
-                           Class<?> type)
+                           Class<?> type,
+                           List<String> groupNames,
+                           List<Group> groups)
     {
         this.name = name;
         this.description = description;
@@ -42,8 +46,12 @@ public class CommandMetadata
         this.arguments = arguments;
         this.metadataInjections = ImmutableList.copyOf(metadataInjections);
         this.type = type;
+
         this.discussion = discussion;
         this.examples = examples;
+
+        this.groupNames = groupNames;
+        this.groups = groups;
     }
 
     public String getName()
@@ -105,6 +113,16 @@ public class CommandMetadata
         return type;
     }
 
+    public List<String> getGroupNames()
+    {
+        return groupNames;
+    }
+
+    public List<Group> getGroups()
+    {
+        return groups;
+    }
+
     @Override
     public String toString()
     {
@@ -131,6 +149,17 @@ public class CommandMetadata
             public String apply(CommandMetadata input)
             {
                 return input.getName();
+            }
+        };
+    }
+
+    public static Function<CommandMetadata, Class> typeGetter()
+    {
+        return new Function<CommandMetadata, Class>()
+        {
+            public Class<?> apply(CommandMetadata input)
+            {
+                return input.getType();
             }
         };
     }
