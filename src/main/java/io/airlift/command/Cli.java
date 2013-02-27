@@ -238,6 +238,14 @@ public class Cli<C>
             return group;
         }
 
+        public GroupBuilder<C> getGroup(final String theName) {
+            Preconditions.checkNotNull(theName, "name is null");
+            Preconditions.checkArgument(!theName.isEmpty(), "name is empty");
+            Preconditions.checkArgument(groups.containsKey(theName), "Group %s has not been declared", theName);
+
+            return groups.get(theName);
+        }
+
         public Cli<C> build()
         {
             return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
