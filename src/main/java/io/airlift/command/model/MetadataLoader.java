@@ -2,6 +2,7 @@ package io.airlift.command.model;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -10,6 +11,8 @@ import com.google.common.collect.Lists;
 import io.airlift.command.Accessor;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
+import io.airlift.command.Group;
+import io.airlift.command.Groups;
 import io.airlift.command.Option;
 import io.airlift.command.OptionType;
 import io.airlift.command.Suggester;
@@ -17,10 +20,16 @@ import io.airlift.command.Suggester;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Predicates.compose;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -80,12 +89,25 @@ public class MetadataLoader
         }
         
         Command command = null;
+        List<Group> groups = Lists.newArrayList();
+        
         for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
             command = cls.getAnnotation(Command.class);
+            
+            if(cls.isAnnotationPresent(Groups.class))
+            {
+                groups.addAll(Arrays.asList(cls.getAnnotation(Groups.class).value()));
+            }
+            if(cls.isAnnotationPresent(Group.class))
+            {
+                groups.add(cls.getAnnotation(Group.class));
+            }
         }
         Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
+        List<String> groupNames = Arrays.asList(command.groupNames());
+        
         boolean hidden = command.hidden();
 
         InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
@@ -100,7 +122,9 @@ public class MetadataLoader
                 injectionMetadata.commandOptions,
                 Iterables.getFirst(injectionMetadata.arguments, null),
                 injectionMetadata.metadataInjections,
-                commandType);
+                commandType,
+                groupNames,
+                groups);
 
         return commandMetadata;
 
@@ -244,6 +268,82 @@ public class MetadataLoader
     private static <T> ImmutableList<T> concat(Iterable<T> iterable, T item)
     {
         return ImmutableList.<T>builder().addAll(iterable).add(item).build();
+    }
+
+    public static void loadCommandsIntoGroupsByAnnotation(List<CommandMetadata> allCommands, List<CommandGroupMetadata> commandGroups, List<CommandMetadata> defaultCommandGroup)
+    {
+        List<CommandMetadata> newCommands = new ArrayList<CommandMetadata>();
+        for (CommandMetadata command : allCommands) {
+            boolean added = false;
+            
+            // first, create any groups explicitly annotated
+            for(Group groupAnno : command.getGroups())
+            {
+                Class defaultCommandClass = null;
+                CommandMetadata defaultCommand = null;
+                
+                //load default command if needed
+                if(!groupAnno.defaultCommand().equals(Group.DEFAULT.class))
+                {
+                    defaultCommandClass = groupAnno.defaultCommand();
+                    defaultCommand = find(allCommands, compose(equalTo(defaultCommandClass), CommandMetadata.typeGetter()), null);
+                    if(null == defaultCommand)
+                    {
+                        defaultCommand = loadCommand(defaultCommandClass);
+                        newCommands.add(defaultCommand);
+                    }
+                }
+                
+                //load other commands if needed
+                List<CommandMetadata> groupCommands = new ArrayList<CommandMetadata>(groupAnno.commands().length);
+                CommandMetadata groupCommand = null;
+                for(Class commandClass : groupAnno.commands())
+                {
+                    groupCommand = find(allCommands, compose(equalTo(commandClass), CommandMetadata.typeGetter()), null);
+                    if(null == groupCommand)
+                    {
+                        groupCommand = loadCommand(commandClass);
+                        newCommands.add(groupCommand);
+                        groupCommands.add(groupCommand);
+                    }
+                }
+
+                CommandGroupMetadata groupMetadata = find(commandGroups, compose(equalTo(groupAnno.name()), CommandGroupMetadata.nameGetter()), null);
+                if(null == groupMetadata)
+                {
+                    groupMetadata = loadCommandGroup(groupAnno.name(),groupAnno.description(),defaultCommand, groupCommands);
+                    commandGroups.add(groupMetadata);
+                }
+                
+                groupMetadata.addCommand(command);
+                added = true;
+            }
+            
+            //now add the command to any groupNames specified in the Command annotation
+            for(String groupName : command.getGroupNames())
+            {
+                CommandGroupMetadata group = find(commandGroups, compose(equalTo(groupName), CommandGroupMetadata.nameGetter()), null);
+                if (group != null) {
+                    group.addCommand(command);
+                    added = true;
+                }
+                else
+                {
+                    ImmutableList.Builder<OptionMetadata> groupOptionsBuilder = ImmutableList.builder();
+                    groupOptionsBuilder.addAll(command.getGroupOptions());
+                    CommandGroupMetadata newGroup = loadCommandGroup(groupName,"",null, Collections.singletonList(command));
+                    commandGroups.add(newGroup);
+                    added = true;
+                }
+            }
+
+            if(added && defaultCommandGroup.contains(command))
+            {
+                defaultCommandGroup.remove(command);
+            }
+        }
+        
+        allCommands.addAll(newCommands);
     }
 
     private static class InjectionMetadata

@@ -23,6 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 import io.airlift.command.model.ArgumentsMetadata;
 import io.airlift.command.model.CommandGroupMetadata;
 import io.airlift.command.model.CommandMetadata;
@@ -30,6 +32,7 @@ import io.airlift.command.model.GlobalMetadata;
 import io.airlift.command.model.MetadataLoader;
 import io.airlift.command.model.OptionMetadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,17 +77,32 @@ public class Cli<C>
             defaultCommandMetadata = MetadataLoader.loadCommand(defaultCommand);
         }
 
-        List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
+        final List<CommandMetadata> allCommands = new ArrayList<CommandMetadata>();
+        
+        List<CommandMetadata> defaultCommandGroup = Lists.newArrayList(MetadataLoader.loadCommands(defaultGroupCommands));
 
-        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
+        // currentlly the default command is required to be in the commands list. If that changes, we'll need to add it here and add checks for existence
+        allCommands.addAll(defaultCommandGroup);
+        
+        List<CommandGroupMetadata> commandGroups = Lists.newArrayList(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
         {
             public CommandGroupMetadata apply(GroupBuilder<C> group)
             {
-                return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
+                CommandMetadata groupDefault = MetadataLoader.loadCommand(group.defaultCommand);
+                List<CommandMetadata> groupCommands = MetadataLoader.loadCommands(group.commands);
+
+                // currentlly the default command is required to be in the commands list. If that changes, we'll need to add it here and add checks for existence
+                allCommands.addAll(groupCommands);
+
+                return MetadataLoader.loadCommandGroup(group.name, group.description, groupDefault, groupCommands);
             }
         }));
 
-        this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
+        // add commands to groups based on the value of groups in the @Command annotations
+        // rather than change the entire way metadata is loaded, I figured just post-processing was an easier, yet uglier, way to go
+        MetadataLoader.loadCommandsIntoGroupsByAnnotation(allCommands,commandGroups, defaultCommandGroup);
+        
+        this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, ImmutableList.copyOf(defaultCommandGroup), ImmutableList.copyOf(commandGroups));
     }
 
     public GlobalMetadata getMetadata()
