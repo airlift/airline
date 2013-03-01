@@ -3,11 +3,16 @@ package io.airlift.command.model;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 import io.airlift.command.Accessor;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
@@ -26,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -264,7 +270,8 @@ public class MetadataLoader
 
     private static List<OptionMetadata> mergeOptionSet(List<OptionMetadata> options)
     {
-        ListMultimap<OptionMetadata, OptionMetadata> metadataIndex = ArrayListMultimap.create();
+//        ListMultimap<OptionMetadata, OptionMetadata> metadataIndex = ArrayListMultimap.create();
+        Multimap<OptionMetadata, OptionMetadata> metadataIndex = Multimaps.newMultimap(Maps.<OptionMetadata, Collection<OptionMetadata>>newLinkedHashMap(), new Supplier<List<OptionMetadata>>() { public List<OptionMetadata> get() { return Lists.newArrayList(); } } );
         for (OptionMetadata option : options) {
             metadataIndex.put(option, option);
         }
@@ -278,7 +285,7 @@ public class MetadataLoader
             }
         }));
 
-        Map<String, OptionMetadata> optionIndex = newHashMap();
+        Map<String, OptionMetadata> optionIndex = Maps.newLinkedHashMap();
         for (OptionMetadata option : options) {
             for (String optionName : option.getOptions()) {
                 if (optionIndex.containsKey(optionName)) {

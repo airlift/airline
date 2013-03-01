@@ -84,8 +84,7 @@ public class OptionMetadata
 
         Set<Accessor> accessors = newHashSet();
         for (OptionMetadata other : options) {
-            Preconditions.checkArgument(option.equals(other),
-                    "Conflicting options definitions: %s, %s", option, other);
+            Preconditions.checkArgument(option.equals(other), "Conflicting options definitions: %s, %s", option, other);
 
             accessors.addAll(other.getAccessors());
         }
