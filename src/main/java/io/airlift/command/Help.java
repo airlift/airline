@@ -1,3 +1,7 @@
+// Copyright (c) 2010 - 2013, Clark & Parsia, LLC. <http://www.clarkparsia.com>
+// For more information about licensing and copyright of this software, please contact
+// inquiries@clarkparsia.com or visit http://stardog.com
+
 package io.airlift.command;
 
 import io.airlift.command.model.CommandGroupMetadata;
@@ -12,8 +16,9 @@ import java.util.concurrent.Callable;
 import static com.google.common.collect.Lists.newArrayList;
 
 @Command(name = "help", description = "Display help information")
-public class Help implements Runnable, Callable<Void>
-{
+public class Help implements Runnable, Callable<Void> {
+    public static boolean USAGE_AS_HTML = false;
+
     @Inject
     @Nullable
     public GlobalMetadata global;
@@ -59,7 +64,12 @@ public class Help implements Runnable, Callable<Void>
         // command in the default group?
         for (CommandMetadata command : global.getDefaultGroupCommands()) {
             if (name.equals(command.getName())) {
-                new CommandUsage().usage(global.getName(), null, command, out);
+                if (USAGE_AS_HTML) {
+                    out.append(new CommandUsage().usageHTML(global.getName(), null, command));
+                }
+                else {
+                    new CommandUsage().usage(global.getName(), null, command, out);
+                }
                 return;
             }
         }
@@ -76,7 +86,12 @@ public class Help implements Runnable, Callable<Void>
                     String commandName = commandNames.get(1);
                     for (CommandMetadata command : group.getCommands()) {
                         if (commandName.equals(command.getName())) {
-                            new CommandUsage().usage(global.getName(), group.getName(), command, out);
+                            if (USAGE_AS_HTML) {
+                                out.append(new CommandUsage().usageHTML(global.getName(), group.getName(), command));
+                            }
+                            else {
+                                new CommandUsage().usage(global.getName(), group.getName(), command, out);
+                            }
                             return;
                         }
                     }
