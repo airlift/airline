@@ -24,6 +24,8 @@ import java.util.List;
 
 public class ParseArgumentsUnexpectedException extends ParseException
 {
+    private static final long serialVersionUID = 1L;
+
     private final List<String> unparsedInput;
 
     ParseArgumentsUnexpectedException(List<String> unparsedInput)

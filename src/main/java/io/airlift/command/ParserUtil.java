@@ -25,6 +25,7 @@ public class ParserUtil
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T createInstance(Class<?> type,
             Iterable<OptionMetadata> options,
             ListMultimap<OptionMetadata, Object> parsedOptions,

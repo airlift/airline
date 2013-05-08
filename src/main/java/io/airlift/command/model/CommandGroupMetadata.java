@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 public class CommandGroupMetadata
 {
     private final String name;
@@ -65,7 +67,7 @@ public class CommandGroupMetadata
     {
         return new Function<CommandGroupMetadata, String>()
         {
-            public String apply(CommandGroupMetadata input)
+            public String apply(@Nonnull CommandGroupMetadata input)
             {
                 return input.getName();
             }

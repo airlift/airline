@@ -52,26 +52,26 @@ public class GalaxyCommandLineParser
 
     private Cli<GalaxyCommand> createParser()
     {
-        CliBuilder<GalaxyCommand> builder = Cli.<GalaxyCommand>builder("galaxy")
+        CliBuilder<GalaxyCommand> builder = Cli.<GalaxyCommand> builder("galaxy")
                 .withDescription("cloud management system")
                 .withDefaultCommand(HelpCommand.class)
-                .withCommands(HelpCommand.class,
-                        ShowCommand.class,
-                        InstallCommand.class,
-                        UpgradeCommand.class,
-                        TerminateCommand.class,
-                        StartCommand.class,
-                        StopCommand.class,
-                        RestartCommand.class,
-                        SshCommand.class,
-                        ResetToActualCommand.class);
+                .withCommand(HelpCommand.class)
+                .withCommand(ShowCommand.class)
+                .withCommand(InstallCommand.class)
+                .withCommand(UpgradeCommand.class)
+                .withCommand(TerminateCommand.class)
+                .withCommand(StartCommand.class)
+                .withCommand(StopCommand.class)
+                .withCommand(RestartCommand.class)
+                .withCommand(SshCommand.class)
+                .withCommand(ResetToActualCommand.class);
 
         builder.withGroup("agent")
-                .withDescription("Manage agents")
-                .withDefaultCommand(AgentShowCommand.class)
-                .withCommands(AgentShowCommand.class,
-                        AgentAddCommand.class,
-                        AgentTerminateCommand.class);
+               .withDescription("Manage agents")
+               .withDefaultCommand(AgentShowCommand.class)
+               .withCommand(AgentShowCommand.class)
+               .withCommand(AgentAddCommand.class)
+               .withCommand(AgentTerminateCommand.class);
 
         Cli<GalaxyCommand> galaxy = builder.build();
         return galaxy;

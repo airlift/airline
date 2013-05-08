@@ -160,18 +160,18 @@ public class Accessor
             return new HashSet<Object>();
         }
         if (SortedSet.class.equals(type)) {
-            return new TreeSet();
+            return new TreeSet<Object>();
         }
 
         try {
             return (Collection<Object>) type.getConstructor().newInstance();
         }
         catch (Exception ignored) {
+            throw new ParseException("Parameters of Collection type '%s' are not supported. Please use List or Set instead.", type.getSimpleName());
         }
-
-        throw new ParseException("Parameters of Collection type '%s' are not supported. Please use List or Set instead.", type.getSimpleName());
     }
 
+    @SuppressWarnings("unchecked")
     private static Collection<Object> getOrCreateCollectionField(String name, Object object, Field field)
     {
         Collection<Object> collection;
@@ -206,7 +206,7 @@ public class Accessor
         }
 
         Type[] types = getTypeParameters(Collection.class, type);
-        if ((types == null) || (types.length != 1)) {
+        if (types == null || types.length != 1) {
             throw new ParseException("Unable to get item type of Collection option %s", name);
         }
 

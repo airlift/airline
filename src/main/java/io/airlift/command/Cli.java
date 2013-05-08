@@ -168,7 +168,6 @@ public class Cli<C>
         protected final String name;
         protected String description;
         protected TypeConverter typeConverter = new TypeConverter();
-        protected String optionSeparators;
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
         protected final Map<String, GroupBuilder<C>> groups = newHashMap();

@@ -20,6 +20,8 @@ package io.airlift.command;
 
 public class ParseCommandMissingException extends ParseException
 {
+    private static final long serialVersionUID = 1L;
+
     ParseCommandMissingException()
     {
         super("No command specified");

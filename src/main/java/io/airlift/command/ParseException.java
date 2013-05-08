@@ -20,6 +20,8 @@ package io.airlift.command;
 
 public class ParseException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     public ParseException(String string, Object... args)
     {
         super(String.format(string, args));

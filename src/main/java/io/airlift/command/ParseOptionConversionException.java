@@ -20,6 +20,8 @@ package io.airlift.command;
 
 public class ParseOptionConversionException extends ParseException
 {
+    private static final long serialVersionUID = 1L;
+
     private final String optionTitle;
     private final String value;
     private final String typeName;

@@ -194,14 +194,14 @@ public class CommandTest
 
     private void argsBoolean1(String[] params, Boolean expected)
     {
-        params = ImmutableList.builder().add("ArgsBooleanArity").add(params).build().toArray(new String[0]);
+        params = ImmutableList.<String> builder().add("ArgsBooleanArity").add(params).build().toArray(new String[0]);
         ArgsBooleanArity args = singleCommandParser(ArgsBooleanArity.class).parse(params);
         Assert.assertEquals(args.debug, expected);
     }
 
     private void argsBoolean0(String[] params, Boolean expected)
     {
-        params = ImmutableList.builder().add("ArgsBooleanArity0").add(params).build().toArray(new String[0]);
+        params = ImmutableList.<String> builder().add("ArgsBooleanArity0").add(params).build().toArray(new String[0]);
 
         ArgsBooleanArity0 args = singleCommandParser(ArgsBooleanArity0.class).parse(params);
         Assert.assertEquals(args.debug, expected);

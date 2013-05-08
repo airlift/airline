@@ -100,7 +100,7 @@ public class UsagePrinter
             if (currentPosition.get() == 0) {
                 // beginning of line
                 out.append(spaces(indent));
-                currentPosition.getAndAdd((indent));
+                currentPosition.getAndAdd(indent);
             }
             else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize) {
                 // between words
@@ -114,7 +114,7 @@ public class UsagePrinter
             }
 
             out.append(word);
-            currentPosition.getAndAdd((word.length()));
+            currentPosition.getAndAdd(word.length());
         }
         return this;
     }

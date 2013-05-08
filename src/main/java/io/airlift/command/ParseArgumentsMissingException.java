@@ -18,12 +18,10 @@
 
 package io.airlift.command;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
 public class ParseArgumentsMissingException extends ParseException
 {
+    private static final long serialVersionUID = 1L;
+
     private final String argumentTitle;
 
     ParseArgumentsMissingException(String argumentTitle)

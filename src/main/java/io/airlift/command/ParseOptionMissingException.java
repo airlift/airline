@@ -20,6 +20,8 @@ package io.airlift.command;
 
 public class ParseOptionMissingException extends ParseException
 {
+    private static final long serialVersionUID = 1L;
+
     private final String optionTitle;
 
     ParseOptionMissingException(String optionTitle)

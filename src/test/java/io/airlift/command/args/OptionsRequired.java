@@ -18,11 +18,8 @@
 
 package io.airlift.command.args;
 
-import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 import io.airlift.command.Option;
-
-import java.util.List;
 
 @Command(name="OptionsRequired")
 public class OptionsRequired

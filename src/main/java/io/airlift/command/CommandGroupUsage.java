@@ -48,7 +48,7 @@ public class CommandGroupUsage
     /**
      * Display the help on System.out.
      */
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group)
     {
         StringBuilder stringBuilder = new StringBuilder();
         usage(global, group, stringBuilder);
@@ -58,12 +58,12 @@ public class CommandGroupUsage
     /**
      * Store the help in the passed string builder.
      */
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group, StringBuilder out)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group, StringBuilder out)
     {
         usage(global, group, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group, UsagePrinter out)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group, UsagePrinter out)
     {
         //
         // NAME
@@ -89,21 +89,17 @@ public class CommandGroupUsage
 
         if (group.getDefaultCommand() != null) {
             CommandMetadata command = group.getDefaultCommand();
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
-                }
+            synopsis.append(global.getName());
+            if (!hideGlobalOptions) {
+                synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
             }
             synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
             synopsis.newline();
         }
         for (CommandMetadata command : commands) {
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
-                }
+            synopsis.append(global.getName());
+            if (!hideGlobalOptions) {
+                synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
             }
             synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
             synopsis.append(command.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getCommandOptions()));
@@ -116,7 +112,7 @@ public class CommandGroupUsage
         //
         List<OptionMetadata> options = newArrayList();
         options.addAll(group.getOptions());
-        if (global != null && !hideGlobalOptions) {
+        if (!hideGlobalOptions) {
             options.addAll(global.getOptions());
         }
         if (options.size() > 0) {

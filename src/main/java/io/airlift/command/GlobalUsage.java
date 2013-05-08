@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.command.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
 import static io.airlift.command.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 
 public class GlobalUsage

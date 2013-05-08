@@ -13,7 +13,7 @@ import io.airlift.command.Option;
 import io.airlift.command.OptionType;
 import io.airlift.command.Suggester;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -78,7 +78,9 @@ public class MetadataLoader
         for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
             command = cls.getAnnotation(Command.class);
         }
-        Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
+        if (command == null) {
+            throw new IllegalArgumentException(String.format("Command %s is not annotated with @Command", commandType.getName()));
+        }
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
         boolean hidden = command.hidden();
@@ -212,7 +214,7 @@ public class MetadataLoader
         options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
         {
             @Override
-            public OptionMetadata apply(@Nullable Collection<OptionMetadata> options)
+            public OptionMetadata apply(@Nonnull Collection<OptionMetadata> options)
             {
                 return new OptionMetadata(options);
             }

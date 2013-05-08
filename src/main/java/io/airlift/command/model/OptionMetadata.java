@@ -8,9 +8,10 @@ import com.google.common.collect.Iterables;
 import io.airlift.command.Accessor;
 import io.airlift.command.OptionType;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -222,7 +223,7 @@ public class OptionMetadata
     {
         return new Function<OptionMetadata, Set<String>>()
         {
-            public Set<String> apply(OptionMetadata input)
+            public Set<String> apply(@Nonnull OptionMetadata input)
             {
                 return input.getOptions();
             }
@@ -233,7 +234,7 @@ public class OptionMetadata
     {
         return new Predicate<OptionMetadata>() {
             @Override
-            public boolean apply(@Nullable OptionMetadata input)
+            public boolean apply(@Nonnull OptionMetadata input)
             {
                 return !input.isHidden();
             }

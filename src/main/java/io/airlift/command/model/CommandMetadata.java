@@ -4,8 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import io.airlift.command.Accessor;
 
-import javax.annotation.Nullable;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 public class CommandMetadata
 {
@@ -111,7 +112,8 @@ public class CommandMetadata
     {
         return new Function<CommandMetadata, String>()
         {
-            public String apply(CommandMetadata input)
+            @Override
+            public String apply(@Nonnull CommandMetadata input)
             {
                 return input.getName();
             }

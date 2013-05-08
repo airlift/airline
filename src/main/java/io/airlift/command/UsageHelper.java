@@ -9,10 +9,11 @@ import io.airlift.command.model.ArgumentsMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.OptionMetadata;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
@@ -60,7 +61,7 @@ public class UsageHelper
         if (option.getArity() > 0) {
             argumentString = Joiner.on(" ").join(Lists.transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
             {
-                public String apply(@Nullable String argument)
+                public String apply(String argument)
                 {
                     return "<" + argument + ">";
                 }
@@ -71,7 +72,7 @@ public class UsageHelper
 
         Joiner.on(", ").appendTo(stringBuilder, transform(options, new Function<String, String>()
         {
-            public String apply(@Nullable String option)
+            public String apply(String option)
             {
                 if (argumentString != null) {
                     return option + " " + argumentString;
@@ -110,7 +111,7 @@ public class UsageHelper
         if (option.getArity() > 0) {
             argumentString = Joiner.on(" ").join(transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
             {
-                public String apply(@Nullable String argument)
+                public String apply(String argument)
                 {
                     return "<" + argument + ">";
                 }
@@ -122,7 +123,7 @@ public class UsageHelper
 
         Joiner.on(" | ").appendTo(stringBuilder, transform(options, new Function<String, String>()
         {
-            public String apply(@Nullable String option)
+            public String apply(String option)
             {
                 if (argumentString != null) {
                     return option + " " + argumentString;
@@ -175,7 +176,8 @@ public class UsageHelper
     {
         return ImmutableList.copyOf(transform(filter(options, isHiddenPredicate()), new Function<OptionMetadata, String>()
         {
-            public String apply(OptionMetadata option)
+            @Override
+            public String apply(@Nonnull OptionMetadata option)
             {
                 return toUsage(option);
             }

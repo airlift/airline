@@ -83,7 +83,8 @@ public class Parser
 
     private ParseState parseOptions(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
-        while (tokens.hasNext()) {
+        boolean matched = true;
+        while (matched && tokens.hasNext()) {
             //
             // Try to parse next option(s) using different styles.  If code matches it returns
             // the next parser state, otherwise it returns null.
@@ -110,7 +111,7 @@ public class Parser
             }
 
             // did not match an option
-            break;
+            matched = false;
         }
 
         return state;
