@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2012 the original author or authors.
+ * See the notice.md file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.airlift.command;
 
 import com.google.common.base.Joiner;
@@ -52,26 +69,26 @@ public class GalaxyCommandLineParser
 
     private Cli<GalaxyCommand> createParser()
     {
-        CliBuilder<GalaxyCommand> builder = Cli.<GalaxyCommand>builder("galaxy")
+        CliBuilder<GalaxyCommand> builder = Cli.<GalaxyCommand> builder("galaxy")
                 .withDescription("cloud management system")
                 .withDefaultCommand(HelpCommand.class)
-                .withCommands(HelpCommand.class,
-                        ShowCommand.class,
-                        InstallCommand.class,
-                        UpgradeCommand.class,
-                        TerminateCommand.class,
-                        StartCommand.class,
-                        StopCommand.class,
-                        RestartCommand.class,
-                        SshCommand.class,
-                        ResetToActualCommand.class);
+                .withCommand(HelpCommand.class)
+                .withCommand(ShowCommand.class)
+                .withCommand(InstallCommand.class)
+                .withCommand(UpgradeCommand.class)
+                .withCommand(TerminateCommand.class)
+                .withCommand(StartCommand.class)
+                .withCommand(StopCommand.class)
+                .withCommand(RestartCommand.class)
+                .withCommand(SshCommand.class)
+                .withCommand(ResetToActualCommand.class);
 
         builder.withGroup("agent")
-                .withDescription("Manage agents")
-                .withDefaultCommand(AgentShowCommand.class)
-                .withCommands(AgentShowCommand.class,
-                        AgentAddCommand.class,
-                        AgentTerminateCommand.class);
+               .withDescription("Manage agents")
+               .withDefaultCommand(AgentShowCommand.class)
+               .withCommand(AgentShowCommand.class)
+               .withCommand(AgentAddCommand.class)
+               .withCommand(AgentTerminateCommand.class);
 
         Cli<GalaxyCommand> galaxy = builder.build();
         return galaxy;

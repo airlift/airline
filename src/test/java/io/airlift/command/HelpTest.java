@@ -39,17 +39,17 @@ public class HelpTest
 {
     public void testGit()
     {
-        CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
+        CliBuilder<Runnable> builder = Cli.<Runnable> builder("git")
                 .withDescription("the stupid content tracker")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        Add.class);
+                .withCommand(Help.class)
+                .withCommand(Add.class);
 
         builder.withGroup("remote")
                 .withDescription("Manage set of tracked repositories")
                 .withDefaultCommand(RemoteShow.class)
-                .withCommands(RemoteShow.class,
-                        RemoteAdd.class);
+                .withCommand(RemoteShow.class)
+                .withCommand(RemoteAdd.class);
 
         Cli<Runnable> gitParser = builder.build();
 
@@ -122,8 +122,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        Args1.class);
+                .withCommand(Help.class)
+                .withCommand(Args1.class);
 
         Cli<Object> parser = builder.build();
 
@@ -178,8 +178,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        Args2.class);
+                .withCommand(Help.class)
+                .withCommand(Args2.class);
 
         Cli<Object> parser = builder.build();
 
@@ -220,8 +220,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        ArgsArityString.class);
+                .withCommand(Help.class)
+                .withCommand(ArgsArityString.class);
 
         Cli<Object> parser = builder.build();
 
@@ -252,8 +252,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        ArgsBooleanArity.class);
+                .withCommand(Help.class)
+                .withCommand(ArgsBooleanArity.class);
 
         Cli<Object> parser = builder.build();
 
@@ -276,8 +276,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        ArgsInherited.class);
+                .withCommand(Help.class)
+                .withCommand(ArgsInherited.class);
 
         Cli<Object> parser = builder.build();
 
@@ -321,8 +321,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        ArgsRequired.class);
+                .withCommand(Help.class)
+                .withCommand(ArgsRequired.class);
 
         Cli<Object> parser = builder.build();
 
@@ -350,8 +350,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        OptionsRequired.class);
+                .withCommand(Help.class)
+                .withCommand(OptionsRequired.class);
 
         Cli<Object> parser = builder.build();
 
@@ -378,8 +378,8 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        OptionsHidden.class);
+                .withCommand(Help.class)
+                .withCommand(OptionsHidden.class);
 
         Cli<Object> parser = builder.build();
 
@@ -402,8 +402,9 @@ public class HelpTest
         CliBuilder<Object> builder = Cli.builder("test")
                 .withDescription("Test commandline")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class,
-                        ArgsRequired.class, CommandHidden.class);
+                .withCommand(Help.class)
+                .withCommand(ArgsRequired.class)
+                .withCommand(CommandHidden.class);
 
         Cli<Object> parser = builder.build();
 

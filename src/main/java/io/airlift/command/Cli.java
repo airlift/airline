@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010 the original author or authors.
+/*
+ * Copyright (C) 2012 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.airlift.command;
 
 import com.google.common.base.Function;
@@ -168,7 +167,6 @@ public class Cli<C>
         protected final String name;
         protected String description;
         protected TypeConverter typeConverter = new TypeConverter();
-        protected String optionSeparators;
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
         protected final Map<String, GroupBuilder<C>> groups = newHashMap();

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010 the original author or authors.
+/*
+ * Copyright (C) 2012 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -15,14 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.airlift.command.args;
 
-import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 import io.airlift.command.Option;
-
-import java.util.List;
 
 @Command(name="OptionsRequired")
 public class OptionsRequired

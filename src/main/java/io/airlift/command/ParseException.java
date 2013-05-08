@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010 the original author or authors.
+/*
+ * Copyright (C) 2012 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.airlift.command;
 
 public class ParseException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     public ParseException(String string, Object... args)
     {
         super(String.format(string, args));

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2012 the original author or authors.
+ * See the notice.md file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.airlift.command;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +65,7 @@ public class CommandGroupUsage
     /**
      * Display the help on System.out.
      */
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group)
     {
         StringBuilder stringBuilder = new StringBuilder();
         usage(global, group, stringBuilder);
@@ -58,12 +75,12 @@ public class CommandGroupUsage
     /**
      * Store the help in the passed string builder.
      */
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group, StringBuilder out)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group, StringBuilder out)
     {
         usage(global, group, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable GlobalMetadata global, CommandGroupMetadata group, UsagePrinter out)
+    public void usage(GlobalMetadata global, CommandGroupMetadata group, UsagePrinter out)
     {
         //
         // NAME
@@ -89,21 +106,17 @@ public class CommandGroupUsage
 
         if (group.getDefaultCommand() != null) {
             CommandMetadata command = group.getDefaultCommand();
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
-                }
+            synopsis.append(global.getName());
+            if (!hideGlobalOptions) {
+                synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
             }
             synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
             synopsis.newline();
         }
         for (CommandMetadata command : commands) {
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
-                }
+            synopsis.append(global.getName());
+            if (!hideGlobalOptions) {
+                synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
             }
             synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
             synopsis.append(command.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getCommandOptions()));
@@ -116,7 +129,7 @@ public class CommandGroupUsage
         //
         List<OptionMetadata> options = newArrayList();
         options.addAll(group.getOptions());
-        if (global != null && !hideGlobalOptions) {
+        if (!hideGlobalOptions) {
             options.addAll(global.getOptions());
         }
         if (options.size() > 0) {
