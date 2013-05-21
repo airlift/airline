@@ -2,6 +2,7 @@ package io.airlift.command;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -185,5 +186,18 @@ public class UsageHelper
                 return toUsage(option);
             }
         }));
+    }
+    
+    public static String toDefaultCommand(String command) 
+    {
+    	if (Strings.isNullOrEmpty(command)) {
+    		return "";
+    	}
+    	StringBuilder stringBuilder = new StringBuilder();
+    	stringBuilder.append(" [");
+    	stringBuilder.append(command);
+    	stringBuilder.append("]");
+    	
+    	return stringBuilder.toString();
     }
 }
