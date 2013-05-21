@@ -272,7 +272,9 @@ public class Parser
     private ParseState parseArg(ParseState state, PeekingIterator<String> tokens, ArgumentsMetadata arguments)
     {
         if (arguments != null) {
-            state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), tokens.next()));
+        	// TODO: check each title one by one? see: https://github.com/airlift/airline/issues/6
+            state = state.withArgument(TypeConverter.newInstance()
+            				.convert(arguments.getTitle().get(0), arguments.getJavaType(), tokens.next())); 
         }
         else {
             state = state.withUnparsedInput(tokens.next());

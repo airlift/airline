@@ -43,7 +43,8 @@ import static io.airlift.command.Cli.buildCli;
 @Test
 public class HelpTest
 {
-    public void testGit()
+	@SuppressWarnings("unchecked")
+	public void testGit()
     {
         CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
                 .withDescription("the stupid content tracker")
@@ -100,7 +101,7 @@ public class HelpTest
                 "        git remote - Manage set of tracked repositories\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [-v] remote\n" +
+                "        git [-v] remote [show]\n" +
                 "        git [-v] remote add [-t <branch>]\n" +
                 "        git [-v] remote show [-n]\n" +
                 "\n" +
@@ -109,7 +110,7 @@ public class HelpTest
                 "            Verbose mode\n" +
                 "\n" +
                 "COMMANDS\n" +
-                "        With no arguments, Gives some information about the remote <name>\n" +
+                "        By default, Gives some information about the remote <name>\n" +
                 "\n" +
                 "        show\n" +
                 "            Gives some information about the remote <name>\n" +
@@ -121,6 +122,31 @@ public class HelpTest
                 "\n" +
                 "            With -t option, Track only a specific branch\n" +
                 "\n");
+        
+        out = new StringBuilder();
+        Help.help(gitParser.getMetadata(), ImmutableList.of("remote", "add"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        git remote add - Adds a remote\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        git [-v] remote add [-t <branch>] [--] [<name> <url>...]\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        -t <branch>\n" +
+                "            Track only a specific branch\n" +
+                "\n" +
+                "        -v\n" +
+                "            Verbose mode\n" +
+                "\n" +
+                "        --\n" +
+                "            This option can be used to separate command-line options from the\n" +
+                "            list of argument, (useful when arguments might be mistaken for\n" +
+                "            command-line options\n" +
+                "\n" +
+                "        <name> <url>\n" +
+                "            Name and URL of remote repository to add\n" +
+                "\n"
+                );
     }
 
     public void testArgs1()

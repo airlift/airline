@@ -97,7 +97,9 @@ public class CommandGroupUsage
                         synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
                     }
                 }
-                synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
+                
+                synopsis.append(group.getName()).append(UsageHelper.toDefaultCommand(command.getName()))
+                	.appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
                 synopsis.newline();
             }
         }
@@ -159,14 +161,14 @@ public class CommandGroupUsage
             UsagePrinter commandPrinter = out.newIndentedPrinter(8);
 
             if (group.getDefaultCommand() != null && group.getDefaultCommand().getDescription() != null && !group.getDefaultCommand().isHidden()) {
-                commandPrinter.append("With no arguments,")
+                commandPrinter.append("By default,")
                         .append(group.getDefaultCommand().getDescription())
                         .newline()
                         .newline();
             }
 
             for (CommandMetadata command : group.getCommands()) {
-                if(!command.isHidden())
+                if (!command.isHidden())
                 {
                     commandPrinter.append(command.getName()).newline();
                     UsagePrinter descriptionPrinter = commandPrinter.newIndentedPrinter(4);

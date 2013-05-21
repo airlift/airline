@@ -4,24 +4,23 @@
 
 package io.airlift.command;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import static com.google.common.collect.Lists.newArrayList;
+import static io.airlift.command.UsageHelper.DEFAULT_OPTION_COMPARATOR;
+import static io.airlift.command.UsageHelper.toSynopsisUsage;
 import io.airlift.command.model.ArgumentsMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.OptionMetadata;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.command.UsageHelper.DEFAULT_OPTION_COMPARATOR;
-import static io.airlift.command.UsageHelper.toSynopsisUsage;
+import javax.annotation.Nullable;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 
 public class CommandUsage
 {
@@ -140,7 +139,7 @@ public class CommandUsage
                         "list of argument, (useful when arguments might be mistaken for command-line options").newline();
                 descriptionPrinter.newline();
 
-                // arguments name
+                // arguments name(s)
                 optionPrinter.append(UsageHelper.toDescription(arguments)).newline();
 
                 // description
