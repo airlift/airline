@@ -89,8 +89,18 @@ public class UsageHelper
         if (!arguments.getUsage().isEmpty()) {
             return arguments.getUsage();
         }
+        List<String> descriptionTitles = arguments.getTitle();
+        StringBuilder stringBuilder = new StringBuilder();
+    	for (String title : descriptionTitles) {
+    		if (stringBuilder.length() > 0) {
+    			stringBuilder.append(" ");
+    		}
+    		stringBuilder.append("<");
+        	stringBuilder.append(title);
+        	stringBuilder.append(">");
+    	}
 
-        return "<" + arguments.getTitle() + ">";
+        return stringBuilder.toString();
 
     }
 
@@ -157,10 +167,11 @@ public class UsageHelper
         boolean required = arguments.isRequired();
         StringBuilder stringBuilder = new StringBuilder();
         if (!required) {
+        	// TODO: be able to handle required arguments individually, like arity for the options
             stringBuilder.append('[');
         }
-
-        stringBuilder.append("<").append(arguments.getTitle()).append(">");
+        
+        stringBuilder.append(toDescription(arguments));
 
         if (arguments.isMultiValued()) {
             stringBuilder.append("...");

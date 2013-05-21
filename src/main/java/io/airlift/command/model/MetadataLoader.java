@@ -250,19 +250,20 @@ public class MetadataLoader
 
                 Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
                 if (field.isAnnotationPresent(Arguments.class)) {
-                    String title;
-                    if (!argumentsAnnotation.title().isEmpty()) {
-                        title = argumentsAnnotation.title();
+                    ImmutableList.Builder<String> titlesBuilder = ImmutableList.<String>builder();
+                    
+                    if (!(argumentsAnnotation.title().length == 1 && argumentsAnnotation.title()[0].equals(""))) {
+                        titlesBuilder.add(argumentsAnnotation.title());
                     }
                     else {
-                        title = field.getName();
+                        titlesBuilder.add(field.getName());
                     }
 
                     String description = argumentsAnnotation.description();
                     String usage = argumentsAnnotation.usage();
                     boolean required = argumentsAnnotation.required();
 
-                    injectionMetadata.arguments.add(new ArgumentsMetadata(title, description, usage, required, path));
+                    injectionMetadata.arguments.add(new ArgumentsMetadata(titlesBuilder.build(), description, usage, required, path));
                 }
             }
         }

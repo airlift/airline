@@ -64,7 +64,7 @@ public class Git
         @Option(name = "-t", description = "Track only a specific branch")
         public String branch;
 
-        @Arguments(description = "Remote repository to add")
+        @Arguments(description = "Name and URL of remote repository to add", title={"name", "url"})
         public List<String> remote;
     }
 }

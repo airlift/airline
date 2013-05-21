@@ -139,7 +139,7 @@ public class CommandUsage
                         "list of argument, (useful when arguments might be mistaken for command-line options").newline();
                 descriptionPrinter.newline();
 
-                // arguments name
+                // arguments name(s)
                 optionPrinter.append(UsageHelper.toDescription(arguments)).newline();
 
                 // description
