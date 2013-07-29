@@ -3,13 +3,13 @@ Airline
 
 Airline is a Java annotation-based framework for parsing Git like command line structures.
 
-Latest release is 0.4, available from Maven Central.
+Latest release is 0.5, available from Maven Central.
 
 ```xml
 <dependency>
     <groupId>io.airlift</groupId>
     <artifactId>airline</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
 </dependency>
 ```
 
