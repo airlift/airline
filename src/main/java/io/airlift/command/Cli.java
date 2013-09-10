@@ -231,7 +231,10 @@ public class Cli<C>
         {
             Preconditions.checkNotNull(name, "name is null");
             Preconditions.checkArgument(!name.isEmpty(), "name is empty");
-            Preconditions.checkArgument(!groups.containsKey(name), "Group %s has already been declared", name);
+
+            if (groups.containsKey(name)) {
+                return groups.get(name);
+            }
 
             GroupBuilder<C> group = new GroupBuilder<C>(name);
             groups.put(name, group);
@@ -247,8 +250,8 @@ public class Cli<C>
     public static class GroupBuilder<C>
     {
         private final String name;
-        private String description;
-        private Class<? extends C> defaultCommand;
+        private String description = null;
+        private Class<? extends C> defaultCommand = null;
 
         private final List<Class<? extends C>> commands = newArrayList();
 
@@ -262,6 +265,7 @@ public class Cli<C>
         {
             Preconditions.checkNotNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            Preconditions.checkState(this.description == null, "description is already set");
             this.description = description;
             return this;
         }
@@ -269,6 +273,7 @@ public class Cli<C>
         public GroupBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
             Preconditions.checkNotNull(defaultCommand, "defaultCommand is null");
+            Preconditions.checkState(this.defaultCommand == null, "defaultCommand is already set");
             this.defaultCommand = defaultCommand;
             return this;
         }
