@@ -97,6 +97,11 @@ public class UsagePrinter
     public UsagePrinter appendWords(Iterable<String> words)
     {
         for (String word : words) {
+            if(null == word || "".equals(word))
+            {
+                continue;
+            }
+            
             if (currentPosition.get() == 0) {
                 // beginning of line
                 out.append(spaces(indent));

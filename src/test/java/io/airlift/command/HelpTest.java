@@ -22,15 +22,8 @@ import io.airlift.command.Cli.CliBuilder;
 import io.airlift.command.Git.Add;
 import io.airlift.command.Git.RemoteAdd;
 import io.airlift.command.Git.RemoteShow;
-import io.airlift.command.args.Args1;
-import io.airlift.command.args.Args2;
-import io.airlift.command.args.ArgsArityString;
-import io.airlift.command.args.ArgsBooleanArity;
-import io.airlift.command.args.ArgsInherited;
-import io.airlift.command.args.ArgsRequired;
-import io.airlift.command.args.CommandHidden;
-import io.airlift.command.args.OptionsHidden;
-import io.airlift.command.args.OptionsRequired;
+import io.airlift.command.args.*;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -393,6 +386,30 @@ public class HelpTest
                 "\n" +
                 "OPTIONS\n" +
                 "        --optional <optionalOption>\n" +
+                "\n" +
+                "\n");
+    }
+
+    public void testGlobalOptionsHidden()
+    {
+        CliBuilder<Object> builder = buildCli("test", Object.class)
+                .withDescription("Test commandline")
+                .withDefaultCommand(Help.class)
+                .withCommands(Help.class,
+                        GlobalOptionsHidden.class);
+
+        Cli<Object> parser = builder.build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.of("GlobalOptionsHidden"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        test GlobalOptionsHidden -\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        test [(-op | --optional)] GlobalOptionsHidden\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        -op, --optional\n" +
                 "\n" +
                 "\n");
     }
