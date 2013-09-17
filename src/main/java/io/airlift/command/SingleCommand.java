@@ -72,7 +72,7 @@ public class SingleCommand<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of());
+                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
     
     private void validate(ParseState state)
