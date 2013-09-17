@@ -2,6 +2,7 @@ package io.airlift.command;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -88,8 +89,18 @@ public class UsageHelper
         if (!arguments.getUsage().isEmpty()) {
             return arguments.getUsage();
         }
+        List<String> descriptionTitles = arguments.getTitle();
+        StringBuilder stringBuilder = new StringBuilder();
+    	for (String title : descriptionTitles) {
+    		if (stringBuilder.length() > 0) {
+    			stringBuilder.append(" ");
+    		}
+    		stringBuilder.append("<");
+        	stringBuilder.append(title);
+        	stringBuilder.append(">");
+    	}
 
-        return "<" + arguments.getTitle() + ">";
+        return stringBuilder.toString();
 
     }
 
@@ -156,10 +167,11 @@ public class UsageHelper
         boolean required = arguments.isRequired();
         StringBuilder stringBuilder = new StringBuilder();
         if (!required) {
+        	// TODO: be able to handle required arguments individually, like arity for the options
             stringBuilder.append('[');
         }
-
-        stringBuilder.append("<").append(arguments.getTitle()).append(">");
+        
+        stringBuilder.append(toDescription(arguments));
 
         if (arguments.isMultiValued()) {
             stringBuilder.append("...");
@@ -177,8 +189,26 @@ public class UsageHelper
         {
             public String apply(OptionMetadata option)
             {
+                if (option.isHidden())
+                {
+                    return "";
+                }
+                
                 return toUsage(option);
             }
         }));
+    }
+    
+    public static String toDefaultCommand(String command) 
+    {
+    	if (Strings.isNullOrEmpty(command)) {
+    		return "";
+    	}
+    	StringBuilder stringBuilder = new StringBuilder();
+    	stringBuilder.append(" [");
+    	stringBuilder.append(command);
+    	stringBuilder.append("]");
+    	
+    	return stringBuilder.toString();
     }
 }

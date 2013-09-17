@@ -22,6 +22,7 @@ import io.airlift.command.Cli.CliBuilder;
 import io.airlift.command.Git.Add;
 import io.airlift.command.Git.RemoteAdd;
 import io.airlift.command.Git.RemoteShow;
+
 import io.airlift.command.args.Args1;
 import io.airlift.command.args.Args2;
 import io.airlift.command.args.ArgsArityString;
@@ -29,15 +30,21 @@ import io.airlift.command.args.ArgsBooleanArity;
 import io.airlift.command.args.ArgsInherited;
 import io.airlift.command.args.ArgsRequired;
 import io.airlift.command.args.CommandHidden;
+import io.airlift.command.args.GlobalOptionsHidden;
 import io.airlift.command.args.OptionsHidden;
 import io.airlift.command.args.OptionsRequired;
+import io.airlift.command.command.CommandRemove;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static io.airlift.command.Cli.buildCli;
 
 @Test
 public class HelpTest
 {
-    public void testGit()
+	@SuppressWarnings("unchecked")
+	public void testGit()
     {
         CliBuilder<Runnable> builder = Cli.<Runnable>builder("git")
                 .withDescription("the stupid content tracker")
@@ -94,7 +101,7 @@ public class HelpTest
                 "        git remote - Manage set of tracked repositories\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [-v] remote\n" +
+                "        git [-v] remote [show]\n" +
                 "        git [-v] remote add [-t <branch>]\n" +
                 "        git [-v] remote show [-n]\n" +
                 "\n" +
@@ -103,7 +110,7 @@ public class HelpTest
                 "            Verbose mode\n" +
                 "\n" +
                 "COMMANDS\n" +
-                "        With no arguments, Gives some information about the remote <name>\n" +
+                "        By default, Gives some information about the remote <name>\n" +
                 "\n" +
                 "        show\n" +
                 "            Gives some information about the remote <name>\n" +
@@ -115,6 +122,31 @@ public class HelpTest
                 "\n" +
                 "            With -t option, Track only a specific branch\n" +
                 "\n");
+        
+        out = new StringBuilder();
+        Help.help(gitParser.getMetadata(), ImmutableList.of("remote", "add"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        git remote add - Adds a remote\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        git [-v] remote add [-t <branch>] [--] [<name> <url>...]\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        -t <branch>\n" +
+                "            Track only a specific branch\n" +
+                "\n" +
+                "        -v\n" +
+                "            Verbose mode\n" +
+                "\n" +
+                "        --\n" +
+                "            This option can be used to separate command-line options from the\n" +
+                "            list of argument, (useful when arguments might be mistaken for\n" +
+                "            command-line options\n" +
+                "\n" +
+                "        <name> <url>\n" +
+                "            Name and URL of remote repository to add\n" +
+                "\n"
+                );
     }
 
     public void testArgs1()
@@ -397,6 +429,30 @@ public class HelpTest
                 "\n");
     }
 
+    public void testGlobalOptionsHidden()
+    {
+        CliBuilder<Object> builder = buildCli("test", Object.class)
+                .withDescription("Test commandline")
+                .withDefaultCommand(Help.class)
+                .withCommands(Help.class,
+                        GlobalOptionsHidden.class);
+
+        Cli<Object> parser = builder.build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.of("GlobalOptionsHidden"), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        test GlobalOptionsHidden -\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        test [(-op | --optional)] GlobalOptionsHidden\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        -op, --optional\n" +
+                "\n" +
+                "\n");
+    }
+
     public void testCommandHidden()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -432,4 +488,24 @@ public class HelpTest
 
     }
 
+    @Test
+    public void testExamplesAndDiscussion() {
+        Cli<?> parser = Cli.builder("git")
+            .withCommand(CommandRemove.class)
+            .build();
+
+        StringBuilder out = new StringBuilder();
+        Help.help(parser.getMetadata(), ImmutableList.<String>of("remove"), out);
+
+        String discussion = "DISCUSSION\n" +
+        "        More details about how this removes files from the index.\n" +
+        "\n";
+
+        String examples = "EXAMPLES\n" +
+        "        * The following is a usage example:\n" +
+        "        \t$ git remove -i myfile.java\n";
+
+        Assert.assertTrue(out.toString().contains(discussion), "Expected the discussion section to be present in the help");
+        Assert.assertTrue(out.toString().contains(examples), "Expected the examples section to be present in the help");
+    }
 }

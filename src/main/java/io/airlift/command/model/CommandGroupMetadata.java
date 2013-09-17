@@ -1,9 +1,10 @@
 package io.airlift.command.model;
 
+import java.util.List;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class CommandGroupMetadata
 {
@@ -19,7 +20,7 @@ public class CommandGroupMetadata
         this.description = description;
         this.options = ImmutableList.copyOf(options);
         this.defaultCommand = defaultCommand;
-        this.commands = ImmutableList.copyOf(commands);
+        this.commands = Lists.newArrayList(commands);
     }
 
     public String getName()
@@ -44,7 +45,15 @@ public class CommandGroupMetadata
 
     public List<CommandMetadata> getCommands()
     {
-        return commands;
+        return ImmutableList.copyOf(commands);
+    }
+    
+    public void addCommand(CommandMetadata command)
+    {
+        if(!commands.contains(command))
+        {
+            commands.add(command);
+        }
     }
 
     @Override

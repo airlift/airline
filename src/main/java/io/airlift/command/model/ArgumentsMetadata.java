@@ -1,30 +1,33 @@
 package io.airlift.command.model;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.command.Accessor;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
 public class ArgumentsMetadata
 {
-    private final String title;
+    private final List<String> titles;
     private final String description;
     private final String usage;
     private final boolean required;
     private final Set<Accessor> accessors;
 
-    public ArgumentsMetadata(String title, String description, String usage, boolean required, Iterable<Field> path)
+    public ArgumentsMetadata(Iterable<String> titles, String description, String usage, boolean required, Iterable<Field> path)
     {
-        Preconditions.checkNotNull(title, "title is null");
+        Preconditions.checkNotNull(titles, "title is null");
         Preconditions.checkNotNull(path, "path is null");
         Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
-        this.title = title;
+        this.titles = ImmutableList.copyOf(titles);
         this.description = description;
         this.usage = usage;
         this.required = required;
@@ -38,7 +41,7 @@ public class ArgumentsMetadata
 
         ArgumentsMetadata first = arguments.iterator().next();
 
-        this.title = first.title;
+        this.titles = first.titles;
         this.description = first.description;
         this.usage = first.usage;
         this.required = first.required;
@@ -53,9 +56,9 @@ public class ArgumentsMetadata
         this.accessors = ImmutableSet.copyOf(accessors);
     }
 
-    public String getTitle()
+    public List<String> getTitle()
     {
-        return title;
+        return titles;
     }
 
     public String getDescription()
@@ -106,7 +109,7 @@ public class ArgumentsMetadata
         if (description != null ? !description.equals(that.description) : that.description != null) {
             return false;
         }
-        if (!title.equals(that.title)) {
+        if (!titles.equals(that.titles)) {
             return false;
         }
         if (usage != null ? !usage.equals(that.usage) : that.usage != null) {
@@ -119,7 +122,7 @@ public class ArgumentsMetadata
     @Override
     public int hashCode()
     {
-        int result = title.hashCode();
+        int result = titles.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (usage != null ? usage.hashCode() : 0);
         result = 31 * result + (required ? 1 : 0);
@@ -131,7 +134,7 @@ public class ArgumentsMetadata
     {
         final StringBuilder sb = new StringBuilder();
         sb.append("ArgumentsMetadata");
-        sb.append("{title='").append(title).append('\'');
+        sb.append("{title='").append(Joiner.on(',').join(titles)).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", usage='").append(usage).append('\'');
         sb.append(", required=").append(required);

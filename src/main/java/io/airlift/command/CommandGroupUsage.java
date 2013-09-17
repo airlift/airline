@@ -89,25 +89,33 @@ public class CommandGroupUsage
 
         if (group.getDefaultCommand() != null) {
             CommandMetadata command = group.getDefaultCommand();
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
+            if(!command.isHidden())
+            {
+                if (global != null) {
+                    synopsis.append(global.getName());
+                    if (!hideGlobalOptions) {
+                        synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
+                    }
                 }
+                
+                synopsis.append(group.getName()).append(UsageHelper.toDefaultCommand(command.getName()))
+                	.appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
+                synopsis.newline();
             }
-            synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
-            synopsis.newline();
         }
         for (CommandMetadata command : commands) {
-            if (global != null) {
-                synopsis.append(global.getName());
-                if (!hideGlobalOptions) {
-                    synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
+            if(!command.isHidden())
+            {
+                if (global != null) {
+                    synopsis.append(global.getName());
+                    if (!hideGlobalOptions) {
+                        synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
+                    }
                 }
+                synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
+                synopsis.append(command.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getCommandOptions()));
+                synopsis.newline();
             }
-            synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
-            synopsis.append(command.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getCommandOptions()));
-            synopsis.newline();
         }
         synopsis.newline();
 
@@ -127,6 +135,12 @@ public class CommandGroupUsage
             out.append("OPTIONS").newline();
 
             for (OptionMetadata option : options) {
+                
+                if(option.isHidden())
+                {
+                    continue;
+                }
+                
                 // option names
                 UsagePrinter optionPrinter = out.newIndentedPrinter(8);
                 optionPrinter.append(UsageHelper.toDescription(option)).newline();
@@ -146,27 +160,30 @@ public class CommandGroupUsage
             out.append("COMMANDS").newline();
             UsagePrinter commandPrinter = out.newIndentedPrinter(8);
 
-            if (group.getDefaultCommand() != null && group.getDefaultCommand().getDescription() != null) {
-                commandPrinter.append("With no arguments,")
+            if (group.getDefaultCommand() != null && group.getDefaultCommand().getDescription() != null && !group.getDefaultCommand().isHidden()) {
+                commandPrinter.append("By default,")
                         .append(group.getDefaultCommand().getDescription())
                         .newline()
                         .newline();
             }
 
             for (CommandMetadata command : group.getCommands()) {
-                commandPrinter.append(command.getName()).newline();
-                UsagePrinter descriptionPrinter = commandPrinter.newIndentedPrinter(4);
-
-                descriptionPrinter.append(command.getDescription()).newline().newline();
-
-                for (OptionMetadata option : command.getCommandOptions()) {
-                    if (!option.isHidden() && option.getDescription() != null) {
-                        descriptionPrinter.append("With")
-                                .append(longest(option.getOptions()))
-                                .append("option,")
-                                .append(option.getDescription())
-                                .newline()
-                                .newline();
+                if (!command.isHidden())
+                {
+                    commandPrinter.append(command.getName()).newline();
+                    UsagePrinter descriptionPrinter = commandPrinter.newIndentedPrinter(4);
+    
+                    descriptionPrinter.append(command.getDescription()).newline().newline();
+    
+                    for (OptionMetadata option : command.getCommandOptions()) {
+                        if (!option.isHidden() && option.getDescription() != null) {
+                            descriptionPrinter.append("With")
+                                    .append(longest(option.getOptions()))
+                                    .append("option,")
+                                    .append(option.getDescription())
+                                    .newline()
+                                    .newline();
+                        }
                     }
                 }
             }
