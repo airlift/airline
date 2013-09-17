@@ -49,6 +49,7 @@ import static com.google.common.base.Predicates.compose;
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.collect.Iterables.find;
 import static io.airlift.command.TestUtil.singleCommandParser;
+import static io.airlift.command.TestUtil.singleCommandParserWithDefault;
 
 @Test
 public class CommandTest
@@ -68,6 +69,22 @@ public class CommandTest
         Assert.assertEquals(args.doub, 1.3f, 0.1f);
         Assert.assertEquals(args.bigd, new BigDecimal("1.4"));
     }
+
+  public void simpleArgsWithDefault()
+          throws ParseException
+  {
+      Args1 args = singleCommandParserWithDefault(Args1.class).parse(
+              "-debug", "-log", "2", "-float", "1.2", "-double", "1.3", "-bigdecimal", "1.4",
+              "-groups", "unit", "a", "b", "c");
+
+      Assert.assertTrue(args.debug);
+      Assert.assertEquals(args.verbose.intValue(), 2);
+      Assert.assertEquals(args.groups, "unit");
+      Assert.assertEquals(args.parameters, Arrays.asList("a", "b", "c"));
+      Assert.assertEquals(args.floa, 1.2f, 0.1f);
+      Assert.assertEquals(args.doub, 1.3f, 0.1f);
+      Assert.assertEquals(args.bigd, new BigDecimal("1.4"));
+  }
 
     public void equalsArgs()
             throws ParseException

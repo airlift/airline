@@ -62,19 +62,29 @@ public class Parser
         if (tokens.hasNext()) {
             CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()), null);
             if (command == null) {
-                while (tokens.hasNext()) {
-                    state = state.withUnparsedInput(tokens.next());
+                if (state.getGroup() != null && state.getGroup().getDefaultCommand() != null) {
+                    state = state.withCommand(state.getGroup().getDefaultCommand());
+                }
+                else {
+                    state = state.withCommand(metadata.getDefaultCommand());
                 }
             }
             else {
                 tokens.next();
                 state = state.withCommand(command).pushContext(Context.COMMAND);
+            }
+        }
 
-                while (tokens.hasNext()) {
-                    state = parseOptions(tokens, state, command.getCommandOptions());
-
-                    state = parseArgs(state, tokens, command.getArguments());
-                }
+        if (state.getCommand() == null) {
+             while (tokens.hasNext()) {
+                state = state.withUnparsedInput(tokens.next());
+             }
+        }
+        else {
+            CommandMetadata command = state.getCommand();
+            while (tokens.hasNext()) {
+                state = parseOptions(tokens, state, command.getCommandOptions());
+                state = parseArgs(state, tokens, command.getArguments());
             }
         }
 
