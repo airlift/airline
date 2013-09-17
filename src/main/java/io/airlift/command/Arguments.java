@@ -28,9 +28,9 @@ import static java.lang.annotation.ElementType.FIELD;
 public @interface Arguments
 {
     /**
-     * Name of the arguments.
+     * Name or names of the arguments.
      */
-    String title() default "";
+    String[] title() default {""};
 
     /**
      * A description of the arguments.
@@ -43,7 +43,7 @@ public @interface Arguments
     String usage() default "";
 
     /**
-     * Whether this arguments are required.
+     * Whether these arguments are required.
      */
     boolean required() default false;
 }

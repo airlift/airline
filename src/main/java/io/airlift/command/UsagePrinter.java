@@ -1,6 +1,7 @@
 package io.airlift.command;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -80,10 +81,23 @@ public class UsagePrinter
                 line.append("   ");
                 column++;
             }
-            out.append(spaces(indent)).append(line.toString().trim()).append("\n");
+            out.append(spaces(indent)).append(trimEnd(line.toString())).append("\n");
         }
 
         return this;
+    }
+
+    public static String trimEnd(final String str) {
+        if (Strings.isNullOrEmpty(str)) {
+            return str;
+        }
+
+        int end = str.length();
+        while ((end != 0) && Character.isWhitespace(str.charAt(end - 1))) {
+            end--;
+        }
+
+        return str.substring(0, end);
     }
 
     public UsagePrinter append(String value)
@@ -97,6 +111,11 @@ public class UsagePrinter
     public UsagePrinter appendWords(Iterable<String> words)
     {
         for (String word : words) {
+            if(null == word || "".equals(word))
+            {
+                continue;
+            }
+            
             if (currentPosition.get() == 0) {
                 // beginning of line
                 out.append(spaces(indent));

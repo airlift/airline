@@ -47,4 +47,31 @@ public @interface Command
      * If true, this command won't appear in the usage().
      */
     boolean hidden() default false;
+
+    /**
+     * An array of lines of text to provide a series of example usages of the command.
+     *
+     * {@code
+    examples = {"* Explain what the command example does",
+    "    $ cli group cmd foo.txt file.json",
+    "",
+    "* Explain what this command example does",
+    "    $ cli group cmd --non-standard-option value foo.txt"}
+     }
+     * Formatting and blank lines are preserved to give users leverage over how the examples are displayed in the usage.
+     */
+    String[] examples() default {};
+
+    /**
+     * Block of text that provides an extended discussion on the behavior of the command.  Should
+     * supplement the shorter description which is more of a summary where discussion can get into
+     * greater detail.
+     */
+    String discussion() default "";
+
+    /**
+     *  the group(s) this command should belong to.
+     *  if left empty the command will belong to the default command group
+     */
+    String[] groupNames() default {};
 }
