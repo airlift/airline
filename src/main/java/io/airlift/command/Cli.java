@@ -101,8 +101,8 @@ public class Cli<C>
     {
         Preconditions.checkNotNull(args, "args is null");
         
-        Parser parser = new Parser(metadata);
-        ParseState state = parser.parse(args);
+        Parser parser = new Parser();
+        ParseState state = parser.parse(metadata, args);
 
         if (state.getCommand() == null) {
             if (state.getGroup() != null) {
