@@ -41,6 +41,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import javax.inject.Inject;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +51,7 @@ import static com.google.common.base.Predicates.compose;
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.collect.Iterables.find;
 import static io.airlift.command.SingleCommand.singleCommand;
+import static org.testng.Assert.assertTrue;
 
 @Test
 public class SingleCommandTest
@@ -60,7 +63,7 @@ public class SingleCommandTest
                 "-debug", "-log", "2", "-float", "1.2", "-double", "1.3", "-bigdecimal", "1.4",
                 "-groups", "unit", "a", "b", "c");
 
-        Assert.assertTrue(args.debug);
+        assertTrue(args.debug);
         Assert.assertEquals(args.verbose.intValue(), 2);
         Assert.assertEquals(args.groups, "unit");
         Assert.assertEquals(args.parameters, Arrays.asList("a", "b", "c"));
@@ -76,7 +79,7 @@ public class SingleCommandTest
                 "-debug", "-log=2", "-float=1.2", "-double=1.3", "-bigdecimal=1.4",
                 "-groups=unit", "a", "b", "c");
 
-        Assert.assertTrue(args.debug);
+        assertTrue(args.debug);
         Assert.assertEquals(args.verbose.intValue(), 2);
         Assert.assertEquals(args.groups, "unit");
         Assert.assertEquals(args.parameters, Arrays.asList("a", "b", "c"));
@@ -91,13 +94,13 @@ public class SingleCommandTest
         ArgsSingleChar args = singleCommand(ArgsSingleChar.class).parse(
                 "-lg", "-dsn", "-pa-p", "-2f", "-z", "--Dfoo");
 
-        Assert.assertTrue(args.l);
-        Assert.assertTrue(args.g);
-        Assert.assertTrue(args.d);
+        assertTrue(args.l);
+        assertTrue(args.g);
+        assertTrue(args.d);
         Assert.assertEquals(args.s, "n");
         Assert.assertEquals(args.p, "a-p");
         Assert.assertFalse(args.n);
-        Assert.assertTrue(args.two);
+        assertTrue(args.two);
         Assert.assertEquals(args.f, "-z");
         Assert.assertFalse(args.z);
         Assert.assertEquals(args.dir, null);
@@ -299,7 +302,7 @@ public class SingleCommandTest
     public void arity1Success1()
     {
         Arity1 arguments = singleCommand(Arity1.class).parse("-inspect", "true");
-        Assert.assertTrue(arguments.inspect);
+        assertTrue(arguments.inspect);
     }
 
     public void arity1Success2()
@@ -371,5 +374,27 @@ public class SingleCommandTest
     {
 
         System.out.println("A");
+    }
+
+
+    @Test
+    public void testSingleCommandHelpOption()
+    {
+        CommandTest commandTest = singleCommand(CommandTest.class).parse("-h", "-i", "foo");
+        assertTrue(commandTest.helpOption.showHelpIfRequested());
+    }
+
+    @Command(name = "test", description = "TestCommand")
+    public static class CommandTest
+    {
+        @Inject
+        public HelpOption helpOption;
+
+        @Arguments(description = "Patterns of files to be added")
+        public List<String> patterns;
+
+        @Option(name = "-i", description = "Interactive add mode")
+        public Boolean interactive = false;
+
     }
 }
