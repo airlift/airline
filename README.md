@@ -3,13 +3,13 @@ Airline
 
 Airline is a Java annotation-based framework for parsing Git like command line structures.
 
-Latest release is 0.5, available from Maven Central.
+Latest release is 0.6, available from Maven Central.
 
 ```xml
 <dependency>
     <groupId>io.airlift</groupId>
     <artifactId>airline</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
 </dependency>
 ```
 
@@ -90,13 +90,58 @@ $ git -v remote show origin
 
 
 
+Single Command Mode
+===================
+
+Airline can also be used for simple, single-command programs:
+
+```java
+@Command(name = "ping", description = "network test utility")
+public class Ping
+{
+    @Inject
+    public HelpOption helpOption;
+
+    @Option(name = {"-c", "--count"}, description = "Send count packets")
+    public int count = 1;
+
+    public static void main(String... args)
+    {
+        Ping ping = SingleCommand.singleCommand(Ping.class).parse(args);
+
+        if (ping.helpOption.showHelpIfRequested()) {
+            return;
+        }
+
+        ping.run();
+    }
+
+    public void run()
+    {
+        System.out.println("Ping count: " + count);
+    }
+}
+```
+
+Assuming you have packaged this as an executable program named 'ping', you would be able to execute the following commands:
+
+```shell
+$ ping
+
+$ ping -c 5
+
+$ ping --help
+```
+
+
+
 Help System
 ===========
 
 Airline contains a fully automated help system, which generates man-page-like documentation driven by the Java
 annotations.
 
-As you may have noticed in the code above, we added Help.class to the cli.  This command is provided by Airline and works as follows:
+As you may have noticed in the git code above, we added `Help.class` to the cli.  This command is provided by Airline and works as follows:
 
 ```shell
 $ git help
@@ -211,7 +256,7 @@ OPTIONS
             Remote to show
 ```
 
-We have also, add Help.class as the default command for git, so if you execute git without any arguments, you will see the following:
+We have also, add `Help.class` as the default command for git, so if you execute git without any arguments, you will see the following:
 
 ```shell
 $ git help
@@ -223,4 +268,24 @@ The most commonly used git commands are:
     remote    Manage set of tracked repositories
 
 See 'git help <command>' for more information on a specific command.
+```
+
+For simple, single-command programs like ping, use the `HelpOption` option as shown in the example above.
+`HelpOption` handles the options `-h` and `--help` and provides the `showHelpIfRequested()` method
+to automatically show the following help output:
+
+```shell
+$ ping -h
+NAME
+        ping - network test utility
+
+SYNOPSIS
+        ping [(-c <count> | --count <count>)] [(-h | --help)]
+
+OPTIONS
+        -c <count>, --count <count>
+            Send count packets
+
+        -h, --help
+            Display help information
 ```
