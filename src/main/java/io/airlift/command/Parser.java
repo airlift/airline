@@ -20,20 +20,14 @@ import static com.google.common.collect.Iterables.find;
 public class Parser
 {
     private static final Pattern SHORT_OPTIONS_PATTERN = Pattern.compile("-[^-].*");
-    private final GlobalMetadata metadata;
-
-    public Parser(GlobalMetadata metadata)
-    {
-        this.metadata = metadata;
-    }
 
     // global> (option value*)* (group (option value*)*)? (command (option value* | arg)* '--'? args*)?
-    public ParseState parse(String... params)
+    public ParseState parse(GlobalMetadata metadata, String... params)
     {
-        return parse(ImmutableList.copyOf(params));
+        return parse(metadata, ImmutableList.copyOf(params));
     }
 
-    public ParseState parse(Iterable<String> params)
+    public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
         PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
 
@@ -78,6 +72,19 @@ public class Parser
             }
         }
 
+        return state;
+    }
+
+    public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
+    {
+        PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
+        ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
+
+        while (tokens.hasNext()) {
+            state = parseOptions(tokens, state, command.getCommandOptions());
+
+            state = parseArgs(state, tokens, command.getArguments());
+        }
         return state;
     }
 
