@@ -368,15 +368,6 @@ public class SingleCommandTest
         singleCommand(A.class).parse("32");
     }
 
-    @Test(enabled = false)
-    public static void main(String[] args)
-            throws Exception
-    {
-
-        System.out.println("A");
-    }
-
-
     @Test
     public void testSingleCommandHelpOption()
     {

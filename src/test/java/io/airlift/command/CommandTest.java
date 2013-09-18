@@ -382,12 +382,4 @@ public class CommandTest
         }
         singleCommandParser(A.class).parse("-lon", "32");
     }
-
-    @Test(enabled = false)
-    public static void main(String[] args)
-            throws Exception
-    {
-
-        System.out.println("A");
-    }
 }
