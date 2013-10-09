@@ -49,7 +49,7 @@ public @interface Command
     boolean hidden() default false;
 
     /**
-     * If true, the help will be shown
+     * If true, the help will be shown if the command line arguments cannot be parsed correctly.
      */
     boolean showHelpOnError() default true;
 }
