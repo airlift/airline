@@ -23,12 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import io.airlift.command.model.ArgumentsMetadata;
-import io.airlift.command.model.CommandGroupMetadata;
-import io.airlift.command.model.CommandMetadata;
-import io.airlift.command.model.GlobalMetadata;
-import io.airlift.command.model.MetadataLoader;
-import io.airlift.command.model.OptionMetadata;
+import io.airlift.command.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -129,6 +124,7 @@ public class Cli<C>
     private void validate(ParseState state)
     {
         CommandMetadata command = state.getCommand();
+
         if (command == null) {
             List<String> unparsedInput = state.getUnparsedInput();
             if (unparsedInput.isEmpty()) {
@@ -139,23 +135,32 @@ public class Cli<C>
             }
         }
 
-        ArgumentsMetadata arguments = command.getArguments();
-        if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
-            throw new ParseArgumentsMissingException(arguments.getTitle());
-        }
-        
-        if (!state.getUnparsedInput().isEmpty()) {
-            throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
-        }
-
-        if (state.getLocation() == Context.OPTION) {
-            throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
-        }
-
-        for (OptionMetadata option : command.getAllOptions()) {
-            if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
-                throw new ParseOptionMissingException(option.getOptions().iterator().next());
+        try{
+            ArgumentsMetadata arguments = command.getArguments();
+            if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
+                throw new ParseArgumentsMissingException(arguments.getTitle());
             }
+
+            if (!state.getUnparsedInput().isEmpty()) {
+                throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
+            }
+
+            if (state.getLocation() == Context.OPTION) {
+                throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
+            }
+
+            for (OptionMetadata option : command.getAllOptions()) {
+                if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
+                    throw new ParseOptionMissingException(option.getOptions().iterator().next());
+                }
+            }
+        }catch(ParseException e){
+            if(command.isShowHelpOnError()){
+                System.out.println(e.getMessage());
+                System.out.println("Usage:");
+                Help.help(command);
+            }
+            throw e;
         }
     }
 
