@@ -47,4 +47,9 @@ public @interface Command
      * If true, this command won't appear in the usage().
      */
     boolean hidden() default false;
+
+    /**
+     * If true, the help will be shown if the command line arguments cannot be parsed correctly.
+     */
+    boolean showHelpOnError() default true;
 }

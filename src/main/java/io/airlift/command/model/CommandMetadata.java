@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import io.airlift.command.Accessor;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class CommandMetadata
@@ -18,6 +17,7 @@ public class CommandMetadata
     private final ArgumentsMetadata arguments;
     private final List<Accessor> metadataInjections;
     private final Class<?> type;
+    private final boolean showHelpOnError;
 
     public CommandMetadata(String name,
             String description,
@@ -26,7 +26,7 @@ public class CommandMetadata
             Iterable<OptionMetadata> commandOptions,
             ArgumentsMetadata arguments,
             Iterable<Accessor> metadataInjections,
-            Class<?> type)
+            Class<?> type, boolean showHelpOnError)
     {
         this.name = name;
         this.description = description;
@@ -37,6 +37,7 @@ public class CommandMetadata
         this.arguments = arguments;
         this.metadataInjections = ImmutableList.copyOf(metadataInjections);
         this.type = type;
+        this.showHelpOnError = showHelpOnError;
     }
 
     public String getName()
@@ -116,5 +117,9 @@ public class CommandMetadata
                 return input.getName();
             }
         };
+    }
+
+    public boolean isShowHelpOnError() {
+        return showHelpOnError;
     }
 }

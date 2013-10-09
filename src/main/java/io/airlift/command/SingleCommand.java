@@ -55,11 +55,11 @@ public class SingleCommand<C>
     {
         return parse(ImmutableList.copyOf(args));
     }
-    
+
     public C parse(Iterable<String> args)
     {
         checkNotNull(args, "args is null");
-        
+
         Parser parser = new Parser();
         ParseState state = parser.parseCommand(commandMetadata, args);
         validate(state);
@@ -74,10 +74,11 @@ public class SingleCommand<C>
                 command.getMetadataInjections(),
                 ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
-    
+
     private void validate(ParseState state)
     {
         CommandMetadata command = state.getCommand();
+
         if (command == null) {
             List<String> unparsedInput = state.getUnparsedInput();
             if (unparsedInput.isEmpty()) {
@@ -88,23 +89,32 @@ public class SingleCommand<C>
             }
         }
 
-        ArgumentsMetadata arguments = command.getArguments();
-        if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
-            throw new ParseArgumentsMissingException(arguments.getTitle());
-        }
-        
-        if (!state.getUnparsedInput().isEmpty()) {
-            throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
-        }
-
-        if (state.getLocation() == Context.OPTION) {
-            throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
-        }
-
-        for (OptionMetadata option : command.getAllOptions()) {
-            if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
-                throw new ParseOptionMissingException(option.getOptions().iterator().next());
+        try{
+            ArgumentsMetadata arguments = command.getArguments();
+            if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
+                throw new ParseArgumentsMissingException(arguments.getTitle());
             }
+
+            if (!state.getUnparsedInput().isEmpty()) {
+                throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
+            }
+
+            if (state.getLocation() == Context.OPTION) {
+                throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
+            }
+
+            for (OptionMetadata option : command.getAllOptions()) {
+                if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
+                    throw new ParseOptionMissingException(option.getOptions().iterator().next());
+                }
+            }
+        }catch(ParseException e){
+            if(command.isShowHelpOnError()){
+                System.out.println(e.getMessage());
+                System.out.println("Usage:");
+                Help.help(command);
+            }
+            throw e;
         }
     }
 }

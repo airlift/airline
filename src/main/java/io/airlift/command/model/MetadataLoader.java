@@ -6,12 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import io.airlift.command.Accessor;
-import io.airlift.command.Arguments;
-import io.airlift.command.Command;
-import io.airlift.command.Option;
-import io.airlift.command.OptionType;
-import io.airlift.command.Suggester;
+import io.airlift.command.*;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -82,6 +77,7 @@ public class MetadataLoader
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
         boolean hidden = command.hidden();
+        boolean showHelpOnError = command.showHelpOnError();
 
         InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
 
@@ -93,7 +89,7 @@ public class MetadataLoader
                 injectionMetadata.commandOptions,
                 Iterables.getFirst(injectionMetadata.arguments, null),
                 injectionMetadata.metadataInjections,
-                commandType);
+                commandType, showHelpOnError);
 
         return commandMetadata;
 
