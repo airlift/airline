@@ -5,6 +5,7 @@ import io.airlift.command.model.CommandGroupMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.GlobalMetadata;
 import io.airlift.command.model.OptionMetadata;
+import io.airlift.command.model.ArgumentsMetadata;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -82,6 +83,7 @@ public class CommandGroupUsage
         // SYNOPSIS
         //
         out.append("SYNOPSIS").newline();
+
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
 
         List<CommandMetadata> commands = newArrayList(group.getCommands());
@@ -97,7 +99,6 @@ public class CommandGroupUsage
                         synopsis.appendWords(UsageHelper.toSynopsisUsage(command.getGlobalOptions()));
                     }
                 }
-                
                 synopsis.append(group.getName()).append(UsageHelper.toDefaultCommand(command.getName()))
                 	.appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
                 synopsis.newline();
@@ -114,6 +115,11 @@ public class CommandGroupUsage
                 }
                 synopsis.append(group.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getGroupOptions()));
                 synopsis.append(command.getName()).appendWords(UsageHelper.toSynopsisUsage(command.getCommandOptions()));
+                ArgumentsMetadata arguments = command.getArguments();
+                if (arguments != null) {
+                    synopsis.append("[--]")
+                            .append(UsageHelper.toUsage(arguments));
+                }
                 synopsis.newline();
             }
         }

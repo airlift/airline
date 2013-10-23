@@ -64,7 +64,7 @@ public class HelpTest
         Help.help(gitParser.getMetadata(), ImmutableList.<String>of(), out);
         Assert.assertEquals(out.toString(), "usage: git [-v] <command> [<args>]\n" +
                 "\n" +
-                "The most commonly used git commands are:\n" +
+                "Commands are:\n" +
                 "    add      Add file contents to the index\n" +
                 "    help     Display help information\n" +
                 "    remote   Manage set of tracked repositories\n" +
@@ -102,8 +102,8 @@ public class HelpTest
                 "\n" +
                 "SYNOPSIS\n" +
                 "        git [-v] remote [show]\n" +
-                "        git [-v] remote add [-t <branch>]\n" +
-                "        git [-v] remote show [-n]\n" +
+                "        git [-v] remote add [-t <branch>] [--] [<name> <url>...]\n" +
+                "        git [-v] remote show [-n] [--] [<remote>]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -v\n" +
@@ -467,7 +467,7 @@ public class HelpTest
         Help.help(parser.getMetadata(), ImmutableList.<String>of(), out);
         Assert.assertEquals(out.toString(), "usage: test <command> [<args>]\n" +
                 "\n" +
-                "The most commonly used test commands are:\n" +
+                "Commands are:\n" +
                 "    ArgsRequired\n" +
                 "    help           Display help information\n" +
                 "\n" +

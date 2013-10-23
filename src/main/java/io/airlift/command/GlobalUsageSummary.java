@@ -96,7 +96,7 @@ public class GlobalUsageSummary
             commands.put(commandGroupMetadata.getName(), commandGroupMetadata.getDescription());
         }
 
-        out.append("The most commonly used ").append(global.getName()).append(" commands are:").newline();
+        out.append("Commands are:").newline();
         out.newIndentedPrinter(4).appendTable(Iterables.transform(commands.entrySet(), new Function<Entry<String, String>, Iterable<String>>()
         {
             public Iterable<String> apply(Entry<String, String> entry)
