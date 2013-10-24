@@ -76,7 +76,7 @@ public class GlobalUsage
         out.newIndentedPrinter(8).newPrinterWithHangingIndent(8)
                 .append(global.getName())
                 .appendWords(UsageHelper.toSynopsisUsage(global.getOptions()))
-                .append("<command> [<args>]")
+                .append("<command> [ <args> ]")
                 .newline()
                 .newline();
 

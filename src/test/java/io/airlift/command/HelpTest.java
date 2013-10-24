@@ -62,7 +62,7 @@ public class HelpTest
 
         StringBuilder out = new StringBuilder();
         Help.help(gitParser.getMetadata(), ImmutableList.<String>of(), out);
-        Assert.assertEquals(out.toString(), "usage: git [-v] <command> [<args>]\n" +
+        Assert.assertEquals(out.toString(), "usage: git [ -v ] <command> [ <args> ]\n" +
                 "\n" +
                 "Commands are:\n" +
                 "    add      Add file contents to the index\n" +
@@ -77,7 +77,7 @@ public class HelpTest
                 "        git add - Add file contents to the index\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [-v] add [-i] [--] [<patterns>...]\n" +
+                "        git [ -v ] add [ -i ] [--] [ <patterns>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -i\n" +
@@ -101,9 +101,9 @@ public class HelpTest
                 "        git remote - Manage set of tracked repositories\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [-v] remote [show]\n" +
-                "        git [-v] remote add [-t <branch>] [--] [<name> <url>...]\n" +
-                "        git [-v] remote show [-n] [--] [<remote>]\n" +
+                "        git [ -v ] remote [ show ]\n" +
+                "        git [ -v ] remote add [ -t <branch> ] [--] [ <name> <url>... ]\n" +
+                "        git [ -v ] remote show [ -n ] [--] [ <remote> ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -v\n" +
@@ -129,7 +129,7 @@ public class HelpTest
                 "        git remote add - Adds a remote\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [-v] remote add [-t <branch>] [--] [<name> <url>...]\n" +
+                "        git [ -v ] remote add [ -t <branch> ] [--] [ <name> <url>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -t <branch>\n" +
@@ -165,10 +165,9 @@ public class HelpTest
                 "        test Args1 -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test Args1 [-bigdecimal <bigd>] [-date <date>] [-debug] [-double <doub>]\n" +
-                "                [-float <floa>] [-groups <groups>]\n" +
-                "                [(-log <verbose> | -verbose <verbose>)] [-long <l>] [--]\n" +
-                "                [<parameters>...]\n" +
+                "        test Args1 [ -bigdecimal <bigd> ] [ -date <date> ] [ -debug ]\n" +
+                "                [ -double <doub> ] [ -float <floa> ] [ -groups <groups> ]\n" +
+                "                [ {-log | -verbose} <verbose> ] [ -long <l> ] [--] [ <parameters>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -bigdecimal <bigd>\n" +
@@ -221,8 +220,8 @@ public class HelpTest
                 "        test Args2 -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test Args2 [-debug] [-groups <groups>] [-host <hosts>...]\n" +
-                "                [(-log <verbose> | -verbose <verbose>)] [--] [<parameters>...]\n" +
+                "        test Args2 [ -debug ] [ -groups <groups> ] [ -host <hosts>... ]\n" +
+                "                [ {-log | -verbose} <verbose> ] [--] [ <parameters>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -debug\n" +
@@ -263,7 +262,7 @@ public class HelpTest
                 "        test ArgsArityString -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test ArgsArityString [-pairs <pairs>...] [--] [<rest>...]\n" +
+                "        test ArgsArityString [ -pairs <pairs>... ] [--] [ <rest>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -pairs <pairs>\n" +
@@ -295,7 +294,7 @@ public class HelpTest
                 "        test ArgsBooleanArity -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test ArgsBooleanArity [-debug <debug>]\n" +
+                "        test ArgsBooleanArity [ -debug <debug> ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -debug <debug>\n" +
@@ -319,8 +318,8 @@ public class HelpTest
                 "        test ArgsInherited -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test ArgsInherited [-child <child>] [-debug] [-groups <groups>]\n" +
-                "                [-level <level>] [-log <log>] [--] [<parameters>...]\n" +
+                "        test ArgsInherited [ -child <child> ] [ -debug ] [ -groups <groups> ]\n" +
+                "                [ -level <level> ] [ -log <log> ] [--] [ <parameters>... ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -child <child>\n" +
@@ -393,7 +392,7 @@ public class HelpTest
                 "        test OptionsRequired -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test OptionsRequired [--optional <optionalOption>]\n" +
+                "        test OptionsRequired [ --optional <optionalOption> ]\n" +
                 "                --required <requiredOption>\n" +
                 "\n" +
                 "OPTIONS\n" +
@@ -421,7 +420,7 @@ public class HelpTest
                 "        test OptionsHidden -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test OptionsHidden [--optional <optionalOption>]\n" +
+                "        test OptionsHidden [ --optional <optionalOption> ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        --optional <optionalOption>\n" +
@@ -445,7 +444,7 @@ public class HelpTest
                 "        test GlobalOptionsHidden -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test [(-op | --optional)] GlobalOptionsHidden\n" +
+                "        test [ {-op | --optional} ] GlobalOptionsHidden\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -op, --optional\n" +
@@ -465,7 +464,7 @@ public class HelpTest
 
         StringBuilder out = new StringBuilder();
         Help.help(parser.getMetadata(), ImmutableList.<String>of(), out);
-        Assert.assertEquals(out.toString(), "usage: test <command> [<args>]\n" +
+        Assert.assertEquals(out.toString(), "usage: test <command> [ <args> ]\n" +
                 "\n" +
                 "Commands are:\n" +
                 "    ArgsRequired\n" +
@@ -479,7 +478,7 @@ public class HelpTest
                 "        test CommandHidden -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        test CommandHidden [--optional <optionalOption>]\n" +
+                "        test CommandHidden [ --optional <optionalOption> ]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        --optional <optionalOption>\n" +

@@ -110,18 +110,18 @@ public class UsagePrinter
 
     public UsagePrinter appendWords(Iterable<String> words)
     {
+        int bracketCount = 0;
         for (String word : words) {
             if(null == word || "".equals(word))
             {
                 continue;
             }
-            
             if (currentPosition.get() == 0) {
                 // beginning of line
                 out.append(spaces(indent));
                 currentPosition.getAndAdd((indent));
             }
-            else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize) {
+            else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize || bracketCount > 0) {
                 // between words
                 out.append(" ");
                 currentPosition.getAndIncrement();
@@ -134,6 +134,12 @@ public class UsagePrinter
 
             out.append(word);
             currentPosition.getAndAdd((word.length()));
+            if (word.contains("{") || word.contains("[") || word.contains("<")) {
+                bracketCount++;
+            }
+            if (word.contains("}") || word.contains("]") || word.contains(">")) {
+                bracketCount--;
+            }
         }
         return this;
     }

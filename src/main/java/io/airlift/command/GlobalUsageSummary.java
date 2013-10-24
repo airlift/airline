@@ -78,7 +78,7 @@ public class GlobalUsageSummary
                 .append("usage:")
                 .append(global.getName())
                 .appendWords(commandArguments)
-                .append("<command> [<args>]")
+                .append("<command> [ <args> ]")
                 .newline()
                 .newline();
 
