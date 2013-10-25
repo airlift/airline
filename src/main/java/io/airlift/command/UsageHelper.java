@@ -110,11 +110,11 @@ public class UsageHelper
         boolean required = option.isRequired();
         StringBuilder stringBuilder = new StringBuilder();
         if (!required) {
-            stringBuilder.append('[');
+            stringBuilder.append("[ ");
         }
 
         if (options.size() > 1) {
-            stringBuilder.append('(');
+            stringBuilder.append('{');
         }
 
         final String argumentString;
@@ -135,17 +135,21 @@ public class UsageHelper
         {
             public String apply(@Nullable String option)
             {
-                if (argumentString != null) {
-                    return option + " " + argumentString;
-                }
-                else {
+//                if (argumentString != null) {
+//                    return option + " " + argumentString;
+//                }
+//                else {
                     return option;
-                }
+//                }
             }
         }));
 
         if (options.size() > 1) {
-            stringBuilder.append(')');
+            stringBuilder.append('}');
+        }
+
+        if (argumentString != null) {
+            stringBuilder.append(" " + argumentString);
         }
 
         if (option.isMultiValued()) {
@@ -153,7 +157,7 @@ public class UsageHelper
         }
 
         if (!required) {
-            stringBuilder.append(']');
+            stringBuilder.append(" ]");
         }
         return stringBuilder.toString();
     }
@@ -168,7 +172,7 @@ public class UsageHelper
         StringBuilder stringBuilder = new StringBuilder();
         if (!required) {
         	// TODO: be able to handle required arguments individually, like arity for the options
-            stringBuilder.append('[');
+            stringBuilder.append("[ ");
         }
         
         stringBuilder.append(toDescription(arguments));
@@ -178,7 +182,7 @@ public class UsageHelper
         }
 
         if (!required) {
-            stringBuilder.append(']');
+            stringBuilder.append(" ]");
         }
         return stringBuilder.toString();
     }
@@ -205,9 +209,9 @@ public class UsageHelper
     		return "";
     	}
     	StringBuilder stringBuilder = new StringBuilder();
-    	stringBuilder.append(" [");
+    	stringBuilder.append("[ ");
     	stringBuilder.append(command);
-    	stringBuilder.append("]");
+    	stringBuilder.append(" ]");
     	
     	return stringBuilder.toString();
     }
