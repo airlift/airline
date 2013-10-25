@@ -101,27 +101,35 @@ public class HelpTest
                 "        git remote - Manage set of tracked repositories\n" +
                 "\n" +
                 "SYNOPSIS\n" +
-                "        git [ -v ] remote [ show ]\n" +
-                "        git [ -v ] remote add [ -t <branch> ] [--] [ <name> <url>... ]\n" +
-                "        git [ -v ] remote show [ -n ] [--] [ <remote> ]\n" +
+                "        git [ -v ] remote { add | show* } [--] [cmd-options] <cmd-args>\n" +
                 "\n" +
+                "        Where command-specific options [cmd-options] are:\n" +
+                "            add: [ -t <branch> ]\n" +
+                "            show: [ -n ]\n" +
+                "\n" +
+                "        Where command-specific arguments <cmd-args> are:\n" +
+                "            add: [ <name> <url>... ]\n" +
+                "            show: [ <remote> ]\n" +
+                "\n" +
+                "        * show is the default command\n" +
+                "        See 'git help remote <command>' for more information on a specific command.\n" +
                 "OPTIONS\n" +
                 "        -v\n" +
                 "            Verbose mode\n" +
-                "\n" +
-                "COMMANDS\n" +
-                "        By default, Gives some information about the remote <name>\n" +
-                "\n" +
-                "        show\n" +
-                "            Gives some information about the remote <name>\n" +
-                "\n" +
-                "            With -n option, Do not query remote heads\n" +
-                "\n" +
-                "        add\n" +
-                "            Adds a remote\n" +
-                "\n" +
-                "            With -t option, Track only a specific branch\n" +
                 "\n");
+//                "COMMANDS\n" +
+//                "        By default, Gives some information about the remote <name>\n" +
+//                "\n" +
+//                "        show\n" +
+//                "            Gives some information about the remote <name>\n" +
+//                "\n" +
+//                "            With -n option, Do not query remote heads\n" +
+//                "\n" +
+//                "        add\n" +
+//                "            Adds a remote\n" +
+//                "\n" +
+//                "            With -t option, Track only a specific branch\n" +
+//                "\n");
         
         out = new StringBuilder();
         Help.help(gitParser.getMetadata(), ImmutableList.of("remote", "add"), out);

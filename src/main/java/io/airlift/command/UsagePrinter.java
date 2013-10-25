@@ -100,15 +100,27 @@ public class UsagePrinter
         return str.substring(0, end);
     }
 
-    public UsagePrinter append(String value)
+    public UsagePrinter append(String value) {
+        return append(value, false);
+    }
+
+    public UsagePrinter appendOnOneLine(String value) {
+        return append(value, true);
+    }
+
+    public UsagePrinter appendWords(Iterable<String> words) {
+        return appendWords(words, false);
+    }
+
+    public UsagePrinter append(String value, boolean avoidNewlines)
     {
         if (value == null) {
             return this;
         }
-        return appendWords(Splitter.onPattern("\\s+").omitEmptyStrings().trimResults().split(String.valueOf(value)));
+        return appendWords(Splitter.onPattern("\\s+").omitEmptyStrings().trimResults().split(String.valueOf(value)), avoidNewlines);
     }
 
-    public UsagePrinter appendWords(Iterable<String> words)
+    public UsagePrinter appendWords(Iterable<String> words, boolean avoidNewlines)
     {
         int bracketCount = 0;
         for (String word : words) {
@@ -121,7 +133,7 @@ public class UsagePrinter
                 out.append(spaces(indent));
                 currentPosition.getAndAdd((indent));
             }
-            else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize || bracketCount > 0) {
+            else if (word.length() > maxSize || currentPosition.get() + word.length() <= maxSize || bracketCount > 0 || avoidNewlines) {
                 // between words
                 out.append(" ");
                 currentPosition.getAndIncrement();
