@@ -18,6 +18,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @Command(name = "help", description = "Display help information")
 public class Help implements Runnable, Callable<Void> {
     public static boolean USAGE_AS_HTML = false;
+    public static boolean USAGE_AS_RONN = false;
 
     @Inject
     @Nullable
@@ -67,6 +68,9 @@ public class Help implements Runnable, Callable<Void> {
                 if (USAGE_AS_HTML) {
                     out.append(new CommandUsage().usageHTML(global.getName(), null, command));
                 }
+                else if (USAGE_AS_RONN) {
+                    out.append(new CommandUsage().usageRonn(global.getName(), null, command));
+                }
                 else {
                     new CommandUsage().usage(global.getName(), null, command, out);
                 }
@@ -88,6 +92,9 @@ public class Help implements Runnable, Callable<Void> {
                         if (commandName.equals(command.getName())) {
                             if (USAGE_AS_HTML) {
                                 out.append(new CommandUsage().usageHTML(global.getName(), group.getName(), command));
+                            }
+                            else if (USAGE_AS_RONN) {
+                                out.append(new CommandUsage().usageRonn(global.getName(), group.getName(), command));
                             }
                             else {
                                 new CommandUsage().usage(global.getName(), group.getName(), command, out);

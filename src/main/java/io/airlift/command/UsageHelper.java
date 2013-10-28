@@ -84,6 +84,38 @@ public class UsageHelper
         return stringBuilder.toString();
     }
 
+    public static String toRonnDescription(OptionMetadata option)
+    {
+        Set<String> options = option.getOptions();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        final String argumentString;
+        if (option.getArity() > 0) {
+            argumentString = Joiner.on(" ").join(Lists.transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
+            {
+                public String apply(@Nullable String argument)
+                {
+                    return "<" + argument + ">";
+                }
+            }));
+        } else {
+            argumentString = null;
+        }
+
+        Joiner.on(", ").appendTo(stringBuilder, transform(options, new Function<String, String>()
+        {
+            public String apply(@Nullable String option)
+            {
+                if (argumentString != null) {
+                    return "`" + option + "` " + argumentString;
+                }
+                return "`" + option + "`";
+            }
+        }));
+
+        return stringBuilder.toString();
+    }
+
     public static String toDescription(ArgumentsMetadata arguments)
     {
         if (!arguments.getUsage().isEmpty()) {
