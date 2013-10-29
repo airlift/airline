@@ -173,6 +173,106 @@ public class CommandUsage
         return options;
     }
 
+    public String usageRonn(@Nullable String programName, @Nullable String groupName, CommandMetadata command) {
+        final StringBuilder aBuilder = new StringBuilder("");
+
+        final String NEW_PARA = "\n\n";
+
+        aBuilder.append(programName).append(" ");
+        aBuilder.append(groupName).append(" ");
+        // stardog-admin commands go in section 8 (sysadmin commands), all others in section 1 (user commands)
+        aBuilder.append(command.getName()).append(programName != null && programName.equals("stardog-admin") ? "(8) -" : "(1) -");
+        aBuilder.append(command.getDescription()).append("\n");
+        aBuilder.append("==========");
+
+        aBuilder.append(NEW_PARA).append("## SYNOPSIS").append(NEW_PARA);
+        List<OptionMetadata> options = newArrayList();
+        List<OptionMetadata> aOptions;
+        if (programName != null) {
+            aBuilder.append("`").append(programName).append("`");
+            aOptions = command.getGlobalOptions();
+            if (aOptions != null && aOptions.size() > 0) {
+                aBuilder.append(" ").append(Joiner.on(" ").join(toSynopsisUsage(sortOptions(aOptions))));
+                options.addAll(aOptions);
+            }
+        }
+        if (groupName != null) {
+            aBuilder.append(" `").append(groupName).append("`");
+            aOptions = command.getGroupOptions();
+            if (aOptions != null && aOptions.size() > 0) {
+                aBuilder.append(" ").append(Joiner.on(" ").join(toSynopsisUsage(sortOptions(aOptions))));
+                options.addAll(aOptions);
+            }
+        }
+        aOptions = command.getCommandOptions();
+        aBuilder.append(" `").append(command.getName()).append("` ").append(Joiner.on(" ").join(toSynopsisUsage(sortOptions(aOptions))));
+        options.addAll(aOptions);
+
+        // command arguments (optional)
+        ArgumentsMetadata arguments = command.getArguments();
+        if (arguments != null) {
+            aBuilder.append(" [--] ")
+                    .append(UsageHelper.toUsage(arguments));
+        }
+
+        if (options.size() > 0 || arguments != null) {
+            aBuilder.append(NEW_PARA).append("## OPTIONS");
+            options = sortOptions(options);
+
+            for (OptionMetadata option : options) {
+                // skip hidden options
+                if (option.isHidden()) {
+                    continue;
+                }
+
+                // option names
+                aBuilder.append(NEW_PARA).append("* ").append(UsageHelper.toRonnDescription(option)).append(":\n");
+
+                // description
+                aBuilder.append(option.getDescription());
+            }
+
+            if (arguments != null) {
+                // "--" option
+                aBuilder.append(NEW_PARA).append("* --:\n");
+
+                // description
+                aBuilder.append("This option can be used to separate command-line options from the " +
+                        "list of arguments (useful when arguments might be mistaken for command-line options).");
+
+                // arguments name
+                aBuilder.append(NEW_PARA).append("* ").append(UsageHelper.toDescription(arguments)).append(":\n");
+
+                // description
+                aBuilder.append(arguments.getDescription());
+            }
+        }
+
+        if (command.getDiscussion() != null) {
+            aBuilder.append(NEW_PARA).append("## DISCUSSION").append(NEW_PARA);
+            aBuilder.append(command.getDiscussion());
+        }
+
+        if (command.getExamples() != null && !command.getExamples().isEmpty()) {
+            aBuilder.append(NEW_PARA).append("## EXAMPLES");
+
+            // this will only work for "well-formed" examples
+            for (int i = 0; i < command.getExamples().size(); i+=3) {
+                String aText = command.getExamples().get(i).trim();
+                String aEx = htmlize(command.getExamples().get(i+1));
+
+                if (aText.startsWith("*")) {
+                    aText = aText.substring(1).trim();
+                }
+
+                aBuilder.append(NEW_PARA).append("* ").append(aText).append(":\n");
+                aBuilder.append(aEx);
+            }
+        }
+
+        return aBuilder.toString();
+    }
+
     public String usageHTML(@Nullable String programName, @Nullable String groupName, CommandMetadata command) {
         final StringBuilder aBuilder = new StringBuilder("");
 
