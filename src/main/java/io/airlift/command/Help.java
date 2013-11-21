@@ -40,6 +40,18 @@ public class Help implements Runnable, Callable<Void> {
         return null;
     }
 
+    public static void help(CommandMetadata command)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        help(command, stringBuilder);
+        System.out.println(stringBuilder.toString());
+    }
+
+    public static void help(CommandMetadata command, StringBuilder out)
+    {
+        new CommandUsage().usage(null, null, command.getName(), command, out);
+    }
+
     public static void help(GlobalMetadata global, List<String> commandNames)
     {
         StringBuilder stringBuilder = new StringBuilder();
@@ -72,7 +84,7 @@ public class Help implements Runnable, Callable<Void> {
                     out.append(new CommandUsage().usageRonn(global.getName(), null, command));
                 }
                 else {
-                    new CommandUsage().usage(global.getName(), null, command, out);
+                    new CommandUsage().usage(global.getName(), null, command.getName(), command, out);
                 }
                 return;
             }
@@ -97,8 +109,9 @@ public class Help implements Runnable, Callable<Void> {
                                 out.append(new CommandUsage().usageRonn(global.getName(), group.getName(), command));
                             }
                             else {
-                                new CommandUsage().usage(global.getName(), group.getName(), command, out);
+                                new CommandUsage().usage(global.getName(), group.getName(), command.getName(), command, out);
                             }
+
                             return;
                         }
                     }

@@ -38,8 +38,8 @@ public class SuggestCommand
     @VisibleForTesting
     public Iterable<String> generateSuggestions()
     {
-        Parser parser = new Parser(metadata);
-        ParseState state = parser.parse(arguments);
+        Parser parser = new Parser();
+        ParseState state = parser.parse(metadata, arguments);
 
         Class<? extends Suggester> suggesterClass = BUILTIN_SUGGESTERS.get(state.getLocation());
         if (suggesterClass != null) {

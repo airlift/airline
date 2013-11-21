@@ -20,20 +20,14 @@ import static com.google.common.collect.Iterables.find;
 public class Parser
 {
     private static final Pattern SHORT_OPTIONS_PATTERN = Pattern.compile("-[^-].*");
-    private final GlobalMetadata metadata;
-
-    public Parser(GlobalMetadata metadata)
-    {
-        this.metadata = metadata;
-    }
 
     // global> (option value*)* (group (option value*)*)? (command (option value* | arg)* '--'? args*)?
-    public ParseState parse(String... params)
+    public ParseState parse(GlobalMetadata metadata, String... params)
     {
-        return parse(ImmutableList.copyOf(params));
+        return parse(metadata, ImmutableList.copyOf(params));
     }
 
-    public ParseState parse(Iterable<String> params)
+    public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
         PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
 
@@ -91,6 +85,19 @@ public class Parser
         return state;
     }
 
+    public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
+    {
+        PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
+        ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
+
+        while (tokens.hasNext()) {
+            state = parseOptions(tokens, state, command.getCommandOptions());
+
+            state = parseArgs(state, tokens, command.getArguments());
+        }
+        return state;
+    }
+
     private ParseState parseOptions(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         while (tokens.hasNext()) {
@@ -142,7 +149,9 @@ public class Parser
         }
         else if (option.getArity() == 1) {
             if (tokens.hasNext()) {
-                value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
+                String tokenStr = tokens.next();
+                checkValidValue(option, tokenStr);
+                value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokenStr);
                 state = state.withOptionValue(option, value).popContext();
             }
         }
@@ -150,6 +159,7 @@ public class Parser
             ImmutableList.Builder<Object> values = ImmutableList.builder();
 
             int count = 0;
+
             boolean hasSeparator = false;
             boolean foundNextOption = false;
             while (count < option.getArity() && tokens.hasNext() && !hasSeparator) {
@@ -158,7 +168,9 @@ public class Parser
             	foundNextOption = findOption(allowedOptions, peekedToken) != null;
             	
             	if (hasSeparator || foundNextOption) break;
-                values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
+                String tokenStr = tokens.next();
+                checkValidValue(option, tokenStr);
+                values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokenStr));
                 ++count;
             }
 
@@ -187,6 +199,7 @@ public class Parser
 
         // update state
         state = state.pushContext(Context.OPTION).withOption(option);
+        checkValidValue(option, parts.get(1));
         Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), parts.get(1));
         state = state.withOption(option).withOptionValue(option, value).popContext();
 
@@ -229,11 +242,14 @@ public class Parser
 
                 // if current token has more characters, this is the value; otherwise it is the next token
                 if (!remainingToken.isEmpty()) {
+                    checkValidValue(option, remainingToken);
                     Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), remainingToken);
                     nextState = nextState.withOptionValue(option, value).popContext();
                 }
                 else if (tokens.hasNext()) {
-                    Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
+                    String tokenStr = tokens.next();
+                    checkValidValue(option, tokenStr);
+                    Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokenStr);
                     nextState = nextState.withOptionValue(option, value).popContext();
                 }
 
@@ -247,6 +263,17 @@ public class Parser
         tokens.next();
 
         return nextState;
+    }
+    
+    /**
+     * Checks for a valid value and throws an error if the value for the option is restricted and not in the set of allowed values
+     * @param option Option meta data
+     * @param tokenStr Token string
+     */
+    private void checkValidValue(OptionMetadata option, String tokenStr) {
+        if (option.getAllowedValues() == null) return;
+        if (option.getAllowedValues().contains(tokenStr)) return;
+        throw new ParseOptionIllegalValueException(option.getTitle(), tokenStr, option.getAllowedValues());
     }
 
     private ParseState parseArgs(ParseState state, PeekingIterator<String> tokens, ArgumentsMetadata arguments)

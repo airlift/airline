@@ -47,22 +47,23 @@ public class CommandUsage
     /**
      * Display the help on System.out.
      */
-    public void usage(@Nullable String programName, @Nullable String groupName, CommandMetadata command)
+    public void usage(@Nullable String programName, @Nullable String groupName, String commandName, CommandMetadata command)
     {
         StringBuilder stringBuilder = new StringBuilder();
-        usage(programName, groupName, command, stringBuilder);
+        usage(programName, groupName, commandName, command, stringBuilder);
         System.out.println(stringBuilder.toString());
     }
 
     /**
      * Store the help in the passed string builder.
      */
-    public void usage(@Nullable String programName, @Nullable String groupName, CommandMetadata command, StringBuilder out)
+    public void usage(@Nullable String programName, @Nullable String groupName, String commandName, CommandMetadata command, StringBuilder out)
     {
-        usage(programName, groupName, command, new UsagePrinter(out, columnSize));
+        usage(programName, groupName, commandName, command, new UsagePrinter(out, columnSize));
     }
 
-    public void usage(@Nullable String programName, @Nullable String groupName, CommandMetadata command, UsagePrinter out) {
+    public void usage(@Nullable String programName, @Nullable String groupName, String commandName, CommandMetadata command, UsagePrinter out)
+    {
         //
         // NAME
         //
@@ -71,7 +72,7 @@ public class CommandUsage
         out.newIndentedPrinter(8)
                 .append(programName)
                 .append(groupName)
-                .append(command.getName())
+                .append(commandName)
                 .append("-")
                 .append(command.getDescription())
                 .newline()
@@ -91,7 +92,7 @@ public class CommandUsage
             synopsis.append(groupName).appendWords(toSynopsisUsage(sortOptions(command.getGroupOptions())));
             options.addAll(command.getGroupOptions());
         }
-        synopsis.append(command.getName()).appendWords(toSynopsisUsage(sortOptions(command.getCommandOptions())));
+        synopsis.append(commandName).appendWords(toSynopsisUsage(sortOptions(command.getCommandOptions())));
         options.addAll(command.getCommandOptions());
 
         // command arguments (optional)

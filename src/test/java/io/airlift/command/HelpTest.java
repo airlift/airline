@@ -39,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static io.airlift.command.Cli.buildCli;
+import static io.airlift.command.SingleCommand.singleCommand;
 
 @Test
 public class HelpTest
@@ -157,6 +158,7 @@ public class HelpTest
                 );
     }
 
+    @Test
     public void testArgs1()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -170,7 +172,7 @@ public class HelpTest
         StringBuilder out = new StringBuilder();
         Help.help(parser.getMetadata(), ImmutableList.of("Args1"), out);
         Assert.assertEquals(out.toString(), "NAME\n" +
-                "        test Args1 -\n" +
+                "        test Args1 - args1 description\n" +
                 "\n" +
                 "SYNOPSIS\n" +
                 "        test Args1 [ -bigdecimal <bigd> ] [ -date <date> ] [ -debug ]\n" +
@@ -212,6 +214,7 @@ public class HelpTest
                 "\n");
     }
 
+   @Test
    public void testArgs2()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -254,6 +257,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testArgsAritySting()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -286,6 +290,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testArgsBooleanArity()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -310,6 +315,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testArgsInherited()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -355,6 +361,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testArgsRequired()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -384,6 +391,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testOptionsRequired()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -412,6 +420,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testOptionsHidden()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -436,6 +445,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testGlobalOptionsHidden()
     {
         CliBuilder<Object> builder = buildCli("test", Object.class)
@@ -460,6 +470,7 @@ public class HelpTest
                 "\n");
     }
 
+    @Test
     public void testCommandHidden()
     {
         CliBuilder<Object> builder = Cli.builder("test")
@@ -514,5 +525,55 @@ public class HelpTest
 
         Assert.assertTrue(out.toString().contains(discussion), "Expected the discussion section to be present in the help");
         Assert.assertTrue(out.toString().contains(examples), "Expected the examples section to be present in the help");
+    }
+    
+    @Test
+    public void testSingleCommandArgs1()
+    {
+        SingleCommand<Args1> command = singleCommand(Args1.class);
+
+        StringBuilder out = new StringBuilder();
+        new CommandUsage().usage(null, null, "test", command.getCommandMetadata(), out);
+        Assert.assertEquals(out.toString(), "NAME\n" +
+                "        test - args1 description\n" +
+                "\n" +
+                "SYNOPSIS\n" +
+                "        test [ -bigdecimal <bigd> ] [ -date <date> ] [ -debug ]\n" +
+                "                [ -double <doub> ] [ -float <floa> ] [ -groups <groups> ]\n" +
+                "                [ {-log | -verbose} <verbose> ] [ -long <l> ] [--] [ <parameters>... ]\n" +
+                "\n" +
+                "OPTIONS\n" +
+                "        -bigdecimal <bigd>\n" +
+                "            A BigDecimal number\n" +
+                "\n" +
+                "        -date <date>\n" +
+                "            An ISO 8601 formatted date.\n" +
+                "\n" +
+                "        -debug\n" +
+                "            Debug mode\n" +
+                "\n" +
+                "        -double <doub>\n" +
+                "            A double number\n" +
+                "\n" +
+                "        -float <floa>\n" +
+                "            A float number\n" +
+                "\n" +
+                "        -groups <groups>\n" +
+                "            Comma-separated list of group names to be run\n" +
+                "\n" +
+                "        -log <verbose>, -verbose <verbose>\n" +
+                "            Level of verbosity\n" +
+                "\n" +
+                "        -long <l>\n" +
+                "            A long number\n" +
+                "\n" +
+                "        --\n" +
+                "            This option can be used to separate command-line options from the\n" +
+                "            list of argument, (useful when arguments might be mistaken for\n" +
+                "            command-line options\n" +
+                "\n" +
+                "        <parameters>\n" +
+                "\n" +
+                "\n");
     }
 }
