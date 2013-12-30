@@ -19,4 +19,28 @@ public class HelpOption
         }
         return help;
     }
+
+    /**
+     * Run the runnable if there are no parse errors and if help was not requested
+     */
+    public void runOrShowHelp(ParseResult parseResult, Runnable runnable) {
+        if (parseResult.hasErrors()) {
+            help = true;
+            System.out.println(parseResult.getErrorMessage());
+        }
+
+        if (help) {
+            Help.help(commandMetadata);
+            return;
+        }
+
+        runnable.run();
+    }
+
+    /**
+     * Run the runnable if help was not requested
+     */
+    public void runOrShowHelp(Runnable runnable) {
+        runOrShowHelp(new ParseResult(), runnable);
+    }
 }
