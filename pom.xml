@@ -23,7 +23,7 @@
     <parent>
       <groupId>io.tesla</groupId>
       <artifactId>tesla</artifactId>
-      <version>4</version>
+      <version>7</version>
     </parent>
     <groupId>io.tesla</groupId>
     <artifactId>airline</artifactId>
