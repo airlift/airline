@@ -30,7 +30,7 @@
     <groupId>com.jontodd</groupId>
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
-    <version>0.8</version>
+    <version>0.9-SNAPSHOT</version>
 
     <name>airline</name>
     <description>Java annotation-based framework for parsing Git like command line structures</description>
