@@ -42,13 +42,13 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.base.Predicates.compose;
 import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.find;
 import static io.airlift.airline.SingleCommand.singleCommand;
 import static org.testng.Assert.assertTrue;
@@ -244,10 +244,25 @@ public class SingleCommandTest
         singleCommand(ArgsRequired.class).parse();
     }
 
+    @Test
+    public void requiredMainParamertersWithParseResult() {
+        ParseResult result = new ParseResult();
+        singleCommand(ArgsRequired.class).parse(result);
+        assertParseResultHasErrorOfType(result, ParseException.class);
+    }
+
     @Test(expectedExceptions = ParseException.class, expectedExceptionsMessageRegExp = ".*option.*missing.*")
     public void requiredOptions()
     {
         singleCommand(OptionsRequired.class).parse();
+    }
+
+    @Test
+    public void requiredOptionsWithParseResult()
+    {
+        ParseResult result = new ParseResult();
+        singleCommand(OptionsRequired.class).parse(result);
+        assertParseResultHasErrorOfType(result, ParseException.class);
     }
 
     @Test
@@ -387,5 +402,11 @@ public class SingleCommandTest
         @Option(name = "-i", description = "Interactive add mode")
         public Boolean interactive = false;
 
+    }
+
+    private void assertParseResultHasErrorOfType(ParseResult result, Class clazz) {
+        Assert.assertEquals(result.hasErrors(), true);
+        String errorMessage = String.format("Expected ParseResult to contain at least one instance of: '%s'", clazz);
+        Assert.assertNotNull(find(result.getErrors(), instanceOf(clazz)), errorMessage);
     }
 }

@@ -18,58 +18,114 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.airlift</groupId>
-        <artifactId>airbase</artifactId>
-        <version>13</version>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
     </parent>
 
+    <groupId>com.jontodd</groupId>
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
 
     <name>airline</name>
     <description>Java annotation-based framework for parsing Git like command line structures</description>
-    <url>https://github.com/airlift/airline</url>
+    <url>https://github.com/jontodd/airline</url>
 
     <inceptionYear>2012</inceptionYear>
 
     <scm>
-        <connection>scm:git:git@github.com:airlift/airline.git</connection>
-        <developerConnection>scm:git:git@github.com:airlift/airline.git</developerConnection>
-        <url>http://github.com/airlift/airline/tree/master</url>
+        <connection>scm:git:git@github.com:jontodd/airline.git</connection>
+        <developerConnection>scm:git:git@github.com:jontodd/airline.git</developerConnection>
+        <url>http://github.com/jontodd/airline/tree/master</url>
     </scm>
 
     <properties>
         <air.check.skip-findbugs>true</air.check.skip-findbugs>
         <air.check.skip-pmd>true</air.check.skip-pmd>
         <air.check.skip-license>true</air.check.skip-license>
+
+        <dep.guava.version>15.0</dep.guava.version>
+        <dep.findbugs-annotations.version>2.0.2</dep.findbugs-annotations.version>
+        <dep.javax-inject.version>1</dep.javax-inject.version>
+        <dep.testng.version>6.8</dep.testng.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
+            <version>${dep.javax-inject.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
+            <version>${dep.findbugs-annotations.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>${dep.guava.version}</version>
         </dependency>
 
         <!-- for testing -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+            <version>${dep.testng.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+            Configure source, javadoc and deploy plugin to also publish sources and docs when doing a SNAPSHOT deploy.
+            -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- explicitly define maven-deploy-plugin after other to force exec order -->
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

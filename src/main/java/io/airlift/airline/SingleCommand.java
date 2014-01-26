@@ -58,11 +58,30 @@ public class SingleCommand<C>
     
     public C parse(Iterable<String> args)
     {
+        ParseResult parseResult = new ParseResult();
+        C command = parse(parseResult, args);
+
+        // For backward compatibility we fail fast here. Given that exceptions aren't a great way to handle user errors
+        // since there can be multiple we may consider deprecating this approach.
+        if (parseResult.hasErrors()) {
+            throw parseResult.getErrors().get(0);
+        }
+
+        return command;
+    }
+
+    public C parse(ParseResult parseResult, String... args)
+    {
+        return parse(parseResult, ImmutableList.copyOf(args));
+    }
+
+    public C parse(ParseResult parseResult, Iterable<String> args)
+    {
         checkNotNull(args, "args is null");
-        
+
         Parser parser = new Parser();
         ParseState state = parser.parseCommand(commandMetadata, args);
-        validate(state);
+        validate(state, parseResult);
 
         CommandMetadata command = state.getCommand();
 
@@ -75,35 +94,35 @@ public class SingleCommand<C>
                 ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
     
-    private void validate(ParseState state)
+    private void validate(ParseState state, ParseResult parseResult)
     {
         CommandMetadata command = state.getCommand();
         if (command == null) {
             List<String> unparsedInput = state.getUnparsedInput();
             if (unparsedInput.isEmpty()) {
-                throw new ParseCommandMissingException();
+                parseResult.addError(new ParseCommandMissingException());
             }
             else {
-                throw new ParseCommandUnrecognizedException(unparsedInput);
+                parseResult.addError(new ParseCommandUnrecognizedException(unparsedInput));
             }
         }
 
         ArgumentsMetadata arguments = command.getArguments();
         if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
-            throw new ParseArgumentsMissingException(arguments.getTitle());
+            parseResult.addError(new ParseArgumentsMissingException(arguments.getTitle()));
         }
         
         if (!state.getUnparsedInput().isEmpty()) {
-            throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
+            parseResult.addError(new ParseArgumentsUnexpectedException(state.getUnparsedInput()));
         }
 
         if (state.getLocation() == Context.OPTION) {
-            throw new ParseOptionMissingValueException(state.getCurrentOption().getTitle());
+            parseResult.addError(new ParseOptionMissingValueException(state.getCurrentOption().getTitle()));
         }
 
         for (OptionMetadata option : command.getAllOptions()) {
             if (option.isRequired() && !state.getParsedOptions().containsKey(option)) {
-                throw new ParseOptionMissingException(option.getOptions().iterator().next());
+                parseResult.addError(new ParseOptionMissingException(option.getOptions().iterator().next()));
             }
         }
     }
