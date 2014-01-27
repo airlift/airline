@@ -1,8 +1,10 @@
 package io.airlift.airline;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class TypeConverter
@@ -53,15 +55,25 @@ public class TypeConverter
             if (valueOf.getReturnType().isAssignableFrom(type)) {
                 return valueOf.invoke(null, value);
             }
-        } catch (Throwable ignored) {
+        }
+        catch (Throwable ignored) {
         }
 
         // Look for a static valueOf(String) method (this covers enums which have a valueOf method)
         try {
             Method valueOf = type.getMethod("valueOf", String.class);
             if (valueOf.getReturnType().isAssignableFrom(type)) {
-                return valueOf.invoke(null, value);
+                try {
+                    return valueOf.invoke(null, value);
+                }
+                catch (InvocationTargetException e) {
+                    String errorMsg = "Invalid " + name + ", Valid values are: " + Joiner.on(", ").join(type.getEnumConstants());
+                    throw new ParseOptionConversionException(name, value, type.getSimpleName(), errorMsg);
+                }
             }
+        }
+        catch (ParseOptionConversionException e) {
+            throw e;
         }
         catch (Throwable ignored) {
         }
