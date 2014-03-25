@@ -67,8 +67,10 @@ public class TypeConverter
                     return valueOf.invoke(null, value);
                 }
                 catch (InvocationTargetException e) {
-                    String errorMsg = "Invalid " + name + ", Valid values are: " + Joiner.on(", ").join(type.getEnumConstants());
-                    throw new ParseOptionConversionException(name, value, type.getSimpleName(), errorMsg);
+                    if (type.isEnum()) {
+                        String message = String.format("Invalid %s, Valid values are: %s", name, Joiner.on(", ").join(type.getEnumConstants()));
+                        throw new ParseOptionConversionException(name, value, type.getSimpleName(), message);
+                    }
                 }
             }
         }
