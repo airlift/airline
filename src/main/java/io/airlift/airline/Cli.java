@@ -123,7 +123,7 @@ public class Cli<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata, CommandMetadata.class, command));
     }
     
     private void validate(ParseState state)

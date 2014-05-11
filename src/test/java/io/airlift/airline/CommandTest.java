@@ -33,6 +33,7 @@ import io.airlift.airline.args.ArgsPrivate;
 import io.airlift.airline.args.ArgsRequired;
 import io.airlift.airline.args.ArgsSingleChar;
 import io.airlift.airline.args.Arity1;
+import io.airlift.airline.args.CommandWithHelp;
 import io.airlift.airline.args.OptionsRequired;
 import io.airlift.airline.command.CommandAdd;
 import io.airlift.airline.command.CommandCommit;
@@ -382,4 +383,10 @@ public class CommandTest
         }
         singleCommandParser(A.class).parse("-lon", "32");
     }
+
+	public void helpOption()
+	{
+		CommandWithHelp command = singleCommandParser(CommandWithHelp.class).parse("CommandWithHelp", "-h");
+		Assert.assertTrue(command.helpOption.showHelpIfRequested());
+	}
 }
