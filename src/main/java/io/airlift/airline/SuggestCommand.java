@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.airlift.airline.factory.CommandFactory;
+import io.airlift.airline.factory.DefaultConstructorFactory;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
@@ -57,7 +59,9 @@ public class SuggestCommand
                     bindings.put(CommandMetadata.class, state.getCommand());
                 }
 
-                Suggester suggester = createInstance(suggesterMetadata.getSuggesterClass(),
+				CommandFactory commandFactory = new DefaultConstructorFactory();
+				final Suggester instance = commandFactory.createInstance(suggesterMetadata.getSuggesterClass());
+				Suggester suggester = createInstance(instance,
                         ImmutableList.<OptionMetadata>of(),
                         null,
                         null,

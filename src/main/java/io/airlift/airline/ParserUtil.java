@@ -12,20 +12,7 @@ import static com.google.common.collect.Iterables.concat;
 
 public class ParserUtil
 {
-    public static <T> T createInstance(Class<T> type)
-    {
-        if (type != null) {
-            try {
-                return type.getConstructor().newInstance();
-            }
-            catch (Exception e) {
-                throw new ParseException(e, "Unable to create instance %s", type.getName());
-            }
-        }
-        return null;
-    }
-
-    public static <T> T createInstance(Class<?> type,
+    public static <T> T createInstance(T commandInstance,
             Iterable<OptionMetadata> options,
             ListMultimap<OptionMetadata, Object> parsedOptions,
             ArgumentsMetadata arguments,
@@ -33,9 +20,6 @@ public class ParserUtil
             Iterable<Accessor> metadataInjection,
             Map<Class<?>, Object> bindings)
     {
-        // create the command instance
-        T commandInstance = (T) ParserUtil.createInstance(type);
-
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);

@@ -20,6 +20,8 @@ package io.airlift.airline;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.airlift.airline.factory.CommandFactory;
+import io.airlift.airline.factory.DefaultConstructorFactory;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.MetadataLoader;
@@ -66,7 +68,9 @@ public class SingleCommand<C>
 
         CommandMetadata command = state.getCommand();
 
-        return createInstance(command.getType(),
+		CommandFactory commandFactory = new DefaultConstructorFactory();
+		final C instance = (C) commandFactory.createInstance(command.getType());
+		return createInstance(instance,
                 command.getAllOptions(),
                 state.getParsedOptions(),
                 command.getArguments(),
