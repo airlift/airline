@@ -30,7 +30,7 @@ import io.airlift.airline.model.OptionMetadata;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 public class SingleCommand<C>
 {
@@ -70,13 +70,13 @@ public class SingleCommand<C>
 
 		CommandFactory commandFactory = new DefaultConstructorFactory();
 		final C instance = (C) commandFactory.createInstance(command.getType());
-		return createInstance(instance,
-                command.getAllOptions(),
-                state.getParsedOptions(),
-                command.getArguments(),
-                state.getParsedArguments(),
-                command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
+		return configureInstance(instance,
+				command.getAllOptions(),
+				state.getParsedOptions(),
+				command.getArguments(),
+				state.getParsedArguments(),
+				command.getMetadataInjections(),
+				ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
     
     private void validate(ParseState state)

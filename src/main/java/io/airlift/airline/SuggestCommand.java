@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 @Command(name = "suggest")
 public class SuggestCommand
@@ -61,13 +61,13 @@ public class SuggestCommand
 
 				CommandFactory commandFactory = new DefaultConstructorFactory();
 				final Suggester instance = commandFactory.createInstance(suggesterMetadata.getSuggesterClass());
-				Suggester suggester = createInstance(instance,
-                        ImmutableList.<OptionMetadata>of(),
-                        null,
-                        null,
-                        null,
-                        suggesterMetadata.getMetadataInjections(),
-                        bindings.build());
+				Suggester suggester = configureInstance(instance,
+						ImmutableList.<OptionMetadata>of(),
+						null,
+						null,
+						null,
+						suggesterMetadata.getMetadataInjections(),
+						bindings.build());
 
                 return suggester.suggest();
             }

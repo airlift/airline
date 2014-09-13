@@ -12,13 +12,13 @@ import static com.google.common.collect.Iterables.concat;
 
 public class ParserUtil
 {
-    public static <T> T createInstance(T commandInstance,
-            Iterable<OptionMetadata> options,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
-            ArgumentsMetadata arguments,
-            Iterable<Object> parsedArguments,
-            Iterable<Accessor> metadataInjection,
-            Map<Class<?>, Object> bindings)
+    public static <T> T configureInstance(T commandInstance,
+										  Iterable<OptionMetadata> options,
+										  ListMultimap<OptionMetadata, Object> parsedOptions,
+										  ArgumentsMetadata arguments,
+										  Iterable<Object> parsedArguments,
+										  Iterable<Accessor> metadataInjection,
+										  Map<Class<?>, Object> bindings)
     {
         // inject options
         for (OptionMetadata option : options) {

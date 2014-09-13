@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 public class Cli<C>
 {
@@ -119,13 +119,13 @@ public class Cli<C>
         CommandMetadata command = state.getCommand();
 
 		C instance = (C) commandFactory.createInstance(command.getType());
-        return createInstance(instance,
-                command.getAllOptions(),
-                state.getParsedOptions(),
-                command.getArguments(),
-                state.getParsedArguments(),
-                command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+        return configureInstance(instance,
+				command.getAllOptions(),
+				state.getParsedOptions(),
+				command.getArguments(),
+				state.getParsedArguments(),
+				command.getMetadataInjections(),
+				ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
     }
     
     private void validate(ParseState state)
