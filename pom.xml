@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>13</version>
+        <version>28</version>
     </parent>
 
     <artifactId>airline</artifactId>
@@ -39,7 +39,6 @@
 
     <scm>
         <connection>scm:git:git@github.com:airlift/airline.git</connection>
-        <developerConnection>scm:git:git@github.com:airlift/airline.git</developerConnection>
         <url>http://github.com/airlift/airline/tree/master</url>
     </scm>
 
