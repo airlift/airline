@@ -40,5 +40,4 @@ public class ArgsDefault
 
     @Option(name = "-level", description = "A long number")
     public long level;
-
 }

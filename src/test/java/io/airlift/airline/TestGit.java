@@ -3,7 +3,7 @@ package io.airlift.airline;
 import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
 
-public class GitTest
+public class TestGit
 {
     @Test
     public void test()

@@ -26,7 +26,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@Command(name="Args2")
+@Command(name = "Args2")
 public class Args2
 {
     @Arguments(description = "List of parameters")

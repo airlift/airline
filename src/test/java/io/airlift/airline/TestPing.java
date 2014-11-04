@@ -3,7 +3,7 @@ package io.airlift.airline;
 import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
 
-public class PingTest
+public class TestPing
 {
     @Test
     public void test()

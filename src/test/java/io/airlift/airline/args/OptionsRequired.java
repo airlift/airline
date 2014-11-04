@@ -21,7 +21,7 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="OptionsRequired")
+@Command(name = "OptionsRequired")
 public class OptionsRequired
 {
     @Option(name = "--required", required = true)

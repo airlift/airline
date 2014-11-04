@@ -25,7 +25,7 @@ import io.airlift.airline.Option;
 
 import java.util.List;
 
-@Command(name="ArgsSingleChar")
+@Command(name = "ArgsSingleChar")
 public class ArgsSingleChar
 {
     @Arguments
