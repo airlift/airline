@@ -117,13 +117,21 @@ public class Cli<C>
 
         CommandMetadata command = state.getCommand();
 
+        ImmutableMap.Builder<Class<?>, Object> bindings = ImmutableMap.<Class<?>, Object> builder()
+                .put(GlobalMetadata.class, metadata)
+                .put(CommandMetadata.class, command);
+
+        if (state.getGroup() != null) {
+            bindings.put(CommandGroupMetadata.class, state.getGroup());
+        }
+
         return createInstance(command.getType(),
                 command.getAllOptions(),
                 state.getParsedOptions(),
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata, CommandMetadata.class, command));
+                bindings.build());
     }
     
     private void validate(ParseState state)
