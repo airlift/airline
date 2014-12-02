@@ -148,11 +148,14 @@ public class Parser
 
             int count = 0;
             while (count < option.getArity() && tokens.hasNext()) {
+                if (option.isOptionEndsValues() && (findOption(allowedOptions, tokens.peek()) != null)) {
+                    break;
+                }
                 values.add(TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next()));
                 ++count;
             }
 
-            if (count == option.getArity()) {
+            if ((count == option.getArity()) || option.isOptionEndsValues() ) {
                 state = state.withOptionValue(option, values.build()).popContext();
             }
         }
