@@ -191,6 +191,31 @@ public class TestCommand
         assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2", "pair3"));
     }
 
+
+    @Test
+    public void varArityLastString()
+    {
+        VarArgsArityLastString args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs");
+        assertEquals(args.first, "first");
+        assertNull(args.pairs);
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1", "pair2");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1", "pair2", "pair3");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2", "pair3"));
+    }
+
     @Test(expectedExceptions = ParseException.class)
     public void arity2Fail()
     {
