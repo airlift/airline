@@ -148,6 +148,9 @@ public class MetadataLoader
                     int arity = optionAnnotation.arity();
                     Preconditions.checkArgument(arity >= 0 || arity == Integer.MIN_VALUE, "Invalid arity for option %s", name);
 
+                    boolean optionEndsValues = optionAnnotation.optionEndsValues();
+                    Preconditions.checkArgument((optionEndsValues && arity >= 1) || !optionEndsValues, "Invalid optionEndsValues for option %s", name);
+
                     if (optionAnnotation.arity() >= 0) {
                         arity = optionAnnotation.arity();
                     }
@@ -168,7 +171,7 @@ public class MetadataLoader
                         allowedValues = null;
                     }
 
-                    OptionMetadata optionMetadata = new OptionMetadata(optionType, options, name, description, arity, required, hidden, allowedValues, path);
+                    OptionMetadata optionMetadata = new OptionMetadata(optionType, options, name, description, arity, optionEndsValues, required, hidden, allowedValues, path);
                     switch (optionType) {
                         case GLOBAL:
                             injectionMetadata.globalOptions.add(optionMetadata);

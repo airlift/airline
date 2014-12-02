@@ -21,6 +21,7 @@ public class OptionMetadata
     private final String title;
     private final String description;
     private final int arity;
+    private final boolean optionEndsValues;
     private final boolean required;
     private final boolean hidden;
     private final Set<String> allowedValues;
@@ -31,6 +32,7 @@ public class OptionMetadata
             String title,
             String description,
             int arity,
+            boolean optionEndsValues,
             boolean required,
             boolean hidden,
             Iterable<String> allowedValues,
@@ -48,6 +50,7 @@ public class OptionMetadata
         this.title = title;
         this.description = description;
         this.arity = arity;
+        this.optionEndsValues = optionEndsValues;
         this.required = required;
         this.hidden = hidden;
 
@@ -73,6 +76,7 @@ public class OptionMetadata
         this.title = option.title;
         this.description = option.description;
         this.arity = option.arity;
+        this.optionEndsValues = option.optionEndsValues;
         this.required = option.required;
         this.hidden = option.hidden;
         if (option.allowedValues != null) {
@@ -115,6 +119,11 @@ public class OptionMetadata
     public int getArity()
     {
         return arity;
+    }
+
+    public boolean isOptionEndsValues()
+    {
+        return optionEndsValues;
     }
 
     public boolean isRequired()
@@ -162,6 +171,9 @@ public class OptionMetadata
         if (arity != that.arity) {
             return false;
         }
+        if (optionEndsValues != that.optionEndsValues) {
+            return false;
+        }
         if (hidden != that.hidden) {
             return false;
         }
@@ -195,6 +207,7 @@ public class OptionMetadata
         result = 31 * result + title.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + arity;
+        result = 31 * result + (optionEndsValues ? 1 : 0);
         result = 31 * result + (required ? 1 : 0);
         result = 31 * result + (hidden ? 1 : 0);
         result = 31 * result + (allowedValues != null ? allowedValues.hashCode() : 0);
@@ -211,6 +224,7 @@ public class OptionMetadata
         sb.append(", title='").append(title).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", arity=").append(arity);
+        sb.append(", optionEndsValues=").append(optionEndsValues);
         sb.append(", required=").append(required);
         sb.append(", hidden=").append(hidden);
         sb.append(", accessors=").append(accessors);

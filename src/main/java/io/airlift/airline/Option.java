@@ -59,6 +59,13 @@ public @interface Option
     int arity() default Integer.MIN_VALUE;
 
     /**
+     * If true, a new option will end the parameter values even if
+     * the defined arity has not been consumed. NOTE: arity must be greater
+     * than 1.
+     */
+    boolean optionEndsValues() default false;
+
+    /**
      * If true, this parameter won't appear in the usage().
      */
     boolean hidden() default false;

@@ -19,21 +19,9 @@
 package io.airlift.airline;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import io.airlift.airline.Cli.CliBuilder;
-import io.airlift.airline.args.Args1;
-import io.airlift.airline.args.Args2;
-import io.airlift.airline.args.ArgsArityString;
-import io.airlift.airline.args.ArgsBooleanArity;
-import io.airlift.airline.args.ArgsBooleanArity0;
-import io.airlift.airline.args.ArgsEnum;
-import io.airlift.airline.args.ArgsInherited;
-import io.airlift.airline.args.ArgsMultipleUnparsed;
-import io.airlift.airline.args.ArgsOutOfMemory;
-import io.airlift.airline.args.ArgsPrivate;
-import io.airlift.airline.args.ArgsRequired;
-import io.airlift.airline.args.ArgsSingleChar;
-import io.airlift.airline.args.Arity1;
-import io.airlift.airline.args.OptionsRequired;
+import io.airlift.airline.args.*;
 import io.airlift.airline.command.CommandAdd;
 import io.airlift.airline.command.CommandCommit;
 import io.airlift.airline.model.CommandMetadata;
@@ -51,6 +39,7 @@ import static io.airlift.airline.TestingUtil.singleCommandParser;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNull;
 
 public class TestCommand
 {
@@ -113,7 +102,7 @@ public class TestCommand
             throws ParseException
     {
         ArgsSingleChar args = singleCommandParser(ArgsSingleChar.class).parse("ArgsSingleChar",
-                "-lgX");
+            "-lgX");
 
         assertFalse(args.l);
         assertFalse(args.g);
@@ -183,10 +172,60 @@ public class TestCommand
         assertEquals(args.rest.get(0), "rest");
     }
 
+    @Test
+    public void varArityString()
+    {
+        VarArgsArityString args = singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "-terminal");
+        assertNull(args.pairs);
+
+        args = singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "pair0", "-terminal");
+        assertEquals(args.pairs, Lists.newArrayList("pair0"));
+
+        args = singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "pair0", "pair1", "-terminal");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1"));
+
+        args = singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "pair0", "pair1", "pair2", "-terminal");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2"));
+
+        args = singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "pair0", "pair1", "pair2", "pair3", "-terminal");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2", "pair3"));
+    }
+
+
+    @Test
+    public void varArityLastString()
+    {
+        VarArgsArityLastString args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs");
+        assertEquals(args.first, "first");
+        assertNull(args.pairs);
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1", "pair2");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2"));
+
+        args = singleCommandParser(VarArgsArityLastString.class).parse("VarArgsArityLastString", "-first", "first", "-pairs", "pair0", "pair1", "pair2", "pair3");
+        assertEquals(args.first, "first");
+        assertEquals(args.pairs, Lists.newArrayList("pair0", "pair1", "pair2", "pair3"));
+    }
+
     @Test(expectedExceptions = ParseException.class)
     public void arity2Fail()
     {
         singleCommandParser(ArgsArityString.class).parse("ArgsArityString", "-pairs", "pair0");
+    }
+
+    @Test(expectedExceptions = ParseException.class)
+    public void varArity5Fail()
+    {
+        singleCommandParser(VarArgsArityString.class).parse("VarArgsArityString", "-pairs", "pair0", "pair1", "pair2", "pair3", "pair4");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
