@@ -23,7 +23,7 @@ import io.airlift.airline.Command;
 
 import java.util.List;
 
-@Command(name="ArgsRequired")
+@Command(name = "ArgsRequired")
 public class ArgsRequired
 {
     @Arguments(description = "List of files", required = true)

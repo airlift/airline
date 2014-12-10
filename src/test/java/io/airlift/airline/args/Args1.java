@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-@Command(name="Args1", description="args1 description")
+@Command(name = "Args1", description = "args1 description")
 public class Args1
 {
     @Arguments

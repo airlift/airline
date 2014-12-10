@@ -21,7 +21,7 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="OptionsHidden")
+@Command(name = "OptionsHidden")
 public class OptionsHidden
 {
     @Option(name = "--hidden", hidden = true)

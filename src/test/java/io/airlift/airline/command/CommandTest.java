@@ -19,12 +19,14 @@
 package io.airlift.airline.command;
 
 import io.airlift.airline.Cli;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-import static io.airlift.airline.TestUtil.singleCommandParser;
+import static io.airlift.airline.TestingUtil.singleCommandParser;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class CommandTest
 {
@@ -37,11 +39,11 @@ public class CommandTest
                 .build();
 
         Object command = parser.parse("add", "-i", "A.java");
-        Assert.assertNotNull(command, "command is null");
-        Assert.assertTrue(command instanceof CommandAdd);
+        assertNotNull(command, "command is null");
+        assertTrue(command instanceof CommandAdd);
         CommandAdd add = (CommandAdd) command;
-        Assert.assertEquals(add.interactive.booleanValue(), true);
-        Assert.assertEquals(add.patterns, Arrays.asList("A.java"));
+        assertEquals(add.interactive.booleanValue(), true);
+        assertEquals(add.patterns, Arrays.asList("A.java"));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -60,13 +62,13 @@ public class CommandTest
         parser.parse("-v", "commit", "--amend", "--author", "cbeust", "A.java", "B.java");
 
         Object command = parser.parse("-v", "commit", "--amend", "--author", "cbeust", "A.java", "B.java");
-        Assert.assertNotNull(command, "command is null");
-        Assert.assertTrue(command instanceof CommandCommit);
+        assertNotNull(command, "command is null");
+        assertTrue(command instanceof CommandCommit);
         CommandCommit commit = (CommandCommit) command;
 
-        Assert.assertTrue(commit.commandMain.verbose);
-        Assert.assertTrue(commit.amend);
-        Assert.assertEquals(commit.author, "cbeust");
-        Assert.assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
+        assertTrue(commit.commandMain.verbose);
+        assertTrue(commit.amend);
+        assertEquals(commit.author, "cbeust");
+        assertEquals(commit.files, Arrays.asList("A.java", "B.java"));
     }
 }

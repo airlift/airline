@@ -23,6 +23,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
 import javax.inject.Inject;
+
 import java.util.List;
 
 @Command(name = "commit", description = "Record changes to the repository")

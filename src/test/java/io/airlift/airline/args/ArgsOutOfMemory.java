@@ -3,7 +3,7 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="ArgsOutOfMemory")
+@Command(name = "ArgsOutOfMemory")
 public class ArgsOutOfMemory
 {
     @Option(name = {"-p", "--pattern"},

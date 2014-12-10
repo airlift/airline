@@ -1,22 +1,24 @@
 package io.airlift.airline;
 
 import com.google.common.collect.ImmutableList;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.airline.TestUtil.singleCommandParser;
+import static io.airlift.airline.TestingUtil.singleCommandParser;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author dain
  * @author rodionmoiseev
  */
-public class ParametersDelegateTest
+public class TestParametersDelegate
 {
-
     @Command(name = "command")
     public static class DelegatingEmptyClassHasNoEffect
     {
@@ -41,13 +43,12 @@ public class ParametersDelegateTest
                 .build()
                 .parse("command", "-a", "-b", "someValue");
 
-        Assert.assertTrue(p.isA);
-        Assert.assertEquals(p.bValue, "someValue");
-        Assert.assertEquals(p.delegate.nonParamString, "a");
+        assertTrue(p.isA);
+        assertEquals(p.bValue, "someValue");
+        assertEquals(p.delegate.nonParamString, "a");
     }
 
     // ========================================================================================================================
-
 
     @Command(name = "command")
     public static class DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams
@@ -74,12 +75,11 @@ public class ParametersDelegateTest
 
         DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams p = singleCommandParser(DelegatingSetsFieldsOnBothMainParamsAndTheDelegatedParams.class)
                 .parse("command", "-c", "--long-d", "123", "--long-b", "bValue");
-        Assert.assertFalse(p.isA);
-        Assert.assertEquals(p.bValue, "bValue");
-        Assert.assertTrue(p.delegate.isC);
-        Assert.assertEquals(p.delegate.d, Integer.valueOf(123));
+        assertFalse(p.isA);
+        assertEquals(p.bValue, "bValue");
+        assertTrue(p.delegate.isC);
+        assertEquals(p.delegate.d, Integer.valueOf(123));
     }
-
 
     // ========================================================================================================================
 
@@ -128,12 +128,12 @@ public class ParametersDelegateTest
     {
         CombinedAndNestedDelegates p = singleCommandParser(CombinedAndNestedDelegates.class)
                 .parse("command", "-d", "234", "--list", "a", "--list", "b", "-a");
-        Assert.assertEquals(p.nestedDelegate2.nestedDelegate1.leafDelegate.list, newArrayList("value1", "value2", "a", "b"));
-        Assert.assertFalse(p.nestedDelegate2.nestedDelegate1.leafDelegate.bool);
-        Assert.assertEquals(p.nestedDelegate2.nestedDelegate1.d, Integer.valueOf(234));
-        Assert.assertFalse(p.nestedDelegate2.isC);
-        Assert.assertTrue(p.isA);
-        Assert.assertEquals(p.bValue, "");
+        assertEquals(p.nestedDelegate2.nestedDelegate1.leafDelegate.list, newArrayList("value1", "value2", "a", "b"));
+        assertFalse(p.nestedDelegate2.nestedDelegate1.leafDelegate.bool);
+        assertEquals(p.nestedDelegate2.nestedDelegate1.d, Integer.valueOf(234));
+        assertFalse(p.nestedDelegate2.isC);
+        assertTrue(p.isA);
+        assertEquals(p.bValue, "");
     }
 
     // ========================================================================================================================
@@ -155,7 +155,7 @@ public class ParametersDelegateTest
     public void commandTest()
     {
         CommandTest c = singleCommandParser(CommandTest.class).parse("command", "-a", "a");
-        Assert.assertEquals(c.delegate.a, "a");
+        assertEquals(c.delegate.a, "a");
     }
 
     // ========================================================================================================================
@@ -178,7 +178,7 @@ public class ParametersDelegateTest
     {
 
         NullDelegatesAreProhibited value = singleCommandParser(NullDelegatesAreProhibited.class).parse("command", "-a");
-        Assert.assertEquals(value.delegate.a, true);
+        assertEquals(value.delegate.a, true);
     }
 
     // ========================================================================================================================
@@ -202,8 +202,8 @@ public class ParametersDelegateTest
     public void duplicateDelegateAllowed()
     {
         DuplicateDelegateAllowed value = singleCommandParser(DuplicateDelegateAllowed.class).parse("command", "-a", "value");
-        Assert.assertEquals(value.d1.a, "value");
-        Assert.assertEquals(value.d2.a, "value");
+        assertEquals(value.d1.a, "value");
+        assertEquals(value.d2.a, "value");
     }
 
     // ========================================================================================================================
@@ -234,12 +234,13 @@ public class ParametersDelegateTest
     public void duplicateMainParametersAreAllowed()
     {
         DuplicateMainParametersAreAllowed value = singleCommandParser(DuplicateMainParametersAreAllowed.class).parse("command", "main", "params");
-        Assert.assertEquals(value.delegate1.mainParams1, ImmutableList.of("main", "params"));
-        Assert.assertEquals(value.delegate2.mainParams1, ImmutableList.of("main", "params"));
+        assertEquals(value.delegate1.mainParams1, ImmutableList.of("main", "params"));
+        assertEquals(value.delegate2.mainParams1, ImmutableList.of("main", "params"));
     }
 
     // ========================================================================================================================
 
+    @SuppressWarnings("UnusedDeclaration")
     @Command(name = "command")
     public static class ConflictingMainParametersAreNotAllowed
     {
@@ -266,6 +267,5 @@ public class ParametersDelegateTest
     public void conflictingMainParametersAreNotAllowed()
     {
         singleCommandParser(ConflictingMainParametersAreNotAllowed.class).parse("command", "main", "params");
-
     }
 }

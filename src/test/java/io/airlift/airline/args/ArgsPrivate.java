@@ -21,7 +21,7 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="ArgsPrivate")
+@Command(name = "ArgsPrivate")
 public class ArgsPrivate
 {
     @Option(name = "-verbose")

@@ -1,6 +1,6 @@
 package io.airlift.airline;
 
-@Command(name="ArgsRequiredWrongMain")
+@Command(name = "ArgsRequiredWrongMain")
 public class ArgsRequiredWrongMain
 {
     @Arguments(required = true)

@@ -21,11 +21,10 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="ArgsInherited")
-public class ArgsInherited extends ArgsDefault
+@Command(name = "ArgsInherited")
+public class ArgsInherited
+        extends ArgsDefault
 {
-
     @Option(name = "-child", description = "Child parameter")
     public Integer child = 1;
-
 }

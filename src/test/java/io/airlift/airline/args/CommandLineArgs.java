@@ -24,7 +24,7 @@ import io.airlift.airline.Option;
 
 import java.util.List;
 
-@Command(name="CommandLineArgs")
+@Command(name = "CommandLineArgs")
 public class CommandLineArgs
 {
 
@@ -119,5 +119,4 @@ public class CommandLineArgs
 
     @Option(name = "-slave", description = "Host where the slave is")
     public String slave;
-
 }

@@ -26,7 +26,7 @@ import io.airlift.airline.Command;
  *
  * @author cbeust
  */
-@Command(name="ArgsMultipleUnparsed")
+@Command(name = "ArgsMultipleUnparsed")
 public class ArgsMultipleUnparsed
 {
     @Arguments(description = "Bogus1")

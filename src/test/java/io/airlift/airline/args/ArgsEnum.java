@@ -37,7 +37,6 @@ public class ArgsEnum
 
     @Option(name = "-choice", description = "Choice parameter")
     public ChoiceType choice = ChoiceType.ONE;
-
 }
 
 

@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author cbeust
  */
-@Command(name="ArgsArityString")
+@Command(name = "ArgsArityString")
 public class ArgsArityString
 {
 

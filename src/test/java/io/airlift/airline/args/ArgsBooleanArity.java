@@ -21,7 +21,7 @@ package io.airlift.airline.args;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name="ArgsBooleanArity")
+@Command(name = "ArgsBooleanArity")
 public class ArgsBooleanArity
 {
     @Option(name = "-debug", arity = 1)

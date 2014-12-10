@@ -23,6 +23,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
 import javax.inject.Inject;
+
 import java.util.List;
 
 @Command(name = "add", description = "Add file contents to the index")
@@ -36,5 +37,4 @@ public class CommandAdd
 
     @Option(name = "-i")
     public Boolean interactive = false;
-
 }
