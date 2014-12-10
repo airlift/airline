@@ -22,31 +22,48 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-public class ParseOptionIllegalValueException extends ParseException
-{
+/**
+ * Exception thrown when the value for an option is not in the list of allowed
+ * values
+ */
+public class ParseOptionIllegalValueException extends ParseException {
+    private static final long serialVersionUID = 810812151673279427L;
+    
     private final String optionTitle, illegalValue;
     private final Set<String> allowedValues;
 
-    ParseOptionIllegalValueException(String optionTitle, String value, Set<String> allowedValues)
-    {
-        super("Value for option '%s' was given as '%s' which is not in the list of allowed values: %s", optionTitle, value, allowedValues);
+    ParseOptionIllegalValueException(String optionTitle, String value, Set<String> allowedValues) {
+        super("Value for option '%s' was given as '%s' which is not in the list of allowed values: %s", optionTitle,
+                value, allowedValues);
         this.optionTitle = optionTitle;
         this.illegalValue = value;
         this.allowedValues = ImmutableSet.copyOf(allowedValues);
     }
 
-    public String getOptionTitle()
-    {
+    /**
+     * Gets the option title
+     * 
+     * @return Option title
+     */
+    public String getOptionTitle() {
         return optionTitle;
     }
-    
-    public String getIllegalValue()
-    {
+
+    /**
+     * Gets the illegal value
+     * 
+     * @return Illegal value
+     */
+    public String getIllegalValue() {
         return illegalValue;
     }
-    
-    public Set<String> getAllowedValues()
-    {
+
+    /**
+     * Gets the set of allowed values
+     * 
+     * @return Allowed values
+     */
+    public Set<String> getAllowedValues() {
         return allowedValues;
     }
 }
