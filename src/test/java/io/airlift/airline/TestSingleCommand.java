@@ -229,22 +229,22 @@ public class TestSingleCommand
     public void allowedValues1()
     {
         ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode", "a");
-        Assert.assertEquals(a.mode, "a");
+        assertEquals(a.mode, "a");
         a = singleCommand(ArgsAllowedValues.class).parse("-mode", "b");
-        Assert.assertEquals(a.mode, "b");
+        assertEquals(a.mode, "b");
         a = singleCommand(ArgsAllowedValues.class).parse("-mode", "c");
-        Assert.assertEquals(a.mode, "c");
+        assertEquals(a.mode, "c");
     }
     
     @Test
     public void allowedValues2()
     {
         ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode=a");
-        Assert.assertEquals(a.mode, "a");
+        assertEquals(a.mode, "a");
         a = singleCommand(ArgsAllowedValues.class).parse("-mode=b");
-        Assert.assertEquals(a.mode, "b");
+        assertEquals(a.mode, "b");
         a = singleCommand(ArgsAllowedValues.class).parse("-mode=c");
-        Assert.assertEquals(a.mode, "c");
+        assertEquals(a.mode, "c");
     }
     
     @Test(expectedExceptions = ParseException.class)
