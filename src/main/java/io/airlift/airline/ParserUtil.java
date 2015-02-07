@@ -12,30 +12,14 @@ import static com.google.common.collect.Iterables.concat;
 
 public class ParserUtil
 {
-    public static <T> T createInstance(Class<T> type)
+    public static <T> T configureInstance(T commandInstance,
+										  Iterable<OptionMetadata> options,
+										  ListMultimap<OptionMetadata, Object> parsedOptions,
+										  ArgumentsMetadata arguments,
+										  Iterable<Object> parsedArguments,
+										  Iterable<Accessor> metadataInjection,
+										  Map<Class<?>, Object> bindings)
     {
-        if (type != null) {
-            try {
-                return type.getConstructor().newInstance();
-            }
-            catch (Exception e) {
-                throw new ParseException(e, "Unable to create instance %s", type.getName());
-            }
-        }
-        return null;
-    }
-
-    public static <T> T createInstance(Class<?> type,
-            Iterable<OptionMetadata> options,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
-            ArgumentsMetadata arguments,
-            Iterable<Object> parsedArguments,
-            Iterable<Accessor> metadataInjection,
-            Map<Class<?>, Object> bindings)
-    {
-        // create the command instance
-        T commandInstance = (T) ParserUtil.createInstance(type);
-
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);

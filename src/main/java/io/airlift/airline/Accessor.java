@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import io.airlift.airline.factory.DefaultConstructorFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -77,7 +78,7 @@ public class Accessor
             try {
                 Object nextInstance = intermediateField.get(instance);
                 if (nextInstance == null) {
-                    nextInstance = ParserUtil.createInstance(intermediateField.getType());
+                    nextInstance = new DefaultConstructorFactory().createInstance(intermediateField.getType());
                     intermediateField.set(instance, nextInstance);
                 }
                 instance = nextInstance;

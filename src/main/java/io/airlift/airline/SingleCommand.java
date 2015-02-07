@@ -20,6 +20,8 @@ package io.airlift.airline;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.airlift.airline.factory.CommandFactory;
+import io.airlift.airline.factory.DefaultConstructorFactory;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.MetadataLoader;
@@ -28,7 +30,7 @@ import io.airlift.airline.model.OptionMetadata;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 public class SingleCommand<C>
 {
@@ -66,13 +68,15 @@ public class SingleCommand<C>
 
         CommandMetadata command = state.getCommand();
 
-        return createInstance(command.getType(),
-                command.getAllOptions(),
-                state.getParsedOptions(),
-                command.getArguments(),
-                state.getParsedArguments(),
-                command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
+		CommandFactory commandFactory = new DefaultConstructorFactory();
+		final C instance = (C) commandFactory.createInstance(command.getType());
+		return configureInstance(instance,
+				command.getAllOptions(),
+				state.getParsedOptions(),
+				command.getArguments(),
+				state.getParsedArguments(),
+				command.getMetadataInjections(),
+				ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
     
     private void validate(ParseState state)

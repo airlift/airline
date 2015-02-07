@@ -23,23 +23,22 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import io.airlift.airline.model.ArgumentsMetadata;
-import io.airlift.airline.model.CommandGroupMetadata;
-import io.airlift.airline.model.CommandMetadata;
-import io.airlift.airline.model.GlobalMetadata;
-import io.airlift.airline.model.MetadataLoader;
-import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.factory.CommandFactory;
+import io.airlift.airline.factory.DefaultConstructorFactory;
+import io.airlift.airline.model.*;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 public class Cli<C>
 {
-    public static <T> CliBuilder<T> builder(String name)
+	private final CommandFactory commandFactory;
+
+	public static <T> CliBuilder<T> builder(String name)
     {
         Preconditions.checkNotNull(name, "name is null");
         return new CliBuilder<T>(name);
@@ -64,9 +63,11 @@ public class Cli<C>
             TypeConverter typeConverter,
             Class<? extends C> defaultCommand,
             Iterable<Class<? extends C>> defaultGroupCommands,
-            Iterable<GroupBuilder<C>> groups)
+            Iterable<GroupBuilder<C>> groups,
+			CommandFactory commandFactory)
     {
-        Preconditions.checkNotNull(name, "name is null");
+		this.commandFactory = commandFactory;
+		Preconditions.checkNotNull(name, "name is null");
         Preconditions.checkNotNull(typeConverter, "typeConverter is null");
 
         CommandMetadata defaultCommandMetadata = null;
@@ -117,13 +118,14 @@ public class Cli<C>
 
         CommandMetadata command = state.getCommand();
 
-        return createInstance(command.getType(),
-                command.getAllOptions(),
-                state.getParsedOptions(),
-                command.getArguments(),
-                state.getParsedArguments(),
-                command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+		C instance = (C) commandFactory.createInstance(command.getType());
+        return configureInstance(instance,
+				command.getAllOptions(),
+				state.getParsedOptions(),
+				command.getArguments(),
+				state.getParsedArguments(),
+				command.getMetadataInjections(),
+				ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
     }
     
     private void validate(ParseState state)
@@ -168,6 +170,7 @@ public class Cli<C>
         protected final String name;
         protected String description;
         protected TypeConverter typeConverter = new TypeConverter();
+        protected CommandFactory commandFactory = new DefaultConstructorFactory();
         protected String optionSeparators;
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
@@ -202,11 +205,18 @@ public class Cli<C>
 //            return this;
 //        }
 
-        public CliBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
-        {
-            this.defaultCommand = defaultCommand;
-            return this;
-        }
+
+		public CliBuilder<C> withCommandFactory(CommandFactory commandFactory)
+		{
+			this.commandFactory = commandFactory;
+			return this;
+		}
+
+		public CliBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
+		{
+			this.defaultCommand = defaultCommand;
+			return this;
+		}
 
         public CliBuilder<C> withCommand(Class<? extends C> command)
         {
@@ -243,7 +253,7 @@ public class Cli<C>
 
         public Cli<C> build()
         {
-            return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+            return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values(), commandFactory);
         }
     }
 

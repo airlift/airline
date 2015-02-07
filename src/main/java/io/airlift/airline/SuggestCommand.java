@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.airlift.airline.factory.CommandFactory;
+import io.airlift.airline.factory.DefaultConstructorFactory;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
@@ -17,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.configureInstance;
 
 @Command(name = "suggest")
 public class SuggestCommand
@@ -57,13 +59,15 @@ public class SuggestCommand
                     bindings.put(CommandMetadata.class, state.getCommand());
                 }
 
-                Suggester suggester = createInstance(suggesterMetadata.getSuggesterClass(),
-                        ImmutableList.<OptionMetadata>of(),
-                        null,
-                        null,
-                        null,
-                        suggesterMetadata.getMetadataInjections(),
-                        bindings.build());
+				CommandFactory commandFactory = new DefaultConstructorFactory();
+				final Suggester instance = commandFactory.createInstance(suggesterMetadata.getSuggesterClass());
+				Suggester suggester = configureInstance(instance,
+						ImmutableList.<OptionMetadata>of(),
+						null,
+						null,
+						null,
+						suggesterMetadata.getMetadataInjections(),
+						bindings.build());
 
                 return suggester.suggest();
             }
