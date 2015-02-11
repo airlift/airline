@@ -1,0 +1,5 @@
+publishId=theId
+publishUrl=/url/to/repo
+internalRepo=/url/to/repo
+artifactoryUser=user
+artifactoryPassword=secret

@@ -16,3 +16,7 @@ temp-testng-customsuite.xml
 *~
 .rvmrc
 bin/
+
+build/
+.gradle/
+gradle.properties

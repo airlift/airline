@@ -1,0 +1,112 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: "maven"
+apply plugin: "artifactory"
+
+buildscript {
+	repositories {
+		maven {
+			url "http://jcenter.bintray.com"
+		}
+
+		dependencies {
+			classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
+		}
+	}
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.0'
+	distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+}
+
+allprojects {
+	group = "com.complexible.airline"
+	sourceCompatibility = '1.6'
+	targetCompatibility = '1.6'
+	version = "0.7.2"
+
+	repositories {
+		maven {
+			url "file://home/fernando/work/mvn"
+		}
+		mavenCentral()
+	}
+}
+
+ext {
+	projectDescription	= "Airline is a Java annotation-based framework for parsing Git like command line structures."
+	projectUrl			= "https://github.com/clarkparsia/airline"
+}
+
+
+dependencies {
+	compile 'javax.inject:javax.inject:1'
+	compile 'com.google.guava:guava:12.0'
+
+	testCompile 'org.testng:testng:6.0.1'
+}
+
+if (project.hasProperty('publishUrl')
+	&& project.hasProperty('artifactoryUser')
+	&& project.hasProperty('artifactoryPassword')) {
+
+	// this task is just so artifactory picks up the pom changes
+	task('uploadMvn', type: Upload) {
+		configuration = configurations.archives
+		repositories {
+			mavenDeployer {
+				repository(url: publishUrl)
+				pom.project {
+					name = archivesBaseName
+					packaging = 'jar'
+					description projectDescription
+					url  projectUrl
+				}
+
+				//mess with the generated pom to remove test dependencies from published artifacts
+				pom.withXml { XmlProvider xmlProvider ->
+					def xml = xmlProvider.asString()
+					def pomXml = new XmlParser().parse(new ByteArrayInputStream(xml.toString().bytes))
+
+					pomXml.dependencies.dependency.each { dep ->
+						if (dep.scope.text() != 'compile') {
+							def parent = dep.parent()
+							parent.remove(dep)
+						}
+					}
+
+					def newXml = new StringWriter()
+					def printer = new XmlNodePrinter(new PrintWriter(newXml))
+					printer.preserveWhitespace = true
+					printer.print(pomXml)
+					xml.setLength(0)
+					xml.append(newXml.toString())
+				}
+
+			}
+		}
+	}
+
+	artifactory {
+		// publishUrl is defined in gradle.properties
+		publish {
+			contextUrl = publishUrl
+			repository {
+				repoKey = publishId //The Artifactory repository key to publish to
+				username = "${artifactoryUser}" //The publisher user name
+				password = "${artifactoryPassword}" //The publisher password
+			}
+		}
+		resolve {
+			contextUrl = publishUrl
+			repository {
+				repoKey = publishId //The Artifactory (preferably virtual) repository key to resolve from
+				username = "${artifactoryUser}" //Optional resolver user name (leave out to use anonymous resolution)
+				password = "${artifactoryPassword}" //The resolver password
+				maven = true
+			}
+		}
+
+	}
+}
