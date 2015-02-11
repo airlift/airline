@@ -1,5 +1,5 @@
-publishId=theId
-publishUrl=/url/to/repo
-internalRepo=/url/to/repo
+repoId=theId
+artifactoryUrl=/url/to/artifactory
 artifactoryUser=user
 artifactoryPassword=secret
+

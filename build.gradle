@@ -27,9 +27,6 @@ allprojects {
 	version = "0.7.2"
 
 	repositories {
-		maven {
-			url "file://home/fernando/work/mvn"
-		}
 		mavenCentral()
 	}
 }
@@ -47,16 +44,19 @@ dependencies {
 	testCompile 'org.testng:testng:6.0.1'
 }
 
-if (project.hasProperty('publishUrl')
+if (project.hasProperty('artifactoryUrl')
+	&& project.hasProperty('repoId')
 	&& project.hasProperty('artifactoryUser')
 	&& project.hasProperty('artifactoryPassword')) {
+
+	ext.repoUrl = "$artifactoryUrl/$repoId"
 
 	// this task is just so artifactory picks up the pom changes
 	task('uploadMvn', type: Upload) {
 		configuration = configurations.archives
 		repositories {
 			mavenDeployer {
-				repository(url: publishUrl)
+				repository(url: repoUrl)
 				pom.project {
 					name = archivesBaseName
 					packaging = 'jar'
@@ -91,19 +91,19 @@ if (project.hasProperty('publishUrl')
 	artifactory {
 		// publishUrl is defined in gradle.properties
 		publish {
-			contextUrl = publishUrl
+			contextUrl = artifactoryUrl
 			repository {
-				repoKey = publishId //The Artifactory repository key to publish to
-				username = "${artifactoryUser}" //The publisher user name
-				password = "${artifactoryPassword}" //The publisher password
+				repoKey = repoId
+				username = artifactoryUser
+				password = artifactoryPassword
 			}
 		}
 		resolve {
-			contextUrl = publishUrl
+			contextUrl = artifactoryUrl
 			repository {
-				repoKey = publishId //The Artifactory (preferably virtual) repository key to resolve from
-				username = "${artifactoryUser}" //Optional resolver user name (leave out to use anonymous resolution)
-				password = "${artifactoryPassword}" //The resolver password
+				repoKey = repoId
+				username = artifactoryUser
+				password = artifactoryPassword
 				maven = true
 			}
 		}
