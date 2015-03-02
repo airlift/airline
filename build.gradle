@@ -1,19 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: "maven"
-apply plugin: "artifactory"
-
-buildscript {
-	repositories {
-		maven {
-			url "http://jcenter.bintray.com"
-		}
-
-		dependencies {
-			classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
-		}
-	}
-}
 
 task wrapper(type: Wrapper) {
 	gradleVersion = '2.0'
@@ -24,7 +11,7 @@ allprojects {
 	group = "com.complexible.airline"
 	sourceCompatibility = '1.6'
 	targetCompatibility = '1.6'
-	version = "0.7.2"
+	version = "0.7.3"
 
 	repositories {
 		mavenCentral()
@@ -39,24 +26,25 @@ ext {
 
 dependencies {
 	compile 'javax.inject:javax.inject:1'
-	compile 'com.google.guava:guava:12.0'
+	compile "com.google.guava:guava:18.0"
+	compile 'com.google.code.findbugs:jsr305:3.0.0'
 
 	testCompile 'org.testng:testng:6.0.1'
 }
 
 if (project.hasProperty('artifactoryUrl')
-	&& project.hasProperty('repoId')
-	&& project.hasProperty('artifactoryUser')
+	&& project.hasProperty('artifactoryUsername')
 	&& project.hasProperty('artifactoryPassword')) {
 
-	ext.repoUrl = "$artifactoryUrl/$repoId"
 
-	// this task is just so artifactory picks up the pom changes
-	task('uploadMvn', type: Upload) {
+	task('uploadArtifactory', type: Upload) {
+		description = 'publishes artifacts to the artifactory repository.'
 		configuration = configurations.archives
 		repositories {
 			mavenDeployer {
-				repository(url: repoUrl)
+				repository(url: artifactoryUrl) {
+					authentication(userName: artifactoryUsername, password: artifactoryPassword)
+				}
 				pom.project {
 					name = archivesBaseName
 					packaging = 'jar'
@@ -86,27 +74,5 @@ if (project.hasProperty('artifactoryUrl')
 
 			}
 		}
-	}
-
-	artifactory {
-		// publishUrl is defined in gradle.properties
-		publish {
-			contextUrl = artifactoryUrl
-			repository {
-				repoKey = repoId
-				username = artifactoryUser
-				password = artifactoryPassword
-			}
-		}
-		resolve {
-			contextUrl = artifactoryUrl
-			repository {
-				repoKey = repoId
-				username = artifactoryUser
-				password = artifactoryPassword
-				maven = true
-			}
-		}
-
 	}
 }

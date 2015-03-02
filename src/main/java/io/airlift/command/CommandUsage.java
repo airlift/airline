@@ -182,8 +182,25 @@ public class CommandUsage
         aBuilder.append(programName).append("_");
         aBuilder.append(groupName).append("_");
         // stardog-admin commands go in section 8 (sysadmin commands), all others in section 1 (user commands)
-        aBuilder.append(command.getName()).append(programName != null && programName.equals("stardog-admin") ? "(8) -" : "(1) -");
-        aBuilder.append(command.getDescription()).append("\n");
+        aBuilder.append(command.getName())
+                .append(programName != null && programName.equals("stardog-admin") ? "(8) -" : "(1) -");
+        String aDescription = command.getDescription();
+        String aLongDesc = null;
+        if (aBuilder.length() + aDescription.length() >= 255) { // some arbitrary length
+            // if description is too long, we'll try to get the first sentence then put the whole
+            // thing in the DESCRIPTION section
+            final int aFirstPeriod= aDescription.indexOf('.');
+            if (aFirstPeriod != -1) {
+                String aShortDesc = aDescription.substring(0, aFirstPeriod + 1);
+                if (aBuilder.length() + aShortDesc.length() < 255) {
+                    aBuilder.append(aShortDesc).append("\n");
+                }
+            }
+            aLongDesc = aDescription;
+        }
+        else {
+            aBuilder.append(aDescription).append("\n");
+        }
         aBuilder.append("==========");
 
         aBuilder.append(NEW_PARA).append("## SYNOPSIS").append(NEW_PARA);
@@ -215,6 +232,11 @@ public class CommandUsage
             aBuilder.append(" [--] ")
                     .append(UsageHelper.toUsage(arguments));
         }
+
+        if (aLongDesc != null) {
+            aBuilder.append(NEW_PARA).append("## DESCRIPTION").append(NEW_PARA).append(aLongDesc);
+        }
+
 
         if (options.size() > 0 || arguments != null) {
             aBuilder.append(NEW_PARA).append("## OPTIONS");
