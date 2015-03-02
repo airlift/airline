@@ -1,5 +1,4 @@
-repoId=theId
 artifactoryUrl=/url/to/artifactory
-artifactoryUser=user
+artifactoryUsername=user
 artifactoryPassword=secret
 
