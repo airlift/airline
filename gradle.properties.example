@@ -1,4 +1,4 @@
-artifactoryUrl=/url/to/artifactory
+publicRepository=/path/to/your/maven/checkout
+artifactoryUrl=/url/to/repo
 artifactoryUsername=user
 artifactoryPassword=secret
-

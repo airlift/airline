@@ -36,14 +36,36 @@ if (project.hasProperty('artifactoryUrl')
 	&& project.hasProperty('artifactoryUsername')
 	&& project.hasProperty('artifactoryPassword')) {
 
+	repoUpload(taskName: 'uploadArtifactory',
+			   url: artifactoryUrl,
+			   username: artifactoryUsername,
+			   password: artifactoryPassword)
+}
 
-	task('uploadArtifactory', type: Upload) {
-		description = 'publishes artifacts to the artifactory repository.'
-		configuration = configurations.archives
+if (project.hasProperty('publicRepository')) {
+	repoUpload(taskName: 'uploadGithub',
+			   url: "file://localhost/$publicRepository")
+}
+
+def repoUpload(Map<String, String> options) {
+	def taskName = options.taskName
+	def repoUrl = options.url
+	def username = null
+	def passwd = null
+	def auth = options.containsKey("username") && options.containsKey("password")
+	if (auth) {
+		username = options.username
+		passwd = options.password
+	}
+
+	task(taskName, type: Upload) {
+		configuration =  configurations.archives
 		repositories {
 			mavenDeployer {
-				repository(url: artifactoryUrl) {
-					authentication(userName: artifactoryUsername, password: artifactoryPassword)
+				repository(url: repoUrl) {
+					if (auth) {
+						authentication(userName: username, password: passwd)
+					}
 				}
 				pom.project {
 					name = archivesBaseName
@@ -61,6 +83,24 @@ if (project.hasProperty('artifactoryUrl')
 						if (dep.scope.text() != 'compile') {
 							def parent = dep.parent()
 							parent.remove(dep)
+						}
+					}
+
+					// add exclusion nodes (only for compile conf) since the maven plugin
+					// doesn't handle them as of gradle 1.9
+					project.configurations.compile.allDependencies.findAll {
+						it instanceof ModuleDependency && !it.excludeRules.isEmpty()
+					}.each { ModuleDependency dep ->
+						def xmlDep = pomXml.dependencies.dependency.find {
+							it.groupId[0].text() == dep.group && it.artifactId[0].text() == dep.name
+						}
+						def xmlExclusions = xmlDep.exclusions
+						if (!xmlExclusions) xmlExclusions = xmlDep.appendNode('exclusions')
+
+						dep.excludeRules.each { ExcludeRule rule ->
+							def xmlExclusion = xmlExclusions.appendNode('exclusion')
+							xmlExclusion.appendNode('groupId', rule.group)
+							xmlExclusion.appendNode('artifactId', rule.module ?: '*')
 						}
 					}
 
