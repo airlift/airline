@@ -9,17 +9,21 @@ import com.google.common.collect.ListMultimap;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
+import io.airlift.airline.FieldIsFinalException;
 import io.airlift.airline.Option;
 import io.airlift.airline.OptionType;
 import io.airlift.airline.Suggester;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Iterables.toString;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -122,6 +126,7 @@ public class MetadataLoader
 
                 Inject injectAnnotation = field.getAnnotation(Inject.class);
                 if (injectAnnotation != null) {
+                    checkNotFinal("injection", field);
                     if (field.getType().equals(GlobalMetadata.class) ||
                             field.getType().equals(CommandGroupMetadata.class) ||
                             field.getType().equals(CommandMetadata.class)) {
@@ -133,6 +138,7 @@ public class MetadataLoader
 
                 Option optionAnnotation = field.getAnnotation(Option.class);
                 if (optionAnnotation != null) {
+                    checkNotFinal("option", field);
                     OptionType optionType = optionAnnotation.type();
                     String name;
                     if (!optionAnnotation.title().isEmpty()) {
@@ -184,6 +190,7 @@ public class MetadataLoader
 
                 Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
                 if (field.isAnnotationPresent(Arguments.class)) {
+                    checkNotFinal("argument", field);
                     String title;
                     if (!argumentsAnnotation.title().isEmpty()) {
                         title = argumentsAnnotation.title();
@@ -237,6 +244,12 @@ public class MetadataLoader
     private static <T> ImmutableList<T> concat(Iterable<T> iterable, T item)
     {
         return ImmutableList.<T>builder().addAll(iterable).add(item).build();
+    }
+
+    private static void checkNotFinal(String metadataType, Field field) {
+        if(Modifier.isFinal(field.getModifiers())) {
+            throw new FieldIsFinalException(field.getDeclaringClass().getCanonicalName(), field.getName(), metadataType);
+        }
     }
 
     private static class InjectionMetadata
