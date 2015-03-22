@@ -126,7 +126,7 @@ public class MetadataLoader
 
                 Inject injectAnnotation = field.getAnnotation(Inject.class);
                 if (injectAnnotation != null) {
-                    checkNotFinal("injection", field);
+                    // checkNotFinal("injection", field);
                     if (field.getType().equals(GlobalMetadata.class) ||
                             field.getType().equals(CommandGroupMetadata.class) ||
                             field.getType().equals(CommandMetadata.class)) {
