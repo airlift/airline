@@ -1,17 +1,17 @@
 package io.airlift.airline;
 
-import com.google.common.base.Preconditions;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.ArgumentChecker;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.airlift.airline.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
 import static io.airlift.airline.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 
@@ -39,7 +39,7 @@ public class CommandGroupUsage
 
     public CommandGroupUsage(int columnSize, boolean hideGlobalOptions, @Nullable Comparator<? super OptionMetadata> optionComparator)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        ArgumentChecker.checkCondition(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
         this.hideGlobalOptions = hideGlobalOptions;
         this.optionComparator = optionComparator;
@@ -84,7 +84,7 @@ public class CommandGroupUsage
         out.append("SYNOPSIS").newline();
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
 
-        List<CommandMetadata> commands = newArrayList(group.getCommands());
+        List<CommandMetadata> commands = new ArrayList<>(group.getCommands());
         Collections.sort(commands, commandComparator);
 
         if (group.getDefaultCommand() != null) {
@@ -114,7 +114,7 @@ public class CommandGroupUsage
         //
         // OPTIONS
         //
-        List<OptionMetadata> options = newArrayList();
+        List<OptionMetadata> options = new ArrayList<>();
         options.addAll(group.getOptions());
         if (global != null && !hideGlobalOptions) {
             options.addAll(global.getOptions());

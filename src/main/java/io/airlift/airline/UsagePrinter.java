@@ -2,10 +2,9 @@ package io.airlift.airline;
 
 import com.google.common.base.Splitter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class UsagePrinter
 {
@@ -53,7 +52,7 @@ public class UsagePrinter
 
     public UsagePrinter appendTable(Iterable<? extends Iterable<String>> table)
     {
-        List<Integer> columnSizes = newArrayList();
+        List<Integer> columnSizes = new ArrayList<>();
         for (Iterable<String> row : table) {
             int column = 0;
             for (String value : row) {

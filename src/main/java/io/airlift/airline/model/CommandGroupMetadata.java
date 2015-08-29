@@ -1,7 +1,7 @@
 package io.airlift.airline.model;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import io.airlift.airline.util.CollectionUtils;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ public class CommandGroupMetadata
     {
         this.name = name;
         this.description = description;
-        this.options = ImmutableList.copyOf(options);
+        this.options = CollectionUtils.asList(options);
         this.defaultCommand = defaultCommand;
-        this.commands = ImmutableList.copyOf(commands);
+        this.commands = CollectionUtils.asList(commands);
     }
 
     public String getName()

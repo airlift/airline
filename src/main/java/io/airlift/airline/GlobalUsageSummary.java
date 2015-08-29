@@ -2,21 +2,17 @@ package io.airlift.airline;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.ArgumentChecker;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newTreeMap;
 import static io.airlift.airline.UsageHelper.toUsage;
 
 public class GlobalUsageSummary
@@ -30,7 +26,7 @@ public class GlobalUsageSummary
 
     public GlobalUsageSummary(int columnSize)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        ArgumentChecker.checkCondition(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
     }
 
@@ -59,7 +55,7 @@ public class GlobalUsageSummary
         //
 
         // build arguments
-        List<String> commandArguments = newArrayList();
+        List<String> commandArguments = new ArrayList<>();
         commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
@@ -82,7 +78,7 @@ public class GlobalUsageSummary
         // Common commands
         //
 
-        Map<String, String> commands = newTreeMap();
+        Map<String, String> commands = new TreeMap<>();
         for (CommandMetadata commandMetadata : global.getDefaultGroupCommands()) {
             if (!commandMetadata.isHidden()) {
                 commands.put(commandMetadata.getName(), commandMetadata.getDescription());
@@ -97,7 +93,7 @@ public class GlobalUsageSummary
         {
             public Iterable<String> apply(Entry<String, String> entry)
             {
-                return ImmutableList.of(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""));
+                return Arrays.asList(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""));
             }
         }));
         out.newline();

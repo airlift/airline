@@ -72,4 +72,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- //TODO the Jacoco version of the parent project isn't compatible with JDK 1.8 -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

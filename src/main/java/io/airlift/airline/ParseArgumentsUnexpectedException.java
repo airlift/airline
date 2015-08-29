@@ -18,8 +18,7 @@
 
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class ParseArgumentsUnexpectedException extends ParseException
@@ -29,7 +28,7 @@ public class ParseArgumentsUnexpectedException extends ParseException
     ParseArgumentsUnexpectedException(List<String> unparsedInput)
     {
         super("Found unexpected parameters: %s", unparsedInput);
-        this.unparsedInput = ImmutableList.copyOf(unparsedInput);
+        this.unparsedInput = new ArrayList<>(unparsedInput);
     }
 
     public List<String> getUnparsedInput()

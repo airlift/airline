@@ -19,9 +19,6 @@
 package io.airlift.airline;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandGroupMetadata;
@@ -29,19 +26,22 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.MetadataLoader;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.ArgumentChecker;
+import io.airlift.airline.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static io.airlift.airline.ParserUtil.createInstance;
 
 public class Cli<C>
 {
     public static <T> CliBuilder<T> builder(String name)
     {
-        Preconditions.checkNotNull(name, "name is null");
+        ArgumentChecker.checkNotNull(name, "name is null");
         return new CliBuilder<T>(name);
     }
 
@@ -66,8 +66,8 @@ public class Cli<C>
             Iterable<Class<? extends C>> defaultGroupCommands,
             Iterable<GroupBuilder<C>> groups)
     {
-        Preconditions.checkNotNull(name, "name is null");
-        Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+        ArgumentChecker.checkNotNull(name, "name is null");
+        ArgumentChecker.checkNotNull(typeConverter, "typeConverter is null");
 
         CommandMetadata defaultCommandMetadata = null;
         if (defaultCommand != null) {
@@ -76,10 +76,9 @@ public class Cli<C>
 
         List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
 
-        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
+        List<CommandGroupMetadata> commandGroups = CollectionUtils.asList(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
         {
-            public CommandGroupMetadata apply(GroupBuilder<C> group)
-            {
+            public CommandGroupMetadata apply(GroupBuilder<C> group) {
                 return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
             }
         }));
@@ -94,12 +93,12 @@ public class Cli<C>
 
     public C parse(String... args)
     {
-        return parse(ImmutableList.copyOf(args));
+        return parse(Arrays.asList(args));
     }
     
     public C parse(Iterable<String> args)
     {
-        Preconditions.checkNotNull(args, "args is null");
+        ArgumentChecker.checkNotNull(args, "args is null");
         
         Parser parser = new Parser();
         ParseState state = parser.parse(metadata, args);
@@ -123,7 +122,7 @@ public class Cli<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+                CollectionUtils.<Class<?>, Object>asSingleEntryMap(GlobalMetadata.class, metadata));
     }
     
     private void validate(ParseState state)
@@ -170,37 +169,23 @@ public class Cli<C>
         protected TypeConverter typeConverter = new TypeConverter();
         protected String optionSeparators;
         private Class<? extends C> defaultCommand;
-        private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
-        protected final Map<String, GroupBuilder<C>> groups = newHashMap();
+        private final List<Class<? extends C>> defaultCommandGroupCommands = new ArrayList<>();
+        protected final Map<String, GroupBuilder<C>> groups = new HashMap<>();
 
         public CliBuilder(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
-            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
+            ArgumentChecker.checkNotNull(name, "name is null");
+            ArgumentChecker.checkCondition(!name.isEmpty(), "name is empty");
             this.name = name;
         }
 
         public CliBuilder<C> withDescription(String description)
         {
-            Preconditions.checkNotNull(description, "description is null");
-            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            ArgumentChecker.checkNotNull(description, "description is null");
+            ArgumentChecker.checkCondition(!description.isEmpty(), "description is empty");
             this.description = description;
             return this;
         }
-
-//        public CliBuilder<C> withTypeConverter(TypeConverter typeConverter)
-//        {
-//            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
-//            this.typeConverter = typeConverter;
-//            return this;
-//        }
-
-//        public CliBuilder<C> withOptionSeparators(String optionsSeparator)
-//        {
-//            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
-//            this.optionSeparators = optionsSeparator;
-//            return this;
-//        }
 
         public CliBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
@@ -217,20 +202,20 @@ public class Cli<C>
         public CliBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
         {
             this.defaultCommandGroupCommands.add(command);
-            this.defaultCommandGroupCommands.addAll(ImmutableList.copyOf(moreCommands));
+            this.defaultCommandGroupCommands.addAll(Arrays.asList(moreCommands));
             return this;
         }
 
         public CliBuilder<C> withCommands(Iterable<Class<? extends C>> commands)
         {
-            this.defaultCommandGroupCommands.addAll(ImmutableList.copyOf(commands));
+            this.defaultCommandGroupCommands.addAll(CollectionUtils.asList(commands));
             return this;
         }
 
         public GroupBuilder<C> withGroup(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
-            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
+            ArgumentChecker.checkNotNull(name, "name is null");
+            ArgumentChecker.checkCondition(!name.isEmpty(), "name is empty");
 
             if (groups.containsKey(name)) {
                 return groups.get(name);
@@ -253,34 +238,34 @@ public class Cli<C>
         private String description = null;
         private Class<? extends C> defaultCommand = null;
 
-        private final List<Class<? extends C>> commands = newArrayList();
+        private final List<Class<? extends C>> commands = new ArrayList<>();
 
         private GroupBuilder(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
+            ArgumentChecker.checkNotNull(name, "name is null");
             this.name = name;
         }
 
         public GroupBuilder<C> withDescription(String description)
         {
-            Preconditions.checkNotNull(description, "description is null");
-            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
-            Preconditions.checkState(this.description == null, "description is already set");
+            ArgumentChecker.checkNotNull(description, "description is null");
+            ArgumentChecker.checkCondition(!description.isEmpty(), "description is empty");
+            ArgumentChecker.checkCondition(this.description == null, "description is already set");
             this.description = description;
             return this;
         }
 
         public GroupBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
-            Preconditions.checkNotNull(defaultCommand, "defaultCommand is null");
-            Preconditions.checkState(this.defaultCommand == null, "defaultCommand is already set");
+            ArgumentChecker.checkNotNull(defaultCommand, "defaultCommand is null");
+            ArgumentChecker.checkCondition(this.defaultCommand == null, "defaultCommand is already set");
             this.defaultCommand = defaultCommand;
             return this;
         }
 
         public GroupBuilder<C> withCommand(Class<? extends C> command)
         {
-            Preconditions.checkNotNull(command, "command is null");
+            ArgumentChecker.checkNotNull(command, "command is null");
             commands.add(command);
             return this;
         }
@@ -288,13 +273,13 @@ public class Cli<C>
         public GroupBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
         {
             this.commands.add(command);
-            this.commands.addAll(ImmutableList.copyOf(moreCommands));
+            this.commands.addAll(Arrays.asList(moreCommands));
             return this;
         }
 
         public GroupBuilder<C> withCommands(Iterable<Class<? extends C>> commands)
         {
-            this.commands.addAll(ImmutableList.copyOf(commands));
+            this.commands.addAll(CollectionUtils.asList(commands));
             return this;
         }
     }

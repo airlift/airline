@@ -2,15 +2,16 @@ package io.airlift.airline;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import io.airlift.airline.util.ArgumentChecker;
+import io.airlift.airline.util.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -27,15 +28,15 @@ public class Accessor
 
     public Accessor(Field... path)
     {
-        this(ImmutableList.copyOf(path));
+        this(Arrays.asList(path));
     }
 
     public Accessor(Iterable<Field> path)
     {
-        Preconditions.checkNotNull(path, "path is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+        ArgumentChecker.checkNotNull(path, "path is null");
+        ArgumentChecker.checkCondition(!Iterables.isEmpty(path), "path is empty");
 
-        this.path = ImmutableList.copyOf(path);
+        this.path = CollectionUtils.asList(path);
         this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()
         {
             public String apply(Field field)

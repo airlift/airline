@@ -1,9 +1,10 @@
 package io.airlift.airline.model;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import io.airlift.airline.Accessor;
+import io.airlift.airline.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandMetadata
@@ -30,11 +31,11 @@ public class CommandMetadata
         this.name = name;
         this.description = description;
         this.hidden = hidden;
-        this.globalOptions = ImmutableList.copyOf(globalOptions);
-        this.groupOptions = ImmutableList.copyOf(groupOptions);
-        this.commandOptions = ImmutableList.copyOf(commandOptions);
+        this.globalOptions = CollectionUtils.asList(globalOptions);
+        this.groupOptions = CollectionUtils.asList(groupOptions);
+        this.commandOptions = CollectionUtils.asList(commandOptions);
         this.arguments = arguments;
-        this.metadataInjections = ImmutableList.copyOf(metadataInjections);
+        this.metadataInjections = CollectionUtils.asList(metadataInjections);
         this.type = type;
     }
 
@@ -55,8 +56,11 @@ public class CommandMetadata
 
     public List<OptionMetadata> getAllOptions()
     {
-        return ImmutableList.<OptionMetadata>builder().addAll(globalOptions).addAll(groupOptions).addAll(commandOptions).build();
-
+        List<OptionMetadata> list = new ArrayList<>(globalOptions.size() + groupOptions.size() + commandOptions.size());
+        list.addAll(globalOptions);
+        list.addAll(groupOptions);
+        list.addAll(commandOptions);
+        return list;
     }
 
     public List<OptionMetadata> getGlobalOptions()

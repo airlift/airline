@@ -1,18 +1,17 @@
 package io.airlift.airline.model;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.OptionType;
+import io.airlift.airline.util.ArgumentChecker;
+import io.airlift.airline.util.CollectionUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 public class OptionMetadata
 {
@@ -36,15 +35,15 @@ public class OptionMetadata
             Iterable<String> allowedValues,
             Iterable<Field> path)
     {
-        Preconditions.checkNotNull(optionType, "optionType is null");
-        Preconditions.checkNotNull(options, "options is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
-        Preconditions.checkNotNull(title, "title is null");
-        Preconditions.checkNotNull(path, "path is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+        ArgumentChecker.checkNotNull(optionType, "optionType is null");
+        ArgumentChecker.checkNotNull(options, "options is null");
+        ArgumentChecker.checkCondition(!Iterables.isEmpty(options), "options is empty");
+        ArgumentChecker.checkNotNull(title, "title is null");
+        ArgumentChecker.checkNotNull(path, "path is null");
+        ArgumentChecker.checkCondition(!Iterables.isEmpty(path), "path is empty");
 
         this.optionType = optionType;
-        this.options = ImmutableSet.copyOf(options);
+        this.options = new HashSet<>(CollectionUtils.asList(options));
         this.title = title;
         this.description = description;
         this.arity = arity;
@@ -52,19 +51,19 @@ public class OptionMetadata
         this.hidden = hidden;
 
         if (allowedValues != null) {
-            this.allowedValues = ImmutableSet.copyOf(allowedValues);
+            this.allowedValues = new HashSet<>(CollectionUtils.asList(allowedValues));
         }
         else {
             this.allowedValues = null;
         }
 
-        this.accessors = ImmutableSet.of(new Accessor(path));
+        this.accessors = CollectionUtils.asSingleEntrySet(new Accessor(path));
     }
 
     public OptionMetadata(Iterable<OptionMetadata> options)
     {
-        Preconditions.checkNotNull(options, "options is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
+        ArgumentChecker.checkNotNull(options, "options is null");
+        ArgumentChecker.checkCondition(!Iterables.isEmpty(options), "options is empty");
 
         OptionMetadata option = options.iterator().next();
 
@@ -76,20 +75,20 @@ public class OptionMetadata
         this.required = option.required;
         this.hidden = option.hidden;
         if (option.allowedValues != null) {
-            this.allowedValues = ImmutableSet.copyOf(option.allowedValues);
+            this.allowedValues = new HashSet<>(CollectionUtils.asList(option.allowedValues));
         }
         else {
             this.allowedValues = null;
         }
 
-        Set<Accessor> accessors = newHashSet();
+        Set<Accessor> accessors = new HashSet<>();
         for (OptionMetadata other : options) {
-            Preconditions.checkArgument(option.equals(other),
-                    "Conflicting options definitions: %s, %s", option, other);
+            ArgumentChecker.checkCondition(option.equals(other),
+                    "Conflicting options definitions: {1}, {2}", option, other);
 
             accessors.addAll(other.getAccessors());
         }
-        this.accessors = ImmutableSet.copyOf(accessors);
+        this.accessors = new HashSet<>(accessors);
     }
 
     public OptionType getOptionType()

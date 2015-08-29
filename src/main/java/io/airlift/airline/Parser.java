@@ -1,15 +1,13 @@
 package io.airlift.airline;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import io.airlift.airline.model.ArgumentsMetadata;
-import io.airlift.airline.model.CommandGroupMetadata;
-import io.airlift.airline.model.CommandMetadata;
-import io.airlift.airline.model.GlobalMetadata;
-import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.model.*;
+import io.airlift.airline.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -24,7 +22,7 @@ public class Parser
     // global> (option value*)* (group (option value*)*)? (command (option value* | arg)* '--'? args*)?
     public ParseState parse(GlobalMetadata metadata, String... params)
     {
-        return parse(metadata, ImmutableList.copyOf(params));
+        return parse(metadata, Arrays.asList(params));
     }
 
     public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
@@ -144,7 +142,7 @@ public class Parser
             }
         }
         else {
-            ImmutableList.Builder<Object> values = ImmutableList.builder();
+            List<Object> values = new ArrayList<>();
 
             int count = 0;
             while (count < option.getArity() && tokens.hasNext()) {
@@ -153,7 +151,7 @@ public class Parser
             }
 
             if (count == option.getArity()) {
-                state = state.withOptionValue(option, values.build()).popContext();
+                state = state.withOptionValue(option, values).popContext();
             }
         }
         return state;
@@ -161,7 +159,7 @@ public class Parser
 
     private ParseState parseLongGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
-        List<String> parts = ImmutableList.copyOf(Splitter.on('=').limit(2).split(tokens.peek()));
+        List<String> parts = CollectionUtils.asList(Splitter.on('=').limit(2).split(tokens.peek()));
         if (parts.size() != 2) {
             return null;
         }

@@ -1,28 +1,24 @@
 package io.airlift.airline;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
-import java.util.List;
+import java.util.*;
 
 public class ParseState
 {
     private final List<Context> locationStack;
     private final CommandGroupMetadata group;
     private final CommandMetadata command;
-    private final ListMultimap<OptionMetadata, Object> parsedOptions;
+    private final Map<OptionMetadata, List<Object>> parsedOptions;
     private final List<Object> parsedArguments;
     private final OptionMetadata currentOption;
     private final List<String> unparsedInput; 
 
     ParseState(CommandGroupMetadata group,
             CommandMetadata command,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
+            Map<OptionMetadata, List<Object>> parsedOptions,
             List<Context> locationStack,
             List<Object> parsedArguments,
             OptionMetadata currentOption,
@@ -39,31 +35,32 @@ public class ParseState
 
     public static ParseState newInstance()
     {
-        return new ParseState(null, null, ArrayListMultimap.<OptionMetadata, Object>create(), ImmutableList.<Context>of(), ImmutableList.of(), null, ImmutableList.<String>of());
+        return new ParseState(null, null, new HashMap<OptionMetadata, List<Object>>(), new ArrayList<Context>(), new ArrayList<>(), null, new ArrayList<String>());
     }
 
     public ParseState pushContext(Context location)
     {
-        ImmutableList<Context> locationStack = ImmutableList.<Context>builder()
-                .addAll(this.locationStack)
-                .add(location)
-                .build();
+        List<Context> locationStack = new ArrayList<>(this.locationStack);
+        locationStack.add(location);
 
         return new ParseState(group, command, parsedOptions, locationStack, parsedArguments, currentOption, unparsedInput);
     }
 
     public ParseState popContext()
     {
-        ImmutableList<Context> locationStack = ImmutableList.copyOf(this.locationStack.subList(0, this.locationStack.size() - 1));
+        List<Context> locationStack = new ArrayList<>(this.locationStack.subList(0, this.locationStack.size() - 1));
         return new ParseState(group, command, parsedOptions, locationStack, parsedArguments, currentOption, unparsedInput);
     }
 
     public ParseState withOptionValue(OptionMetadata option, Object value)
     {
-        ImmutableListMultimap<OptionMetadata, Object> newOptions = ImmutableListMultimap.<OptionMetadata, Object>builder()
-                .putAll(parsedOptions)
-                .put(option, value)
-                .build();
+        Map<OptionMetadata, List<Object>> newOptions = new LinkedHashMap<>(parsedOptions);
+        List<Object> existingValues = newOptions.get(option);
+        if(existingValues != null) {
+            existingValues.add(value);
+        } else {
+            newOptions.put(option, new ArrayList<>(Arrays.asList(value)));
+        }
 
         return new ParseState(group, command, newOptions, locationStack, parsedArguments, currentOption, unparsedInput);
     }
@@ -85,10 +82,8 @@ public class ParseState
 
     public ParseState withArgument(Object argument)
     {
-        ImmutableList<Object> newArguments = ImmutableList.<Object>builder()
-                .addAll(parsedArguments)
-                .add(argument)
-                .build();
+        List<Object> newArguments = new ArrayList<>(parsedArguments);
+        newArguments.add(argument);
 
         return new ParseState(group, command, parsedOptions, locationStack, newArguments, currentOption, unparsedInput);
     }
@@ -96,10 +91,8 @@ public class ParseState
 
     public ParseState withUnparsedInput(String input)
     {
-        ImmutableList<String> newUnparsedInput = ImmutableList.<String>builder()
-                .addAll(unparsedInput)
-                .add(input)
-                .build();
+        List<String> newUnparsedInput = new ArrayList<>(unparsedInput);
+        newUnparsedInput.add(input);
 
         return new ParseState(group, command, parsedOptions, locationStack, parsedArguments, currentOption, newUnparsedInput);
     }
@@ -138,7 +131,7 @@ public class ParseState
         return currentOption;
     }
 
-    public ListMultimap<OptionMetadata, Object> getParsedOptions()
+    public Map<OptionMetadata, List<Object>> getParsedOptions()
     {
         return parsedOptions;
     }

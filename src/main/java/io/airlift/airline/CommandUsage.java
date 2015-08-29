@@ -1,9 +1,9 @@
 package io.airlift.airline;
 
-import com.google.common.base.Preconditions;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.ArgumentChecker;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.airlift.airline.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 import static io.airlift.airline.UsageHelper.toSynopsisUsage;
 
@@ -32,7 +31,7 @@ public class CommandUsage
 
     public CommandUsage(int columnSize, @Nullable Comparator<? super OptionMetadata> optionComparator)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        ArgumentChecker.checkCondition(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
         this.optionComparator = optionComparator;
     }
@@ -76,7 +75,7 @@ public class CommandUsage
         //
         out.append("SYNOPSIS").newline();
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
-        List<OptionMetadata> options = newArrayList();
+        List<OptionMetadata> options = new ArrayList<>();
         if (programName != null) {
             synopsis.append(programName).appendWords(toSynopsisUsage(sortOptions(command.getGlobalOptions())));
             options.addAll(command.getGlobalOptions());

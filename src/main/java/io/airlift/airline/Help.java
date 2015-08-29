@@ -5,10 +5,9 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @Command(name = "help", description = "Display help information")
 public class Help implements Runnable, Callable<Void>
@@ -17,7 +16,7 @@ public class Help implements Runnable, Callable<Void>
     public GlobalMetadata global;
 
     @Arguments
-    public List<String> command = newArrayList();
+    public List<String> command = new ArrayList<>();
 
     @Override
     public void run()
