@@ -7,8 +7,7 @@ import io.airlift.airline.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Iterables.concat;
+import java.util.stream.Collectors;
 
 public class ParserUtil
 {
@@ -41,7 +40,7 @@ public class ParserUtil
             List<?> values = parsedOptions.get(option);
             if (option.getArity() > 1 && !values.isEmpty()) {
                 // hack: flatten the collection
-                values = CollectionUtils.asList(concat((Iterable<Iterable<Object>>) values));
+                values = (List<?>)values.stream().flatMap(value -> CollectionUtils.asList(((Iterable<Object>)value)).stream()).collect(Collectors.toList());
             }
             if (values != null && !values.isEmpty()) {
                 for (Accessor accessor : option.getAccessors()) {

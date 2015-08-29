@@ -1,6 +1,12 @@
 package io.airlift.airline.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author sstrohschein
@@ -23,13 +29,13 @@ public final class CollectionUtils
         }
     }
 
-    public static <K, V> Map<K, V> asSingleEntryMap(K key, V value) {
+    public static <K, V> Map<K, V> asMap(K key, V value) {
         Map<K, V> map = new HashMap<>(1);
         map.put(key, value);
         return map;
     }
 
-    public static <V> Set<V> asSingleEntrySet(V value) {
+    public static <V> Set<V> asSet(V value) {
         Set<V> set = new HashSet<>(1);
         set.add(value);
         return set;

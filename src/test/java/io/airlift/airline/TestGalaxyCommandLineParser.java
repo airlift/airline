@@ -1,15 +1,14 @@
 package io.airlift.airline;
 
-import com.google.common.base.Joiner;
 import io.airlift.airline.Cli.CliBuilder;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.airlift.airline.OptionType.GLOBAL;
 
 public class TestGalaxyCommandLineParser
@@ -78,27 +77,26 @@ public class TestGalaxyCommandLineParser
 
     private void parse(String... args)
     {
-        System.out.println("$ galaxy " + Joiner.on(" ").join(args));
+        System.out.println("$ galaxy " + Arrays.asList(args).stream().collect(Collectors.joining(" ")));
         GalaxyCommand command = createParser().parse(args);
         command.execute();
         System.out.println();
     }
 
-    public static class GlobalOptions
+    private static class GlobalOptions
     {
         @Option(type = GLOBAL, name = "--debug", description = "Enable debug messages")
-        public boolean debug = false;
+        public boolean debug;
 
         @Option(type = GLOBAL, name = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
-        public String coordinator = firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
+        public String coordinator;
 
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("debug", debug)
-                    .add("coordinator", coordinator)
-                    .toString();
+        private GlobalOptions() {
+            debug = false;
+            coordinator = System.getenv("GALAXY_COORDINATOR");
+            if(coordinator == null) {
+                coordinator = "http://localhost:64000";
+            }
         }
     }
 
@@ -121,19 +119,6 @@ public class TestGalaxyCommandLineParser
 
         @Option(name = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
         public List<String> state;
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("binary", binary)
-                    .add("config", config)
-                    .add("host", host)
-                    .add("ip", ip)
-                    .add("uuid", uuid)
-                    .add("state", state)
-                    .toString();
-        }
     }
 
     public static class AgentFilter
@@ -149,17 +134,6 @@ public class TestGalaxyCommandLineParser
 
         @Option(name = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
         public final List<String> state = new ArrayList<>();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("host", host)
-                    .add("ip", ip)
-                    .add("uuid", uuid)
-                    .add("state", state)
-                    .toString();
-        }
     }
 
     public static abstract class GalaxyCommand
@@ -193,15 +167,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "install", description = "Install software in a new slot")
@@ -217,17 +182,6 @@ public class TestGalaxyCommandLineParser
         @Arguments(usage = "<groupId:artifactId[:packaging[:classifier]]:version> @<component:pools:version>",
                 description = "The binary and @configuration to install.  The default packaging is tar.gz")
         public final List<String> assignment = new ArrayList<>();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("count", count)
-                    .add("agentFilter", agentFilter)
-                    .add("assignment", assignment)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "upgrade", description = "Upgrade software in a slot")
@@ -240,16 +194,6 @@ public class TestGalaxyCommandLineParser
         @Arguments(usage = "[<binary-version>] [@<config-version>]",
                 description = "Version of the binary and/or @configuration")
         public final List<String> versions = new ArrayList<>();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("versions", versions)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "terminate", description = "Terminate (remove) a slot")
@@ -258,15 +202,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "start", description = "Start a server")
@@ -275,15 +210,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "stop", description = "Stop a server")
@@ -292,15 +218,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "restart", description = "Restart server")
@@ -309,15 +226,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "reset-to-actual", description = "Reset slot expected state to actual")
@@ -326,15 +234,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final SlotFilter slotFilter = new SlotFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "ssh", description = "ssh to slot installation")
@@ -346,15 +245,6 @@ public class TestGalaxyCommandLineParser
 
         @Arguments(description = "Command to execute on the remote host")
         public String command;
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("slotFilter", slotFilter)
-                    .add("command", command)
-                    .toString();
-        }
     }
 
     @Command(name = "add", description = "Provision a new agent")
@@ -369,17 +259,6 @@ public class TestGalaxyCommandLineParser
 
         @Arguments(usage = "[<instance-type>]", description = "Instance type to provision")
         public String instanceType;
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("count", count)
-                    .add("availabilityZone", availabilityZone)
-                    .add("instanceType", instanceType)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "show", description = "Show agent details")
@@ -388,15 +267,6 @@ public class TestGalaxyCommandLineParser
     {
         @Inject
         public final AgentFilter agentFilter = new AgentFilter();
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("agentFilter", agentFilter)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 
     @Command(name = "terminate", description = "Provision a new agent")
@@ -405,14 +275,5 @@ public class TestGalaxyCommandLineParser
     {
         @Arguments(title = "agent-id", description = "Agent to terminate", required = true)
         public String agentId;
-
-        @Override
-        public String toString()
-        {
-            return toStringHelper(this)
-                    .add("agentId", agentId)
-                    .add("globalOptions", globalOptions)
-                    .toString();
-        }
     }
 }

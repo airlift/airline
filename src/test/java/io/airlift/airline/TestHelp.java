@@ -17,21 +17,15 @@
  */
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
 import io.airlift.airline.Cli.CliBuilder;
 import io.airlift.airline.Git.Add;
 import io.airlift.airline.Git.RemoteAdd;
 import io.airlift.airline.Git.RemoteShow;
-import io.airlift.airline.args.Args1;
-import io.airlift.airline.args.Args2;
-import io.airlift.airline.args.ArgsArityString;
-import io.airlift.airline.args.ArgsBooleanArity;
-import io.airlift.airline.args.ArgsInherited;
-import io.airlift.airline.args.ArgsRequired;
-import io.airlift.airline.args.CommandHidden;
-import io.airlift.airline.args.OptionsHidden;
-import io.airlift.airline.args.OptionsRequired;
+import io.airlift.airline.args.*;
 import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static io.airlift.airline.SingleCommand.singleCommand;
 import static org.testng.Assert.assertEquals;
@@ -39,6 +33,8 @@ import static org.testng.Assert.assertEquals;
 @Test
 public class TestHelp
 {
+    //TODO some tests needed to get updated because the order of command options was changed by an upgrade to Java 8. It seems possible that Class#getDeclaredFields(...) was changed. The application shouldn't rely on that order...
+
     @Test
     public void testGit()
     {
@@ -57,7 +53,7 @@ public class TestHelp
         Cli<Runnable> gitParser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(gitParser.getMetadata(), ImmutableList.<String>of(), out);
+        Help.help(gitParser.getMetadata(), new ArrayList<>(0), out);
         assertEquals(out.toString(), "usage: git [-v] <command> [<args>]\n" +
                 "\n" +
                 "The most commonly used git commands are:\n" +
@@ -68,7 +64,7 @@ public class TestHelp
                 "See 'git help <command>' for more information on a specific command.\n");
 
         out = new StringBuilder();
-        Help.help(gitParser.getMetadata(), ImmutableList.of("add"), out);
+        Help.help(gitParser.getMetadata(), Arrays.asList("add"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        git add - Add file contents to the index\n" +
                 "\n" +
@@ -92,7 +88,7 @@ public class TestHelp
                 "\n");
 
         out = new StringBuilder();
-        Help.help(gitParser.getMetadata(), ImmutableList.of("remote"), out);
+        Help.help(gitParser.getMetadata(), Arrays.asList("remote"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        git remote - Manage set of tracked repositories\n" +
                 "\n" +
@@ -132,14 +128,14 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("Args1"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("Args1"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test Args1 - args1 description\n" +
                 "\n" +
                 "SYNOPSIS\n" +
                 "        test Args1 [-bigdecimal <bigd>] [-date <date>] [-debug] [-double <doub>]\n" +
                 "                [-float <floa>] [-groups <groups>]\n" +
-                "                [(-log <verbose> | -verbose <verbose>)] [-long <l>] [--]\n" +
+                "                [(-verbose <verbose> | -log <verbose>)] [-long <l>] [--]\n" +
                 "                [<parameters>...]\n" +
                 "\n" +
                 "OPTIONS\n" +
@@ -161,7 +157,7 @@ public class TestHelp
                 "        -groups <groups>\n" +
                 "            Comma-separated list of group names to be run\n" +
                 "\n" +
-                "        -log <verbose>, -verbose <verbose>\n" +
+                "        -verbose <verbose>, -log <verbose>\n" +
                 "            Level of verbosity\n" +
                 "\n" +
                 "        -long <l>\n" +
@@ -189,13 +185,13 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("Args2"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("Args2"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test Args2 -\n" +
                 "\n" +
                 "SYNOPSIS\n" +
                 "        test Args2 [-debug] [-groups <groups>] [-host <hosts>...]\n" +
-                "                [(-log <verbose> | -verbose <verbose>)] [--] [<parameters>...]\n" +
+                "                [(-verbose <verbose> | -log <verbose>)] [--] [<parameters>...]\n" +
                 "\n" +
                 "OPTIONS\n" +
                 "        -debug\n" +
@@ -207,7 +203,7 @@ public class TestHelp
                 "        -host <hosts>\n" +
                 "            The host\n" +
                 "\n" +
-                "        -log <verbose>, -verbose <verbose>\n" +
+                "        -verbose <verbose>, -log <verbose>\n" +
                 "            Level of verbosity\n" +
                 "\n" +
                 "        --\n" +
@@ -232,7 +228,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("ArgsArityString"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("ArgsArityString"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test ArgsArityString -\n" +
                 "\n" +
@@ -265,7 +261,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("ArgsBooleanArity"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("ArgsBooleanArity"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test ArgsBooleanArity -\n" +
                 "\n" +
@@ -290,7 +286,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("ArgsInherited"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("ArgsInherited"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test ArgsInherited -\n" +
                 "\n" +
@@ -336,7 +332,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("ArgsRequired"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("ArgsRequired"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test ArgsRequired -\n" +
                 "\n" +
@@ -366,7 +362,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("OptionsRequired"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("OptionsRequired"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test OptionsRequired -\n" +
                 "\n" +
@@ -395,7 +391,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("OptionsHidden"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("OptionsHidden"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test OptionsHidden -\n" +
                 "\n" +
@@ -420,7 +416,7 @@ public class TestHelp
         Cli<Object> parser = builder.build();
 
         StringBuilder out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.<String>of(), out);
+        Help.help(parser.getMetadata(), new ArrayList<>(0), out);
         assertEquals(out.toString(), "usage: test <command> [<args>]\n" +
                 "\n" +
                 "The most commonly used test commands are:\n" +
@@ -430,7 +426,7 @@ public class TestHelp
                 "See 'test help <command>' for more information on a specific command.\n");
 
         out = new StringBuilder();
-        Help.help(parser.getMetadata(), ImmutableList.of("CommandHidden"), out);
+        Help.help(parser.getMetadata(), Arrays.asList("CommandHidden"), out);
         assertEquals(out.toString(), "NAME\n" +
                 "        test CommandHidden -\n" +
                 "\n" +
@@ -456,7 +452,7 @@ public class TestHelp
                 "SYNOPSIS\n" +
                 "        test [-bigdecimal <bigd>] [-date <date>] [-debug] [-double <doub>]\n" +
                 "                [-float <floa>] [-groups <groups>]\n" +
-                "                [(-log <verbose> | -verbose <verbose>)] [-long <l>] [--]\n" +
+                "                [(-verbose <verbose> | -log <verbose>)] [-long <l>] [--]\n" +
                 "                [<parameters>...]\n" +
                 "\n" +
                 "OPTIONS\n" +
@@ -478,7 +474,7 @@ public class TestHelp
                 "        -groups <groups>\n" +
                 "            Comma-separated list of group names to be run\n" +
                 "\n" +
-                "        -log <verbose>, -verbose <verbose>\n" +
+                "        -verbose <verbose>, -log <verbose>\n" +
                 "            Level of verbosity\n" +
                 "\n" +
                 "        -long <l>\n" +

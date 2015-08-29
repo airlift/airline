@@ -1,7 +1,9 @@
 package io.airlift.airline;
 
-import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class TestGit
 {
@@ -24,7 +26,7 @@ public class TestGit
 
     private void git(String... args)
     {
-        System.out.println("$ git " + Joiner.on(' ').join(args));
+        System.out.println("$ git " + Arrays.asList(args).stream().collect(Collectors.joining(" ")));
         Git.main(args);
         System.out.println();
     }

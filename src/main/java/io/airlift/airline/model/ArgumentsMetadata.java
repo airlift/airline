@@ -1,6 +1,5 @@
 package io.airlift.airline.model;
 
-import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.util.ArgumentChecker;
 import io.airlift.airline.util.CollectionUtils;
@@ -21,19 +20,19 @@ public class ArgumentsMetadata
     {
         ArgumentChecker.checkNotNull(title, "title is null");
         ArgumentChecker.checkNotNull(path, "path is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(path), "path is empty");
+        ArgumentChecker.checkCondition(path.iterator().hasNext(), "path is empty");
 
         this.title = title;
         this.description = description;
         this.usage = usage;
         this.required = required;
-        this.accessors = CollectionUtils.asSingleEntrySet(new Accessor(path));
+        this.accessors = CollectionUtils.asSet(new Accessor(path));
     }
 
     public ArgumentsMetadata(Iterable<ArgumentsMetadata> arguments)
     {
         ArgumentChecker.checkNotNull(arguments, "arguments is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(arguments), "arguments is empty");
+        ArgumentChecker.checkCondition(arguments.iterator().hasNext(), "arguments is empty");
 
         ArgumentsMetadata first = arguments.iterator().next();
 

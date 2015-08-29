@@ -55,14 +55,10 @@
             <artifactId>javax.inject</artifactId>
         </dependency>
 
+        <!-- //TODO remove dependency, it isn't actually needed, at least no annotations from google -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- for testing -->
@@ -75,7 +71,15 @@
 
     <build>
         <plugins>
-            <!-- //TODO the Jacoco version of the parent project isn't compatible with JDK 1.8 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!-- //TODO the Jacoco version of the parent project isn't compatible with Java 8 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

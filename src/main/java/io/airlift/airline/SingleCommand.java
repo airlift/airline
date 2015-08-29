@@ -72,7 +72,7 @@ public class SingleCommand<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                CollectionUtils.<Class<?>, Object>asSingleEntryMap(CommandMetadata.class, commandMetadata));
+                CollectionUtils.<Class<?>, Object>asMap(CommandMetadata.class, commandMetadata));
     }
     
     private void validate(ParseState state)

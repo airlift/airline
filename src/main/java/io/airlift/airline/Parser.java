@@ -1,19 +1,17 @@
 package io.airlift.airline;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
-import io.airlift.airline.model.*;
-import io.airlift.airline.util.CollectionUtils;
+import io.airlift.airline.model.ArgumentsMetadata;
+import io.airlift.airline.model.CommandGroupMetadata;
+import io.airlift.airline.model.CommandMetadata;
+import io.airlift.airline.model.GlobalMetadata;
+import io.airlift.airline.model.OptionMetadata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Predicates.compose;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.collect.Iterables.find;
+import java.util.stream.Collectors;
 
 public class Parser
 {
@@ -25,9 +23,10 @@ public class Parser
         return parse(metadata, Arrays.asList(params));
     }
 
+    //TODO needs a refactoring regarding the tokens iterator handling and add a test!
     public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
-        PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
+        PeekingIterator<String> tokens = new PeekingIterator<>(params.iterator());
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
 
@@ -36,7 +35,7 @@ public class Parser
 
         // parse group
         if (tokens.hasNext()) {
-            CommandGroupMetadata group = find(metadata.getCommandGroups(), compose(equalTo(tokens.peek()), CommandGroupMetadata.nameGetter()), null);
+            CommandGroupMetadata group = metadata.getCommandGroups().stream().filter(entry -> entry.getName().equals(tokens.peek())).findFirst().orElse(null);
             if (group != null) {
                 tokens.next();
                 state = state.withGroup(group).pushContext(Context.GROUP);
@@ -52,7 +51,7 @@ public class Parser
         }
 
         if (tokens.hasNext()) {
-            CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()), null);
+            CommandMetadata command = expectedCommands.stream().filter(entry -> entry.getName().equals(tokens.peek())).findFirst().orElse(null);
             if (command == null) {
                 while (tokens.hasNext()) {
                     state = state.withUnparsedInput(tokens.next());
@@ -75,7 +74,7 @@ public class Parser
 
     public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
     {
-        PeekingIterator<String> tokens = Iterators.peekingIterator(params.iterator());
+        PeekingIterator<String> tokens = new PeekingIterator<String>(params.iterator());
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
 
         while (tokens.hasNext()) {
@@ -159,7 +158,7 @@ public class Parser
 
     private ParseState parseLongGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
-        List<String> parts = CollectionUtils.asList(Splitter.on('=').limit(2).split(tokens.peek()));
+        List<String> parts = Arrays.asList(tokens.peek().split("=")).stream().limit(2L).collect(Collectors.toList());
         if (parts.size() != 2) {
             return null;
         }
@@ -278,4 +277,48 @@ public class Parser
         return null;
     }
 
+    /**
+     * Temporary, fitted copy from guava, see deprecation comments.
+     * @deprecated //TODO The iterator handling within the Parser class should be refactored! Remove this implementation after that!
+     */
+    @Deprecated
+    private static class PeekingIterator<E> implements Iterator<E> {
+
+        private final Iterator<? extends E> iterator;
+        private boolean hasPeeked;
+        private E peekedElement;
+
+        private PeekingIterator(Iterator<? extends E> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return hasPeeked || iterator.hasNext();
+        }
+
+        @Override
+        public E next() {
+            if (!hasPeeked) {
+                return iterator.next();
+            }
+            E result = peekedElement;
+            hasPeeked = false;
+            peekedElement = null;
+            return result;
+        }
+
+        @Override
+        public void remove() {
+            throw new RuntimeException("Not supported! This class is deprecated!");
+        }
+
+        public E peek() {
+            if (!hasPeeked) {
+                peekedElement = iterator.next();
+                hasPeeked = true;
+            }
+            return peekedElement;
+        }
+    }
 }

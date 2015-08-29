@@ -1,8 +1,7 @@
 package io.airlift.airline;
 
-import com.google.common.base.Splitter;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,7 +89,8 @@ public class UsagePrinter
         if (value == null) {
             return this;
         }
-        return appendWords(Splitter.onPattern("\\s+").omitEmptyStrings().trimResults().split(String.valueOf(value)));
+
+        return appendWords(() -> Arrays.asList(value.split("\\s+")).stream().map(String::trim).filter(word -> !word.isEmpty()).iterator());
     }
 
     public UsagePrinter appendWords(Iterable<String> words)

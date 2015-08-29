@@ -1,6 +1,5 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
 import io.airlift.airline.util.CollectionUtils;
 
 import java.util.List;
@@ -59,16 +58,5 @@ public class CommandGroupMetadata
         sb.append(", commands=").append(commands);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static Function<CommandGroupMetadata, String> nameGetter()
-    {
-        return new Function<CommandGroupMetadata, String>()
-        {
-            public String apply(CommandGroupMetadata input)
-            {
-                return input.getName();
-            }
-        };
     }
 }

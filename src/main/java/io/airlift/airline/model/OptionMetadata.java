@@ -1,14 +1,10 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.OptionType;
 import io.airlift.airline.util.ArgumentChecker;
 import io.airlift.airline.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,10 +33,10 @@ public class OptionMetadata
     {
         ArgumentChecker.checkNotNull(optionType, "optionType is null");
         ArgumentChecker.checkNotNull(options, "options is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(options), "options is empty");
+        ArgumentChecker.checkCondition(options.iterator().hasNext(), "options is empty");
         ArgumentChecker.checkNotNull(title, "title is null");
         ArgumentChecker.checkNotNull(path, "path is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(path), "path is empty");
+        ArgumentChecker.checkCondition(path.iterator().hasNext(), "path is empty");
 
         this.optionType = optionType;
         this.options = new HashSet<>(CollectionUtils.asList(options));
@@ -57,13 +53,13 @@ public class OptionMetadata
             this.allowedValues = null;
         }
 
-        this.accessors = CollectionUtils.asSingleEntrySet(new Accessor(path));
+        this.accessors = CollectionUtils.asSet(new Accessor(path));
     }
 
     public OptionMetadata(Iterable<OptionMetadata> options)
     {
         ArgumentChecker.checkNotNull(options, "options is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(options), "options is empty");
+        ArgumentChecker.checkCondition(options.iterator().hasNext(), "options is empty");
 
         OptionMetadata option = options.iterator().next();
 
@@ -215,27 +211,5 @@ public class OptionMetadata
         sb.append(", accessors=").append(accessors);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static Function<OptionMetadata, Set<String>> optionsGetter()
-    {
-        return new Function<OptionMetadata, Set<String>>()
-        {
-            public Set<String> apply(OptionMetadata input)
-            {
-                return input.getOptions();
-            }
-        };
-    }
-
-    public static Predicate<OptionMetadata> isHiddenPredicate()
-    {
-        return new Predicate<OptionMetadata>() {
-            @Override
-            public boolean apply(@Nullable OptionMetadata input)
-            {
-                return !input.isHidden();
-            }
-        };
     }
 }

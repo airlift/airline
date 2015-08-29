@@ -1,25 +1,31 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import io.airlift.airline.*;
+import io.airlift.airline.Accessor;
+import io.airlift.airline.Arguments;
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
+import io.airlift.airline.OptionType;
+import io.airlift.airline.Suggester;
 import io.airlift.airline.util.ArgumentChecker;
 import io.airlift.airline.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
-import java.util.*;
-
-import static com.google.common.collect.Iterables.transform;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MetadataLoader
 {
     public static GlobalMetadata loadGlobal(String name,
-            String description,
-            CommandMetadata defaultCommand,
-            Iterable<CommandMetadata> defaultGroupCommands,
-            Iterable<CommandGroupMetadata> groups)
+                                            String description,
+                                            CommandMetadata defaultCommand,
+                                            Iterable<CommandMetadata> defaultGroupCommands,
+                                            Iterable<CommandGroupMetadata> groups)
     {
         List<OptionMetadata> globalOptionsBuilder = new ArrayList<>();
         if (defaultCommand != null) {
@@ -52,12 +58,9 @@ public class MetadataLoader
 
     public static <T> List<CommandMetadata> loadCommands(Iterable<Class<? extends T>> defaultCommands)
     {
-        return CollectionUtils.asList(Iterables.transform(defaultCommands, new Function<Class<?>, CommandMetadata>()
-        {
-            public CommandMetadata apply(Class<?> commandType) {
-                return loadCommand(commandType);
-            }
-        }));
+        return CollectionUtils.asList(defaultCommands).stream()
+                .map(MetadataLoader::loadCommand)
+                .collect(Collectors.toList());
     }
 
     public static CommandMetadata loadCommand(Class<?> commandType)
@@ -73,13 +76,18 @@ public class MetadataLoader
 
         InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
 
+        ArgumentsMetadata firstArgument = null;
+        if(!injectionMetadata.arguments.isEmpty()) {
+            firstArgument = injectionMetadata.arguments.iterator().next();
+        }
+
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
                 description,
                 hidden, injectionMetadata.globalOptions,
                 injectionMetadata.groupOptions,
                 injectionMetadata.commandOptions,
-                Iterables.getFirst(injectionMetadata.arguments, null),
+                firstArgument,
                 injectionMetadata.metadataInjections,
                 commandType);
 
@@ -202,13 +210,7 @@ public class MetadataLoader
             values.add(option);
         }
 
-        options = CollectionUtils.asList(transform(metadataIndex.values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
-        {
-            @Override
-            public OptionMetadata apply(@Nullable Collection<OptionMetadata> options) {
-                return new OptionMetadata(options);
-            }
-        }));
+        options = metadataIndex.values().stream().map(OptionMetadata::new).collect(Collectors.toList());
 
         Map<String, OptionMetadata> optionIndex = new HashMap<>();
         for (OptionMetadata option : options) {

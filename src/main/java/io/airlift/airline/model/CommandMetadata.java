@@ -1,6 +1,5 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.util.CollectionUtils;
 
@@ -108,16 +107,5 @@ public class CommandMetadata
         sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static Function<CommandMetadata, String> nameGetter()
-    {
-        return new Function<CommandMetadata, String>()
-        {
-            public String apply(CommandMetadata input)
-            {
-                return input.getName();
-            }
-        };
     }
 }

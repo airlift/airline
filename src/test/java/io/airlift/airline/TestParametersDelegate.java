@@ -1,6 +1,5 @@
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
@@ -232,8 +231,8 @@ public class TestParametersDelegate
     public void duplicateMainParametersAreAllowed()
     {
         DuplicateMainParametersAreAllowed value = singleCommandParser(DuplicateMainParametersAreAllowed.class).parse("command", "main", "params");
-        assertEquals(value.delegate1.mainParams1, ImmutableList.of("main", "params"));
-        assertEquals(value.delegate2.mainParams1, ImmutableList.of("main", "params"));
+        assertEquals(value.delegate1.mainParams1, Arrays.asList("main", "params"));
+        assertEquals(value.delegate2.mainParams1, Arrays.asList("main", "params"));
     }
 
     // ========================================================================================================================

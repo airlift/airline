@@ -1,7 +1,9 @@
 package io.airlift.airline;
 
-import com.google.common.base.Joiner;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class TestPing
 {
@@ -20,7 +22,7 @@ public class TestPing
 
     private void ping(String... args)
     {
-        System.out.println("$ ping " + Joiner.on(' ').join(args));
+        System.out.println("$ ping " + Arrays.asList(args).stream().collect(Collectors.joining(" ")));
         Ping.main(args);
         System.out.println();
     }

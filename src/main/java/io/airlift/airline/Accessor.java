@@ -1,8 +1,5 @@
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import io.airlift.airline.util.ArgumentChecker;
 import io.airlift.airline.util.CollectionUtils;
 
@@ -18,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Accessor
 {
@@ -34,17 +32,11 @@ public class Accessor
     public Accessor(Iterable<Field> path)
     {
         ArgumentChecker.checkNotNull(path, "path is null");
-        ArgumentChecker.checkCondition(!Iterables.isEmpty(path), "path is empty");
+        ArgumentChecker.checkCondition(path.iterator().hasNext(), "path is empty");
 
         this.path = CollectionUtils.asList(path);
-        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()
-        {
-            public String apply(Field field)
-            {
-                return field.getName();
-            }
-        }));
 
+        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + '.' + this.path.stream().map(Field::getName).collect(Collectors.joining("."));
 
         Field field = this.path.get(this.path.size() - 1);
         multiValued = Collection.class.isAssignableFrom(field.getType());
@@ -92,7 +84,7 @@ public class Accessor
 
     public void addValues(Object commandInstance, Iterable<?> values)
     {
-        if (Iterables.isEmpty(values)) {
+        if (!values.iterator().hasNext()) {
             return;
         }
 
@@ -101,13 +93,19 @@ public class Accessor
 
         Field field = path.get(path.size() - 1);
         field.setAccessible(true);
+
+        final List<?> valueList = CollectionUtils.asList(values);
         if (Collection.class.isAssignableFrom(field.getType())) {
             Collection<Object> collection = getOrCreateCollectionField(name, instance, field);
-            Iterables.addAll(collection, values);
+            collection.addAll(valueList);
         }
         else {
             try {
-                field.set(instance, Iterables.getLast(values));
+                if(valueList.isEmpty()) {
+                    field.set(instance, null);
+                } else {
+                    field.set(instance, valueList.get(valueList.size() - 1));
+                }
             }
             catch (Exception e) {
                 throw new ParseException(e, "Error setting %s for argument %s", field.getName(), name);

@@ -18,8 +18,6 @@
 
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
@@ -34,6 +32,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.airlift.airline.ParserUtil.createInstance;
 
@@ -76,12 +75,9 @@ public class Cli<C>
 
         List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
 
-        List<CommandGroupMetadata> commandGroups = CollectionUtils.asList(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
-        {
-            public CommandGroupMetadata apply(GroupBuilder<C> group) {
-                return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
-            }
-        }));
+        List<CommandGroupMetadata> commandGroups = CollectionUtils.asList(groups).stream()
+                .map(group -> MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands)))
+                .collect(Collectors.toList());
 
         this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
     }
@@ -122,7 +118,7 @@ public class Cli<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                CollectionUtils.<Class<?>, Object>asSingleEntryMap(GlobalMetadata.class, metadata));
+                CollectionUtils.<Class<?>, Object>asMap(GlobalMetadata.class, metadata));
     }
     
     private void validate(ParseState state)

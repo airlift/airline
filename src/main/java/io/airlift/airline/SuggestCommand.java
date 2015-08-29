@@ -1,12 +1,20 @@
 package io.airlift.airline;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import io.airlift.airline.model.*;
+import io.airlift.airline.model.CommandGroupMetadata;
+import io.airlift.airline.model.CommandMetadata;
+import io.airlift.airline.model.GlobalMetadata;
+import io.airlift.airline.model.MetadataLoader;
+import io.airlift.airline.model.SuggesterMetadata;
+import io.airlift.airline.util.CollectionUtils;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static io.airlift.airline.ParserUtil.createInstance;
 
@@ -22,7 +30,6 @@ public class SuggestCommand
     @Arguments
     public List<String> arguments = new ArrayList<>();
 
-    @VisibleForTesting
     public Iterable<String> generateSuggestions()
     {
         Parser parser = new Parser();
@@ -46,7 +53,7 @@ public class SuggestCommand
                 }
 
                 Suggester suggester = createInstance(suggesterMetadata.getSuggesterClass(),
-                        new ArrayList<OptionMetadata>(),
+                        new ArrayList<>(),
                         null,
                         null,
                         null,
@@ -63,7 +70,7 @@ public class SuggestCommand
     @Override
     public void run()
     {
-        System.out.println(Joiner.on("\n").join(generateSuggestions()));
+        System.out.println(CollectionUtils.asList(generateSuggestions()).stream().collect(Collectors.joining("\n")));
     }
 
     @Override

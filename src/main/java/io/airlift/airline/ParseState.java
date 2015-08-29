@@ -4,7 +4,12 @@ import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ParseState
 {
@@ -14,15 +19,15 @@ public class ParseState
     private final Map<OptionMetadata, List<Object>> parsedOptions;
     private final List<Object> parsedArguments;
     private final OptionMetadata currentOption;
-    private final List<String> unparsedInput; 
+    private final List<String> unparsedInput;
 
     ParseState(CommandGroupMetadata group,
-            CommandMetadata command,
-            Map<OptionMetadata, List<Object>> parsedOptions,
-            List<Context> locationStack,
-            List<Object> parsedArguments,
-            OptionMetadata currentOption,
-            List<String> unparsedInput)
+               CommandMetadata command,
+               Map<OptionMetadata, List<Object>> parsedOptions,
+               List<Context> locationStack,
+               List<Object> parsedArguments,
+               OptionMetadata currentOption,
+               List<String> unparsedInput)
     {
         this.group = group;
         this.command = command;
