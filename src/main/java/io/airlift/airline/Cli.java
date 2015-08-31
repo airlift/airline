@@ -36,6 +36,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static io.airlift.airline.ParserUtil.createInstance;
+import static io.airlift.airline.ParserUtil.injectOptions;
 
 public class Cli<C>
 {
@@ -136,6 +137,35 @@ public class Cli<C>
                 command.getMetadataInjections(),
                 ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata),
                 commandFactory);
+    }
+
+    public C parse(C commandInstance, String... args)
+    {
+        Preconditions.checkNotNull(args, "args is null");
+
+        Parser parser = new Parser();
+        ParseState state = parser.parse(metadata, args);
+
+        if (state.getCommand() == null) {
+            if (state.getGroup() != null) {
+                state = state.withCommand(state.getGroup().getDefaultCommand());
+            }
+            else {
+                state = state.withCommand(metadata.getDefaultCommand());
+            }
+        }
+
+        validate(state);
+
+        CommandMetadata command = state.getCommand();
+
+        return injectOptions(commandInstance,
+                command.getAllOptions(),
+                state.getParsedOptions(),
+                command.getArguments(),
+                state.getParsedArguments(),
+                command.getMetadataInjections(),
+                ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
     }
 
     private void validate(ParseState state)

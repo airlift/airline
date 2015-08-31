@@ -37,6 +37,17 @@ public class ParserUtil
         // create the command instance
         T commandInstance = commandFactory.createInstance(type);
 
+        return injectOptions(commandInstance, options, parsedOptions, arguments, parsedArguments, metadataInjection, bindings);
+    }
+
+    public static <T> T injectOptions(T commandInstance,
+            Iterable<OptionMetadata> options,
+            ListMultimap<OptionMetadata, Object> parsedOptions,
+            ArgumentsMetadata arguments,
+            Iterable<Object> parsedArguments,
+            Iterable<Accessor> metadataInjection,
+            Map<Class<?>, Object> bindings)
+    {
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);
