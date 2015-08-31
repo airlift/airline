@@ -18,24 +18,25 @@
 
 package io.airlift.airline;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static io.airlift.airline.ParserUtil.createInstance;
+
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.MetadataLoader;
 import io.airlift.airline.model.OptionMetadata;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static io.airlift.airline.ParserUtil.createInstance;
 
 public class Cli<C>
 {
@@ -78,6 +79,7 @@ public class Cli<C>
 
         List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
         {
+            @Override
             public CommandGroupMetadata apply(GroupBuilder<C> group)
             {
                 return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
@@ -136,6 +138,39 @@ public class Cli<C>
                 ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata),
                 commandFactory);
     }
+
+    public C parse(C commandInstance, String... args)
+    {
+        Preconditions.checkNotNull(args, "args is null");
+        
+        Parser parser = new Parser();
+        ParseState state = parser.parse(metadata, args);
+
+        if (state.getCommand() == null) {
+            if (state.getGroup() != null) {
+                state = state.withCommand(state.getGroup().getDefaultCommand());
+            }
+            else {
+                state = state.withCommand(metadata.getDefaultCommand());
+            }
+        }
+
+        validate(state);
+
+        CommandMetadata command = state.getCommand();
+
+        C c = ParserUtil.injectOptions(commandInstance,
+            command.getAllOptions(),
+            state.getParsedOptions(),
+            command.getArguments(),
+            state.getParsedArguments(),
+            command.getMetadataInjections(),
+            ImmutableMap.<Class<?>, Object>of(GlobalMetadata.class, metadata));
+        
+        return c;
+    }
+    
+    
     
     private void validate(ParseState state)
     {
