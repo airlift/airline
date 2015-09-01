@@ -37,10 +37,35 @@ import static org.testng.Assert.*;
 public class TestCommand
 {
     @Test
+    public void globalOption_without_value()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-noValue", "command");
+        assertTrue(args.noValue);
+    }
+
+    @Test
+    public void globalOption_with_one_value()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-oneValue", "1", "command");
+        assertEquals(args.oneValue, 1);
+    }
+
+    @Test
+    public void globalOption_with_multiple_values()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-twoValues", "1", "2", "command");
+        assertEquals(args.twoValues.get(0), Integer.valueOf(1));
+        assertEquals(args.twoValues.get(1), Integer.valueOf(2));
+    }
+
+    @Test
     public void commandOption_without_value()
             throws ParseException
     {
-        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-noValue");
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-noValue");
         assertTrue(args.noValue);
     }
 
@@ -48,7 +73,7 @@ public class TestCommand
     public void commandOption_with_one_value()
             throws ParseException
     {
-        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-oneValue", "1");
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-oneValue", "1");
         assertEquals(args.oneValue, 1);
     }
 
@@ -56,7 +81,7 @@ public class TestCommand
     public void commandOption_with_multiple_values()
             throws ParseException
     {
-        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-twoValues", "1", "2");
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-twoValues", "1", "2");
         assertEquals(args.twoValues.get(0), Integer.valueOf(1));
         assertEquals(args.twoValues.get(1), Integer.valueOf(2));
     }

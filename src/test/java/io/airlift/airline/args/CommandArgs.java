@@ -23,8 +23,8 @@ import io.airlift.airline.Option;
 
 import java.util.List;
 
-@Command(name = "Args3", description = "args3 description")
-public class Args3
+@Command(name = "command", description = "command description")
+public class CommandArgs
 {
     @Option(name = "-noValue", description = "0 values")
     public boolean noValue;
