@@ -245,31 +245,31 @@ public class Parser
     private ParseState parseArgs(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
     {
         if (tokens.hasNext()) {
-            if (tokens.peek().equals("--")) {
+            String token = tokens.next();
+            if (token.equals("--")) {
                 state = state.pushContext(Context.ARGS);
-                tokens.next();
 
                 // consume all args
                 while (tokens.hasNext()) {
-                    state = parseArg(state, tokens, arguments);
+                    token = tokens.next();
+                    state = parseArg(state, token, arguments);
                 }
             }
             else {
-                state = parseArg(state, tokens, arguments);
+                state = parseArg(state, token, arguments);
             }
         }
 
         return state;
     }
 
-    private ParseState parseArg(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
+    private ParseState parseArg(ParseState state, String token, ArgumentsMetadata arguments)
     {
-        String nextToken = tokens.next();
         if (arguments != null) {
-            state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), nextToken));
+            state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), token));
         }
         else {
-            state = state.withUnparsedInput(nextToken);
+            state = state.withUnparsedInput(token);
         }
         return state;
     }
