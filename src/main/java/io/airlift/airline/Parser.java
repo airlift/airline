@@ -45,29 +45,29 @@ public class Parser
 
                 state = parseOptions(tokens, state, state.getGroup().getOptions());
             }
-        }
 
-        // parse command
-        List<CommandMetadata> expectedCommands = metadata.getDefaultGroupCommands();
-        if (state.getGroup() != null) {
-            expectedCommands = state.getGroup().getCommands();
-        }
-
-        if (tokens.hasNext()) {
-            CommandMetadata command = expectedCommands.stream().filter(entry -> entry.getName().equals(tokens.peek())).findFirst().orElse(null);
-            if (command == null) {
-                while (tokens.hasNext()) {
-                    state = state.withUnparsedInput(tokens.next());
+            if (tokens.hasNext()) {
+                // parse command
+                List<CommandMetadata> expectedCommands = metadata.getDefaultGroupCommands();
+                if (state.getGroup() != null) {
+                    expectedCommands = state.getGroup().getCommands();
                 }
-            }
-            else {
-                tokens.next();
-                state = state.withCommand(command).pushContext(Context.COMMAND);
 
-                while (tokens.hasNext()) {
-                    state = parseOptions(tokens, state, command.getCommandOptions());
+                CommandMetadata command = expectedCommands.stream().filter(entry -> entry.getName().equals(tokens.peek())).findFirst().orElse(null);
+                if (command == null) {
+                    while (tokens.hasNext()) {
+                        state = state.withUnparsedInput(tokens.next());
+                    }
+                }
+                else {
+                    tokens.next();
+                    state = state.withCommand(command).pushContext(Context.COMMAND);
 
-                    state = parseArgs(state, tokens, command.getArguments());
+                    while (tokens.hasNext()) {
+                        state = parseOptions(tokens, state, command.getCommandOptions());
+
+                        state = parseArgs(state, tokens, command.getArguments());
+                    }
                 }
             }
         }
