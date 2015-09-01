@@ -39,7 +39,7 @@ public class ParserUtil
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);
-            if (option.getArity() > 1 && !values.isEmpty()) {
+            if (option.getArity() > 1 && values != null && !values.isEmpty()) {
                 // hack: flatten the collection
                 values = ImmutableList.copyOf(concat((Iterable<Iterable<Object>>) values));
             }

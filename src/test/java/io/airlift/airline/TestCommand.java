@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.airline.Cli.CliBuilder;
 import io.airlift.airline.args.Args1;
 import io.airlift.airline.args.Args2;
+import io.airlift.airline.args.Args3;
 import io.airlift.airline.args.ArgsArityString;
 import io.airlift.airline.args.ArgsBooleanArity;
 import io.airlift.airline.args.ArgsBooleanArity0;
@@ -54,6 +55,31 @@ import static org.testng.Assert.assertTrue;
 
 public class TestCommand
 {
+    @Test
+    public void commandOptionWithoutValue()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-noValue");
+        assertTrue(args.noValue);
+    }
+
+    @Test
+    public void commandOptionWithOneValue()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-oneValue", "1");
+        assertEquals(args.oneValue, 1);
+    }
+
+    @Test
+    public void commandOptionWithMultipleValues()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-twoValues", "1", "2");
+        assertEquals(args.twoValues.get(0), Integer.valueOf(1));
+        assertEquals(args.twoValues.get(1), Integer.valueOf(2));
+    }
+
     @Test
     public void simpleArgs()
             throws ParseException
