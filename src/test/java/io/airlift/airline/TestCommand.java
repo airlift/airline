@@ -37,6 +37,31 @@ import static org.testng.Assert.*;
 public class TestCommand
 {
     @Test
+    public void commandOption_without_value()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-noValue");
+        assertTrue(args.noValue);
+    }
+
+    @Test
+    public void commandOption_with_one_value()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-oneValue", "1");
+        assertEquals(args.oneValue, 1);
+    }
+
+    @Test
+    public void commandOption_with_multiple_values()
+            throws ParseException
+    {
+        Args3 args = singleCommandParser(Args3.class).parse("Args3", "-twoValues", "1", "2");
+        assertEquals(args.twoValues.get(0), Integer.valueOf(1));
+        assertEquals(args.twoValues.get(1), Integer.valueOf(2));
+    }
+
+    @Test
     public void simpleArgs()
             throws ParseException
     {
