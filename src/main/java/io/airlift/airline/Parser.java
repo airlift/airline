@@ -184,12 +184,13 @@ public class Parser
 
     private List<OptionValue> parseClassicGetOpt(TokenIterator tokens, List<OptionMetadata> allowedOptions)
     {
-        if (!SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
+        final String token = tokens.peek();
+        if (!SHORT_OPTIONS_PATTERN.matcher(token).matches()) {
             return null;
         }
 
         // remove leading dash from token
-        String remainingToken = tokens.peek().substring(1);
+        String remainingToken = token.substring(1);
 
         List<OptionValue> optionValues = new ArrayList<>();
         while (!remainingToken.isEmpty()) {
@@ -343,6 +344,10 @@ public class Parser
             return result;
         }
 
+        /**
+         * @deprecated Please try to use {@link #next()} instead of "peeking" elements. I think when peeking is required, something other within the design / iterator handling isn't optimal...
+         */
+        @Deprecated
         public String peek() {
             if (!hasPeeked) {
                 peekedElement = iterator.next();
