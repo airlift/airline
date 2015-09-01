@@ -90,6 +90,7 @@ public class Parser
 
     private ParseState parseOptions(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
+        List<OptionValue> allOptionValues = new ArrayList<>();
         while (tokens.hasNext()) {
             //
             // Try to parse next option(s) using different styles.  If code matches it returns
@@ -98,26 +99,21 @@ public class Parser
             // Parse a simple option
             final OptionValue optionValueSimple = parseSimpleOption(tokens, allowedOptions);
             if(optionValueSimple != null) {
-                state = state.pushContext(Context.OPTION).withOption(optionValueSimple.getOption());
-                state = state.withOptionValue(optionValueSimple.getOption(), optionValueSimple.getValue()).popContext();
+                allOptionValues.add(optionValueSimple);
                 continue;
             }
 
             // Parse GNU getopt long-form: --option=value
             final OptionValue optionValueLongGnu = parseLongGnuGetOpt(tokens, allowedOptions);
             if (optionValueLongGnu != null) {
-                state = state.pushContext(Context.OPTION).withOption(optionValueLongGnu.getOption());
-                state = state.withOptionValue(optionValueLongGnu.getOption(), optionValueLongGnu.getValue()).popContext();
+                allOptionValues.add(optionValueLongGnu);
                 continue;
             }
 
             // Handle classic getopt syntax: -abc
             final List<OptionValue> optionValuesClassic = parseClassicGetOpt(tokens, allowedOptions);
             if (optionValuesClassic != null) {
-                for(OptionValue optionValueClassic: optionValuesClassic) {
-                    state = state.pushContext(Context.OPTION).withOption(optionValueClassic.getOption());
-                    state = state.withOptionValue(optionValueClassic.getOption(), optionValueClassic.getValue()).popContext();
-                }
+                allOptionValues.addAll(optionValuesClassic);
                 continue;
             }
 
@@ -125,6 +121,10 @@ public class Parser
             break;
         }
 
+        for(OptionValue optionValueClassic: allOptionValues) {
+            state = state.pushContext(Context.OPTION).withOption(optionValueClassic.getOption());
+            state = state.withOptionValue(optionValueClassic.getOption(), optionValueClassic.getValue()).popContext();
+        }
         return state;
     }
 
@@ -264,11 +264,12 @@ public class Parser
 
     private ParseState parseArg(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
     {
+        String nextToken = tokens.next();
         if (arguments != null) {
-            state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), tokens.next()));
+            state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), nextToken));
         }
         else {
-            state = state.withUnparsedInput(tokens.next());
+            state = state.withUnparsedInput(nextToken);
         }
         return state;
     }
