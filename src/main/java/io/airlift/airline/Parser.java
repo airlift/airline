@@ -48,19 +48,15 @@ public class Parser
 
             if (tokens.hasNext()) {
                 // parse command
-                List<CommandMetadata> expectedCommands = metadata.getDefaultGroupCommands();
-                if (state.getGroup() != null) {
-                    expectedCommands = state.getGroup().getCommands();
-                }
-
-                CommandMetadata command = expectedCommands.stream().filter(entry -> entry.getName().equals(tokens.peek())).findFirst().orElse(null);
+                String token = tokens.next();
+                CommandMetadata command = parseCommand(metadata, token, state);
                 if (command == null) {
+                    state = state.withUnparsedInput(token);
                     while (tokens.hasNext()) {
                         state = state.withUnparsedInput(tokens.next());
                     }
                 }
                 else {
-                    tokens.next();
                     state = state.withCommand(command).pushContext(Context.COMMAND);
 
                     while (tokens.hasNext()) {
@@ -282,6 +278,14 @@ public class Parser
             }
         }
         return null;
+    }
+
+    private CommandMetadata parseCommand(GlobalMetadata metadata, String token, ParseState state) {
+        List<CommandMetadata> expectedCommands = metadata.getDefaultGroupCommands();
+        if (state.getGroup() != null) {
+            expectedCommands = state.getGroup().getCommands();
+        }
+        return expectedCommands.stream().filter(entry -> entry.getName().equals(token)).findFirst().orElse(null);
     }
 
     private static class OptionValue
