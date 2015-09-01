@@ -29,6 +29,9 @@ public class Parser
         TokenIterator tokens = new TokenIterator(params.iterator());
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
+        if(!tokens.hasNext()) {
+            return state;
+        }
 
         // parse global options
         state = parseOptions(tokens, state, metadata.getOptions());
@@ -93,23 +96,28 @@ public class Parser
             // the next parser state, otherwise it returns null.
 
             // Parse a simple option
-            ParseState nextState = parseSimpleOption(tokens, state, allowedOptions);
-            if (nextState != null) {
-                state = nextState;
+            final OptionValue optionValueSimple = parseSimpleOption(tokens, allowedOptions);
+            if(optionValueSimple != null) {
+                state = state.pushContext(Context.OPTION).withOption(optionValueSimple.getOption());
+                state = state.withOptionValue(optionValueSimple.getOption(), optionValueSimple.getValue()).popContext();
                 continue;
             }
 
             // Parse GNU getopt long-form: --option=value
-            nextState = parseLongGnuGetOpt(tokens, state, allowedOptions);
-            if (nextState != null) {
-                state = nextState;
+            final OptionValue optionValueLongGnu = parseLongGnuGetOpt(tokens, allowedOptions);
+            if (optionValueLongGnu != null) {
+                state = state.pushContext(Context.OPTION).withOption(optionValueLongGnu.getOption());
+                state = state.withOptionValue(optionValueLongGnu.getOption(), optionValueLongGnu.getValue()).popContext();
                 continue;
             }
 
             // Handle classic getopt syntax: -abc
-            nextState = parseClassicGetOpt(tokens, state, allowedOptions);
-            if (nextState != null) {
-                state = nextState;
+            final List<OptionValue> optionValuesClassic = parseClassicGetOpt(tokens, allowedOptions);
+            if (optionValuesClassic != null) {
+                for(OptionValue optionValueClassic: optionValuesClassic) {
+                    state = state.pushContext(Context.OPTION).withOption(optionValueClassic.getOption());
+                    state = state.withOptionValue(optionValueClassic.getOption(), optionValueClassic.getValue()).popContext();
+                }
                 continue;
             }
 
@@ -120,7 +128,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseSimpleOption(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private OptionValue parseSimpleOption(TokenIterator tokens, List<OptionMetadata> allowedOptions)
     {
         OptionMetadata option = findOption(allowedOptions, tokens.peek());
         if (option == null) {
@@ -128,20 +136,20 @@ public class Parser
         }
 
         tokens.next();
-        state = state.pushContext(Context.OPTION).withOption(option);
 
         Object value;
         if (option.getArity() == 0) {
-            state = state.withOptionValue(option, Boolean.TRUE).popContext();
+            return new OptionValue(option, Boolean.TRUE);
         }
         else if (option.getArity() == 1) {
             if (tokens.hasNext()) {
                 value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
-                state = state.withOptionValue(option, value).popContext();
+                return new OptionValue(option, value);
             }
+            return new OptionValue(option, null);
         }
         else {
-            List<Object> values = new ArrayList<>();
+            List<Object> values = new ArrayList<>(option.getArity());
 
             int count = 0;
             while (count < option.getArity() && tokens.hasNext()) {
@@ -149,14 +157,14 @@ public class Parser
                 ++count;
             }
 
-            if (count == option.getArity()) {
-                state = state.withOptionValue(option, values).popContext();
+            if (count != option.getArity()) {
+                throw new ParseOptionMissingValueException(option.getTitle());
             }
+            return new OptionValue(option, values);
         }
-        return state;
     }
 
-    private ParseState parseLongGnuGetOpt(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private OptionValue parseLongGnuGetOpt(TokenIterator tokens, List<OptionMetadata> allowedOptions)
     {
         List<String> parts = Arrays.asList(tokens.peek().split("=")).stream().limit(2L).collect(Collectors.toList());
         if (parts.size() != 2) {
@@ -172,15 +180,12 @@ public class Parser
         // we have a match so consume the token
         tokens.next();
 
-        // update state
-        state = state.pushContext(Context.OPTION).withOption(option);
+        // determine option value
         Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), parts.get(1));
-        state = state.withOption(option).withOptionValue(option, value).popContext();
-
-        return state;
+        return new OptionValue(option, value);
     }
 
-    private ParseState parseClassicGetOpt(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private List<OptionValue> parseClassicGetOpt(TokenIterator tokens, List<OptionMetadata> allowedOptions)
     {
         if (!SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
             return null;
@@ -189,7 +194,7 @@ public class Parser
         // remove leading dash from token
         String remainingToken = tokens.peek().substring(1);
 
-        ParseState nextState = state;
+        List<OptionValue> optionValues = new ArrayList<>();
         while (!remainingToken.isEmpty()) {
             char tokenCharacter = remainingToken.charAt(0);
 
@@ -199,14 +204,13 @@ public class Parser
                 return null;
             }
 
-            nextState = nextState.pushContext(Context.OPTION).withOption(option);
-
             // remove current token character
             remainingToken = remainingToken.substring(1);
 
             // for no argument options, process the option and remove the character from the token
             if (option.getArity() == 0) {
-                nextState = nextState.withOptionValue(option, Boolean.TRUE).popContext();
+                OptionValue optionValue = new OptionValue(option, Boolean.TRUE);
+                optionValues.add(optionValue);
                 continue;
             }
 
@@ -217,14 +221,16 @@ public class Parser
                 // if current token has more characters, this is the value; otherwise it is the next token
                 if (!remainingToken.isEmpty()) {
                     Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), remainingToken);
-                    nextState = nextState.withOptionValue(option, value).popContext();
+                    OptionValue optionValue = new OptionValue(option, value);
+                    optionValues.add(optionValue);
                 }
                 else if (tokens.hasNext()) {
                     Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), tokens.next());
-                    nextState = nextState.withOptionValue(option, value).popContext();
+                    OptionValue optionValue = new OptionValue(option, value);
+                    optionValues.add(optionValue);
                 }
 
-                return nextState;
+                return optionValues;
             }
 
             throw new UnsupportedOperationException("Short options style can not be used with option " + option.getAllowedValues());
@@ -233,7 +239,7 @@ public class Parser
         // consume the current token
         tokens.next();
 
-        return nextState;
+        return optionValues;
     }
 
     private ParseState parseArgs(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
@@ -275,6 +281,25 @@ public class Parser
             }
         }
         return null;
+    }
+
+    private static class OptionValue
+    {
+        private final OptionMetadata option;
+        private Object value;
+
+        private OptionValue(OptionMetadata option, Object value) {
+            this.option = option;
+            this.value = value;
+        }
+
+        public OptionMetadata getOption() {
+            return option;
+        }
+
+        public Object getValue() {
+            return value;
+        }
     }
 
     /**
