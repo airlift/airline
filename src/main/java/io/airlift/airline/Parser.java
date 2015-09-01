@@ -26,7 +26,7 @@ public class Parser
     //TODO needs a refactoring regarding the tokens iterator handling and add a test!
     public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
-        PeekingIterator<String> tokens = new PeekingIterator<>(params.iterator());
+        TokenIterator tokens = new TokenIterator(params.iterator());
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
 
@@ -74,7 +74,7 @@ public class Parser
 
     public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
     {
-        PeekingIterator<String> tokens = new PeekingIterator<String>(params.iterator());
+        TokenIterator tokens = new TokenIterator(params.iterator());
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
 
         while (tokens.hasNext()) {
@@ -85,7 +85,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseOptions(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseOptions(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         while (tokens.hasNext()) {
             //
@@ -120,7 +120,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseSimpleOption(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseSimpleOption(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         OptionMetadata option = findOption(allowedOptions, tokens.peek());
         if (option == null) {
@@ -156,7 +156,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseLongGnuGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseLongGnuGetOpt(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         List<String> parts = Arrays.asList(tokens.peek().split("=")).stream().limit(2L).collect(Collectors.toList());
         if (parts.size() != 2) {
@@ -180,7 +180,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseClassicGetOpt(PeekingIterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseClassicGetOpt(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         if (!SHORT_OPTIONS_PATTERN.matcher(tokens.peek()).matches()) {
             return null;
@@ -236,7 +236,7 @@ public class Parser
         return nextState;
     }
 
-    private ParseState parseArgs(ParseState state, PeekingIterator<String> tokens, ArgumentsMetadata arguments)
+    private ParseState parseArgs(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
     {
         if (tokens.hasNext()) {
             if (tokens.peek().equals("--")) {
@@ -256,7 +256,7 @@ public class Parser
         return state;
     }
 
-    private ParseState parseArg(ParseState state, PeekingIterator<String> tokens, ArgumentsMetadata arguments)
+    private ParseState parseArg(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
     {
         if (arguments != null) {
             state = state.withArgument(TypeConverter.newInstance().convert(arguments.getTitle(), arguments.getJavaType(), tokens.next()));
@@ -282,13 +282,13 @@ public class Parser
      * @deprecated //TODO The iterator handling within the Parser class should be refactored! Remove this implementation after that!
      */
     @Deprecated
-    private static class PeekingIterator<E> implements Iterator<E> {
+    private static class TokenIterator implements Iterator<String> {
 
-        private final Iterator<? extends E> iterator;
+        private final Iterator<String> iterator;
         private boolean hasPeeked;
-        private E peekedElement;
+        private String peekedElement;
 
-        private PeekingIterator(Iterator<? extends E> iterator) {
+        private TokenIterator(Iterator<String> iterator) {
             this.iterator = iterator;
         }
 
@@ -298,22 +298,17 @@ public class Parser
         }
 
         @Override
-        public E next() {
+        public String next() {
             if (!hasPeeked) {
                 return iterator.next();
             }
-            E result = peekedElement;
+            String result = peekedElement;
             hasPeeked = false;
             peekedElement = null;
             return result;
         }
 
-        @Override
-        public void remove() {
-            throw new RuntimeException("Not supported! This class is deprecated!");
-        }
-
-        public E peek() {
+        public String peek() {
             if (!hasPeeked) {
                 peekedElement = iterator.next();
                 hasPeeked = true;
