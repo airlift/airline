@@ -23,7 +23,7 @@ public class Parser
         return parse(metadata, Arrays.asList(params));
     }
 
-    //TODO needs a refactoring regarding the tokens iterator handling and add a test!
+    //TODO needs a refactoring regarding the token iterator handling!
     public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
