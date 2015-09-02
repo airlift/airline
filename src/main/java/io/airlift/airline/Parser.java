@@ -46,13 +46,7 @@ public class Parser
         // parse group
         CommandGroupMetadata group = findCommandGroup(metadata, token);
         if (group != null) {
-            state = state.withGroup(group).pushContext(Context.GROUP);
-            while(isOption(token, state.getGroup().getOptions())) {
-                state = parseOptions(token, tokens, state, state.getGroup().getOptions());
-                if(tokens.hasNext()) {
-                    token = tokens.next();
-                }
-            }
+            state = parseCommandGroup(group, state, token, tokens);
             if(!tokens.hasNext()) {
                 return state;
             }
@@ -60,6 +54,33 @@ public class Parser
         }
 
         // parse command
+        state = parseCommand(metadata, state, token, tokens);
+
+        return state;
+    }
+
+    public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
+    {
+        Iterator<String> tokens = params.iterator();
+        ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
+
+        while (tokens.hasNext()) {
+            String token = tokens.next();
+
+            while(isOption(token, command.getCommandOptions())) {
+                state = parseOptions(token, tokens, state, command.getCommandOptions());
+                if(!tokens.hasNext()) {
+                    return state;
+                }
+                token = tokens.next();
+            }
+
+            state = parseArgs(state, token, tokens, command.getArguments());
+        }
+        return state;
+    }
+
+    private ParseState parseCommand(GlobalMetadata metadata, ParseState state, String token, Iterator<String> tokens) {
         CommandMetadata command = findCommand(metadata, token, state);
         if (command == null) {
             state = state.withUnparsedInput(token);
@@ -95,27 +116,18 @@ public class Parser
                 state = parseArgs(state, token, tokens, command.getArguments());
             }
         }
-
         return state;
     }
 
-    public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
-    {
-        Iterator<String> tokens = params.iterator();
-        ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
-
-        while (tokens.hasNext()) {
-            String token = tokens.next();
-
-            while(isOption(token, command.getCommandOptions())) {
-                state = parseOptions(token, tokens, state, command.getCommandOptions());
-                if(!tokens.hasNext()) {
-                    return state;
+    private ParseState parseCommandGroup(CommandGroupMetadata group, ParseState state, String token, Iterator<String> tokens) {
+        if (group != null) {
+            state = state.withGroup(group).pushContext(Context.GROUP);
+            while(isOption(token, state.getGroup().getOptions())) {
+                state = parseOptions(token, tokens, state, state.getGroup().getOptions());
+                if(tokens.hasNext()) {
+                    token = tokens.next();
                 }
-                token = tokens.next();
             }
-
-            state = parseArgs(state, token, tokens, command.getArguments());
         }
         return state;
     }
