@@ -122,34 +122,33 @@ public class Parser
 
     private ParseState parseOptions(String token, Iterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
-        List<OptionValue> allOptionValues = new ArrayList<>();
-
         // Try to parse next option(s) using different styles.  If code matches it returns
         // the next parser state, otherwise it returns null.
 
         // Parse a simple option
         final OptionValue optionValueSimple = parseSimpleOption(token, tokens, allowedOptions);
         if(optionValueSimple != null) {
-            allOptionValues.add(optionValueSimple);
-        } else {
-            // Parse GNU getopt long-form: --option=value
-            final OptionValue optionValueLongGnu = parseLongGnuGetOpt(token, allowedOptions);
-            if (optionValueLongGnu != null) {
-                allOptionValues.add(optionValueLongGnu);
-            } else {
-                // Handle classic getopt syntax: -abc
-                final List<OptionValue> optionValuesClassic = parseClassicGetOpt(token, tokens, allowedOptions);
-                if (optionValuesClassic != null) {
-                    allOptionValues.addAll(optionValuesClassic);
-                }
-            }
+            return pushOptionValue(state, optionValueSimple);
         }
 
-        for(OptionValue optionValueClassic: allOptionValues) {
-            state = state.pushContext(Context.OPTION).withOption(optionValueClassic.getOption());
-            state = state.withOptionValue(optionValueClassic.getOption(), optionValueClassic.getValue()).popContext();
+        // Parse GNU getopt long-form: --option=value
+        final OptionValue optionValueLongGnu = parseLongGnuGetOpt(token, allowedOptions);
+        if (optionValueLongGnu != null) {
+            return pushOptionValue(state, optionValueLongGnu);
+        }
+
+        // Handle classic getopt syntax: -abc
+        final List<OptionValue> optionValuesClassic = parseClassicGetOpt(token, tokens, allowedOptions);
+        if (optionValuesClassic != null) {
+            for(OptionValue optionValueClassic: optionValuesClassic) {
+                state = pushOptionValue(state, optionValueClassic);
+            }
         }
         return state;
+    }
+
+    private ParseState pushOptionValue(ParseState state, OptionValue optionValue) {
+        return state.pushContext(Context.OPTION).withOptionValue(optionValue.getOption(), optionValue.getValue()).popContext();
     }
 
     private OptionValue parseSimpleOption(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
