@@ -26,46 +26,73 @@ public class Parser
     //TODO needs a refactoring regarding the tokens iterator handling and add a test!
     public ParseState parse(GlobalMetadata metadata, Iterable<String> params)
     {
-        TokenIterator tokens = new TokenIterator(params.iterator());
+        Iterator<String> tokens = params.iterator();
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
         if(!tokens.hasNext()) {
             return state;
         }
+        String token = tokens.next();
 
         // parse global options
-        state = parseOptions(tokens, state, metadata.getOptions());
+        while(isOption(token, metadata.getOptions())) {
+            state = parseOptionsNew(token, tokens, state, metadata.getOptions());
+            if(!tokens.hasNext()) {
+                return state;
+            }
+            token = tokens.next();
+        }
 
         // parse group
-        if (tokens.hasNext()) {
-            String token = tokens.next();
-            CommandGroupMetadata group = findCommandGroup(metadata, token);
-            if (group != null) {
-                state = state.withGroup(group).pushContext(Context.GROUP);
+        CommandGroupMetadata group = findCommandGroup(metadata, token);
+        if (group != null) {
+            state = state.withGroup(group).pushContext(Context.GROUP);
+            while(isOption(token, state.getGroup().getOptions())) {
+                state = parseOptionsNew(token, tokens, state, state.getGroup().getOptions());
+                if(tokens.hasNext()) {
+                    token = tokens.next();
+                }
+            }
+            if(!tokens.hasNext()) {
+                return state;
+            }
+            token = tokens.next();
+        }
 
-                state = parseOptions(tokens, state, state.getGroup().getOptions());
+        // parse command
+        CommandMetadata command = findCommand(metadata, token, state);
+        if (command == null) {
+            state = state.withUnparsedInput(token);
+            while (tokens.hasNext()) {
+                state = state.withUnparsedInput(tokens.next());
+            }
+        }
+        else {
+            state = state.withCommand(command).pushContext(Context.COMMAND);
+            if(!tokens.hasNext()) {
+                return state;
+            }
+            token = tokens.next();
+
+            while(isOption(token, command.getCommandOptions())) {
+                state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
                 if(!tokens.hasNext()) {
                     return state;
                 }
                 token = tokens.next();
             }
+            state = parseArgsNew(state, token, tokens, command.getArguments());
 
-            // parse command
-            CommandMetadata command = findCommand(metadata, token, state);
-            if (command == null) {
-                state = state.withUnparsedInput(token);
-                while (tokens.hasNext()) {
-                    state = state.withUnparsedInput(tokens.next());
+            while (tokens.hasNext()) {
+                token = tokens.next();
+                while(isOption(token, command.getCommandOptions())) {
+                    state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
+                    if(!tokens.hasNext()) {
+                        return state;
+                    }
+                    token = tokens.next();
                 }
-            }
-            else {
-                state = state.withCommand(command).pushContext(Context.COMMAND);
-
-                while (tokens.hasNext()) {
-                    state = parseOptions(tokens, state, command.getCommandOptions());
-
-                    state = parseArgs(state, tokens, command.getArguments());
-                }
+                state = parseArgsNew(state, token, tokens, command.getArguments());
             }
         }
 
@@ -74,48 +101,48 @@ public class Parser
 
     public ParseState parseCommand(CommandMetadata command, Iterable<String> params)
     {
-        TokenIterator tokens = new TokenIterator(params.iterator());
+        Iterator<String> tokens = params.iterator();
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL).withCommand(command);
 
         while (tokens.hasNext()) {
-            state = parseOptions(tokens, state, command.getCommandOptions());
+            String token = tokens.next();
 
-            state = parseArgs(state, tokens, command.getArguments());
+            while(isOption(token, command.getCommandOptions())) {
+                state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
+                if(!tokens.hasNext()) {
+                    return state;
+                }
+                token = tokens.next();
+            }
+
+            state = parseArgsNew(state, token, tokens, command.getArguments());
         }
         return state;
     }
 
-    private ParseState parseOptions(TokenIterator tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseOptionsNew(String token, Iterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         List<OptionValue> allOptionValues = new ArrayList<>();
-        while (tokens.hasNext()) {
-            //
-            // Try to parse next option(s) using different styles.  If code matches it returns
-            // the next parser state, otherwise it returns null.
 
-            // Parse a simple option
-            final OptionValue optionValueSimple = parseSimpleOption(tokens, allowedOptions);
-            if(optionValueSimple != null) {
-                allOptionValues.add(optionValueSimple);
-                continue;
-            }
+        // Try to parse next option(s) using different styles.  If code matches it returns
+        // the next parser state, otherwise it returns null.
 
+        // Parse a simple option
+        final OptionValue optionValueSimple = parseSimpleOptionNew(token, tokens, allowedOptions);
+        if(optionValueSimple != null) {
+            allOptionValues.add(optionValueSimple);
+        } else {
             // Parse GNU getopt long-form: --option=value
-            final OptionValue optionValueLongGnu = parseLongGnuGetOpt(tokens, allowedOptions);
+            final OptionValue optionValueLongGnu = parseLongGnuGetOptNew(token, allowedOptions);
             if (optionValueLongGnu != null) {
                 allOptionValues.add(optionValueLongGnu);
-                continue;
+            } else {
+                // Handle classic getopt syntax: -abc
+                final List<OptionValue> optionValuesClassic = parseClassicGetOptNew(token, tokens, allowedOptions);
+                if (optionValuesClassic != null) {
+                    allOptionValues.addAll(optionValuesClassic);
+                }
             }
-
-            // Handle classic getopt syntax: -abc
-            final List<OptionValue> optionValuesClassic = parseClassicGetOpt(tokens, allowedOptions);
-            if (optionValuesClassic != null) {
-                allOptionValues.addAll(optionValuesClassic);
-                continue;
-            }
-
-            // did not match an option
-            break;
         }
 
         for(OptionValue optionValueClassic: allOptionValues) {
@@ -125,14 +152,12 @@ public class Parser
         return state;
     }
 
-    private OptionValue parseSimpleOption(TokenIterator tokens, List<OptionMetadata> allowedOptions)
+    private OptionValue parseSimpleOptionNew(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
     {
-        OptionMetadata option = findOption(allowedOptions, tokens.peek());
+        OptionMetadata option = findOption(allowedOptions, token);
         if (option == null) {
             return null;
         }
-
-        tokens.next();
 
         Object value;
         if (option.getArity() == 0) {
@@ -161,9 +186,9 @@ public class Parser
         }
     }
 
-    private OptionValue parseLongGnuGetOpt(TokenIterator tokens, List<OptionMetadata> allowedOptions)
+    private OptionValue parseLongGnuGetOptNew(String token, List<OptionMetadata> allowedOptions)
     {
-        List<String> parts = Arrays.asList(tokens.peek().split("=")).stream().limit(2L).collect(Collectors.toList());
+        List<String> parts = Arrays.asList(token.split("=")).stream().limit(2L).collect(Collectors.toList());
         if (parts.size() != 2) {
             return null;
         }
@@ -174,17 +199,13 @@ public class Parser
             return null;
         }
 
-        // we have a match so consume the token
-        tokens.next();
-
         // determine option value
         Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), parts.get(1));
         return new OptionValue(option, value);
     }
 
-    private List<OptionValue> parseClassicGetOpt(TokenIterator tokens, List<OptionMetadata> allowedOptions)
+    private List<OptionValue> parseClassicGetOptNew(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
     {
-        final String token = tokens.peek();
         if (!SHORT_OPTIONS_PATTERN.matcher(token).matches()) {
             return null;
         }
@@ -213,9 +234,6 @@ public class Parser
             }
 
             if (option.getArity() == 1) {
-                // we must, consume the current token so we can see the next token
-                tokens.next();
-
                 // if current token has more characters, this is the value; otherwise it is the next token
                 if (!remainingToken.isEmpty()) {
                     Object value = TypeConverter.newInstance().convert(option.getTitle(), option.getJavaType(), remainingToken);
@@ -234,31 +252,75 @@ public class Parser
             throw new UnsupportedOperationException("Short options style can not be used with option " + option.getAllowedValues());
         }
 
-        // consume the current token
-        tokens.next();
-
         return optionValues;
     }
 
-    private ParseState parseArgs(ParseState state, TokenIterator tokens, ArgumentsMetadata arguments)
+    private ParseState parseArgsNew(ParseState state, String token, Iterator<String> tokens, ArgumentsMetadata arguments)
     {
-        if (tokens.hasNext()) {
-            String token = tokens.next();
-            if (token.equals("--")) {
-                state = state.pushContext(Context.ARGS);
+        if (token.equals("--")) {
+            state = state.pushContext(Context.ARGS);
 
-                // consume all args
-                while (tokens.hasNext()) {
-                    token = tokens.next();
-                    state = parseArg(state, token, arguments);
-                }
-            }
-            else {
+            // consume all args
+            while (tokens.hasNext()) {
+                token = tokens.next();
                 state = parseArg(state, token, arguments);
             }
         }
+        else {
+            state = parseArg(state, token, arguments);
+        }
 
         return state;
+    }
+
+    private boolean isOption(String token, List<OptionMetadata> allowedOptions) {
+        OptionMetadata option = findOption(allowedOptions, token);
+        if(option != null
+                || isLongGnuGetOpt(token, allowedOptions)
+                || isClassicGetOpt(token, allowedOptions)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isLongGnuGetOpt(String token, List<OptionMetadata> allowedOptions) {
+        List<String> parts = Arrays.asList(token.split("=")).stream().limit(2L).collect(Collectors.toList());
+        if (parts.size() != 2) {
+            return false;
+        }
+
+        OptionMetadata option = findOption(allowedOptions, parts.get(0));
+        if (option == null || option.getArity() != 1) {
+            // TODO: this is not exactly correct. It should be an error condition
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isClassicGetOpt(String token, List<OptionMetadata> allowedOptions) {
+        if (!SHORT_OPTIONS_PATTERN.matcher(token).matches()) {
+            return false;
+        }
+
+        // remove leading dash from token
+        String remainingToken = token.substring(1);
+
+        while(!remainingToken.isEmpty()) {
+            char tokenCharacter = remainingToken.charAt(0);
+
+            // is the current token character a single letter option?
+            OptionMetadata option = findOption(allowedOptions, "-" + tokenCharacter);
+            if (option == null) {
+                return false;
+            }
+            remainingToken = remainingToken.substring(1);
+
+            if (option.getArity() == 1) {
+                // if current token has more characters, this is the value; otherwise it is the next token
+                return true;
+            }
+        }
+        return true;
     }
 
     private ParseState parseArg(ParseState state, String token, ArgumentsMetadata arguments)
@@ -310,50 +372,6 @@ public class Parser
 
         public Object getValue() {
             return value;
-        }
-    }
-
-    /**
-     * Temporary, fitted copy from guava, see deprecation comments.
-     * @deprecated //TODO The iterator handling within the Parser class should be refactored! Remove this implementation after that!
-     */
-    @Deprecated
-    private static class TokenIterator implements Iterator<String> {
-
-        private final Iterator<String> iterator;
-        private boolean hasPeeked;
-        private String peekedElement;
-
-        private TokenIterator(Iterator<String> iterator) {
-            this.iterator = iterator;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return hasPeeked || iterator.hasNext();
-        }
-
-        @Override
-        public String next() {
-            if (!hasPeeked) {
-                return iterator.next();
-            }
-            String result = peekedElement;
-            hasPeeked = false;
-            peekedElement = null;
-            return result;
-        }
-
-        /**
-         * @deprecated Please try to use {@link #next()} instead of "peeking" elements. I think when peeking is required, something other within the design / iterator handling isn't optimal...
-         */
-        @Deprecated
-        public String peek() {
-            if (!hasPeeked) {
-                peekedElement = iterator.next();
-                hasPeeked = true;
-            }
-            return peekedElement;
         }
     }
 }
