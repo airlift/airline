@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
@@ -63,6 +63,6 @@ public @interface Option
      */
     boolean hidden() default false;
 
-    
+
     String[] allowedValues() default {};
 }

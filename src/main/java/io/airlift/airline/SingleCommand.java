@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 the original author or authors.
  * See the notice.md file distributed with this work for additional
  * information regarding copyright ownership.
@@ -55,11 +55,11 @@ public class SingleCommand<C>
     {
         return parse(ImmutableList.copyOf(args));
     }
-    
+
     public C parse(Iterable<String> args)
     {
         checkNotNull(args, "args is null");
-        
+
         Parser parser = new Parser();
         ParseState state = parser.parseCommand(commandMetadata, args);
         validate(state);
@@ -74,7 +74,7 @@ public class SingleCommand<C>
                 command.getMetadataInjections(),
                 ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
     }
-    
+
     private void validate(ParseState state)
     {
         CommandMetadata command = state.getCommand();
@@ -92,7 +92,7 @@ public class SingleCommand<C>
         if (state.getParsedArguments().isEmpty() && arguments != null && arguments.isRequired()) {
             throw new ParseArgumentsMissingException(arguments.getTitle());
         }
-        
+
         if (!state.getUnparsedInput().isEmpty()) {
             throw new ParseArgumentsUnexpectedException(state.getUnparsedInput());
         }
