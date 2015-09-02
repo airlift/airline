@@ -18,7 +18,8 @@
 
 package io.airlift.airline;
 
-public class ParseOptionConversionException extends ParseException
+public class ParseOptionConversionException
+        extends ParseException
 {
     private final String optionTitle;
     private final String value;

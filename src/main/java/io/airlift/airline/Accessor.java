@@ -44,7 +44,6 @@ public class Accessor
             }
         }));
 
-
         Field field = this.path.get(this.path.size() - 1);
         multiValued = Collection.class.isAssignableFrom(field.getType());
         javaType = getItemType(name, field.getGenericType());
@@ -112,7 +111,6 @@ public class Accessor
                 throw new ParseException(e, "Error setting %s for argument %s", field.getName(), name);
             }
         }
-
     }
 
     @Override

@@ -11,7 +11,7 @@ import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.transform;
 
 public class GlobalSuggester
-    implements Suggester
+        implements Suggester
 {
     @Inject
     public GlobalMetadata metadata;

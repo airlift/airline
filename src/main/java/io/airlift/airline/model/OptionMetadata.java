@@ -9,6 +9,7 @@ import io.airlift.airline.Accessor;
 import io.airlift.airline.OptionType;
 
 import javax.annotation.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.Set;
 
@@ -231,7 +232,8 @@ public class OptionMetadata
 
     public static Predicate<OptionMetadata> isHiddenPredicate()
     {
-        return new Predicate<OptionMetadata>() {
+        return new Predicate<OptionMetadata>()
+        {
             @Override
             public boolean apply(@Nullable OptionMetadata input)
             {

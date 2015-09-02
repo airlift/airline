@@ -18,7 +18,8 @@
 
 package io.airlift.airline;
 
-public class ParseException extends RuntimeException
+public class ParseException
+        extends RuntimeException
 {
     public ParseException(String string, Object... args)
     {

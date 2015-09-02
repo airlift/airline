@@ -10,6 +10,7 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
 import javax.annotation.Nullable;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +66,8 @@ public class UsageHelper
                     return "<" + argument + ">";
                 }
             }));
-        } else {
+        }
+        else {
             argumentString = null;
         }
 
@@ -90,7 +92,6 @@ public class UsageHelper
         }
 
         return "<" + arguments.getTitle() + ">";
-
     }
 
     public static String toUsage(OptionMetadata option)

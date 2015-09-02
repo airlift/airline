@@ -18,7 +18,7 @@ public class ParseState
     private final ListMultimap<OptionMetadata, Object> parsedOptions;
     private final List<Object> parsedArguments;
     private final OptionMetadata currentOption;
-    private final List<String> unparsedInput; 
+    private final List<String> unparsedInput;
 
     ParseState(CommandGroupMetadata group,
             CommandMetadata command,
@@ -92,7 +92,6 @@ public class ParseState
 
         return new ParseState(group, command, parsedOptions, locationStack, newArguments, currentOption, unparsedInput);
     }
-
 
     public ParseState withUnparsedInput(String input)
     {

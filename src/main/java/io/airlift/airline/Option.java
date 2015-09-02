@@ -63,6 +63,5 @@ public @interface Option
      */
     boolean hidden() default false;
 
-
     String[] allowedValues() default {};
 }

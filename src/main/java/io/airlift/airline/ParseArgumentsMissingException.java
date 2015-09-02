@@ -18,7 +18,8 @@
 
 package io.airlift.airline;
 
-public class ParseArgumentsMissingException extends ParseException
+public class ParseArgumentsMissingException
+        extends ParseException
 {
     private final String argumentTitle;
 

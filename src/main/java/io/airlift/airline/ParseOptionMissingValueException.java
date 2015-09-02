@@ -18,7 +18,8 @@
 
 package io.airlift.airline;
 
-public class ParseOptionMissingValueException extends ParseException
+public class ParseOptionMissingValueException
+        extends ParseException
 {
     private final String optionTitle;
 

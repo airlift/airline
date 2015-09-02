@@ -67,5 +67,4 @@ public class ParserUtil
 
         return commandInstance;
     }
-
 }

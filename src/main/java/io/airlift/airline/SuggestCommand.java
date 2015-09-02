@@ -12,6 +12,7 @@ import io.airlift.airline.model.OptionMetadata;
 import io.airlift.airline.model.SuggesterMetadata;
 
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;

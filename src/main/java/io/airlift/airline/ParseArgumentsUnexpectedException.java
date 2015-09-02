@@ -22,7 +22,8 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-public class ParseArgumentsUnexpectedException extends ParseException
+public class ParseArgumentsUnexpectedException
+        extends ParseException
 {
     private final List<String> unparsedInput;
 

@@ -56,7 +56,6 @@ public class CommandMetadata
     public List<OptionMetadata> getAllOptions()
     {
         return ImmutableList.<OptionMetadata>builder().addAll(globalOptions).addAll(groupOptions).addAll(commandOptions).build();
-
     }
 
     public List<OptionMetadata> getGlobalOptions()

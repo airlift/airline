@@ -53,7 +53,8 @@ public class TypeConverter
             if (valueOf.getReturnType().isAssignableFrom(type)) {
                 return valueOf.invoke(null, value);
             }
-        } catch (Throwable ignored) {
+        }
+        catch (Throwable ignored) {
         }
 
         // Look for a static valueOf(String) method (this covers enums which have a valueOf method)

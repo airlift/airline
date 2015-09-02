@@ -6,6 +6,7 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -141,7 +142,6 @@ public class CommandUsage
                 descriptionPrinter.newline();
             }
         }
-
     }
 
     private List<OptionMetadata> sortOptions(List<OptionMetadata> options)

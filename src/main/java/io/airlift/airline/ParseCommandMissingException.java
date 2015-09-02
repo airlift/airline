@@ -18,7 +18,8 @@
 
 package io.airlift.airline;
 
-public class ParseCommandMissingException extends ParseException
+public class ParseCommandMissingException
+        extends ParseException
 {
     ParseCommandMissingException()
     {
