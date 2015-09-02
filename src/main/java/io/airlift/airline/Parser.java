@@ -36,7 +36,7 @@ public class Parser
 
         // parse global options
         while(isOption(token, metadata.getOptions())) {
-            state = parseOptionsNew(token, tokens, state, metadata.getOptions());
+            state = parseOptions(token, tokens, state, metadata.getOptions());
             if(!tokens.hasNext()) {
                 return state;
             }
@@ -48,7 +48,7 @@ public class Parser
         if (group != null) {
             state = state.withGroup(group).pushContext(Context.GROUP);
             while(isOption(token, state.getGroup().getOptions())) {
-                state = parseOptionsNew(token, tokens, state, state.getGroup().getOptions());
+                state = parseOptions(token, tokens, state, state.getGroup().getOptions());
                 if(tokens.hasNext()) {
                     token = tokens.next();
                 }
@@ -75,24 +75,24 @@ public class Parser
             token = tokens.next();
 
             while(isOption(token, command.getCommandOptions())) {
-                state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
+                state = parseOptions(token, tokens, state, command.getCommandOptions());
                 if(!tokens.hasNext()) {
                     return state;
                 }
                 token = tokens.next();
             }
-            state = parseArgsNew(state, token, tokens, command.getArguments());
+            state = parseArgs(state, token, tokens, command.getArguments());
 
             while (tokens.hasNext()) {
                 token = tokens.next();
                 while(isOption(token, command.getCommandOptions())) {
-                    state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
+                    state = parseOptions(token, tokens, state, command.getCommandOptions());
                     if(!tokens.hasNext()) {
                         return state;
                     }
                     token = tokens.next();
                 }
-                state = parseArgsNew(state, token, tokens, command.getArguments());
+                state = parseArgs(state, token, tokens, command.getArguments());
             }
         }
 
@@ -108,19 +108,19 @@ public class Parser
             String token = tokens.next();
 
             while(isOption(token, command.getCommandOptions())) {
-                state = parseOptionsNew(token, tokens, state, command.getCommandOptions());
+                state = parseOptions(token, tokens, state, command.getCommandOptions());
                 if(!tokens.hasNext()) {
                     return state;
                 }
                 token = tokens.next();
             }
 
-            state = parseArgsNew(state, token, tokens, command.getArguments());
+            state = parseArgs(state, token, tokens, command.getArguments());
         }
         return state;
     }
 
-    private ParseState parseOptionsNew(String token, Iterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
+    private ParseState parseOptions(String token, Iterator<String> tokens, ParseState state, List<OptionMetadata> allowedOptions)
     {
         List<OptionValue> allOptionValues = new ArrayList<>();
 
@@ -128,17 +128,17 @@ public class Parser
         // the next parser state, otherwise it returns null.
 
         // Parse a simple option
-        final OptionValue optionValueSimple = parseSimpleOptionNew(token, tokens, allowedOptions);
+        final OptionValue optionValueSimple = parseSimpleOption(token, tokens, allowedOptions);
         if(optionValueSimple != null) {
             allOptionValues.add(optionValueSimple);
         } else {
             // Parse GNU getopt long-form: --option=value
-            final OptionValue optionValueLongGnu = parseLongGnuGetOptNew(token, allowedOptions);
+            final OptionValue optionValueLongGnu = parseLongGnuGetOpt(token, allowedOptions);
             if (optionValueLongGnu != null) {
                 allOptionValues.add(optionValueLongGnu);
             } else {
                 // Handle classic getopt syntax: -abc
-                final List<OptionValue> optionValuesClassic = parseClassicGetOptNew(token, tokens, allowedOptions);
+                final List<OptionValue> optionValuesClassic = parseClassicGetOpt(token, tokens, allowedOptions);
                 if (optionValuesClassic != null) {
                     allOptionValues.addAll(optionValuesClassic);
                 }
@@ -152,7 +152,7 @@ public class Parser
         return state;
     }
 
-    private OptionValue parseSimpleOptionNew(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
+    private OptionValue parseSimpleOption(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
     {
         OptionMetadata option = findOption(allowedOptions, token);
         if (option == null) {
@@ -186,7 +186,7 @@ public class Parser
         }
     }
 
-    private OptionValue parseLongGnuGetOptNew(String token, List<OptionMetadata> allowedOptions)
+    private OptionValue parseLongGnuGetOpt(String token, List<OptionMetadata> allowedOptions)
     {
         List<String> parts = Arrays.asList(token.split("=")).stream().limit(2L).collect(Collectors.toList());
         if (parts.size() != 2) {
@@ -204,7 +204,7 @@ public class Parser
         return new OptionValue(option, value);
     }
 
-    private List<OptionValue> parseClassicGetOptNew(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
+    private List<OptionValue> parseClassicGetOpt(String token, Iterator<String> tokens, List<OptionMetadata> allowedOptions)
     {
         if (!SHORT_OPTIONS_PATTERN.matcher(token).matches()) {
             return null;
@@ -255,7 +255,7 @@ public class Parser
         return optionValues;
     }
 
-    private ParseState parseArgsNew(ParseState state, String token, Iterator<String> tokens, ArgumentsMetadata arguments)
+    private ParseState parseArgs(ParseState state, String token, Iterator<String> tokens, ArgumentsMetadata arguments)
     {
         if (token.equals("--")) {
             state = state.pushContext(Context.ARGS);
