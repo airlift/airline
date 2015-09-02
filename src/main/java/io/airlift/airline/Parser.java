@@ -29,33 +29,31 @@ public class Parser
         Iterator<String> tokens = params.iterator();
 
         ParseState state = ParseState.newInstance().pushContext(Context.GLOBAL);
-        if(!tokens.hasNext()) {
-            return state;
-        }
-        String token = tokens.next();
+        if(tokens.hasNext()) {
+            String token = tokens.next();
 
-        // parse global options
-        while(isOption(token, metadata.getOptions())) {
-            state = parseOptions(token, tokens, state, metadata.getOptions());
-            if(!tokens.hasNext()) {
-                return state;
+            // parse global options
+            while(isOption(token, metadata.getOptions())) {
+                state = parseOptions(token, tokens, state, metadata.getOptions());
+                if(!tokens.hasNext()) {
+                    return state;
+                }
+                token = tokens.next();
             }
-            token = tokens.next();
-        }
 
-        // parse group
-        CommandGroupMetadata group = findCommandGroup(metadata, token);
-        if (group != null) {
-            state = parseCommandGroup(group, state, token, tokens);
-            if(!tokens.hasNext()) {
-                return state;
+            // parse group
+            CommandGroupMetadata group = findCommandGroup(metadata, token);
+            if (group != null) {
+                state = parseCommandGroup(group, state, token, tokens);
+                if(!tokens.hasNext()) {
+                    return state;
+                }
+                token = tokens.next();
             }
-            token = tokens.next();
+
+            // parse command
+            state = parseCommand(metadata, state, token, tokens);
         }
-
-        // parse command
-        state = parseCommand(metadata, state, token, tokens);
-
         return state;
     }
 
