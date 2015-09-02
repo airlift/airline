@@ -1,13 +1,11 @@
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
 import javax.inject.Inject;
-
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Iterables.transform;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandSuggester
         implements Suggester
@@ -18,13 +16,15 @@ public class CommandSuggester
     @Override
     public Iterable<String> suggest()
     {
-        ImmutableList.Builder<String> suggestions = ImmutableList.<String>builder()
-                .addAll(concat(transform(command.getCommandOptions(), OptionMetadata.optionsGetter())));
+        List<String> suggestions = command.getCommandOptions().stream()
+                .map(OptionMetadata::getOptions)
+                .flatMap(options -> options.stream())
+                .collect(Collectors.toList());
 
         if (command.getArguments() != null) {
             suggestions.add("--");
         }
 
-        return suggestions.build();
+        return suggestions;
     }
 }

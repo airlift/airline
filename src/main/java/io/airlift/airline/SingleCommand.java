@@ -18,16 +18,16 @@
 
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.MetadataLoader;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.ArgumentChecker;
+import io.airlift.airline.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.airlift.airline.ParserUtil.createInstance;
 
 public class SingleCommand<C>
@@ -41,7 +41,7 @@ public class SingleCommand<C>
 
     private SingleCommand(Class<C> command)
     {
-        checkNotNull(command, "command is null");
+        ArgumentChecker.checkNotNull(command, "command is null");
 
         commandMetadata = MetadataLoader.loadCommand(command);
     }
@@ -53,12 +53,12 @@ public class SingleCommand<C>
 
     public C parse(String... args)
     {
-        return parse(ImmutableList.copyOf(args));
+        return parse(Arrays.asList(args));
     }
     
     public C parse(Iterable<String> args)
     {
-        checkNotNull(args, "args is null");
+        ArgumentChecker.checkNotNull(args, "args is null");
         
         Parser parser = new Parser();
         ParseState state = parser.parseCommand(commandMetadata, args);
@@ -72,7 +72,7 @@ public class SingleCommand<C>
                 command.getArguments(),
                 state.getParsedArguments(),
                 command.getMetadataInjections(),
-                ImmutableMap.<Class<?>, Object>of(CommandMetadata.class, commandMetadata));
+                CollectionUtils.<Class<?>, Object>asMap(CommandMetadata.class, commandMetadata));
     }
     
     private void validate(ParseState state)

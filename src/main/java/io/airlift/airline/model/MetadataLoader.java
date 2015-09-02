@@ -1,38 +1,33 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import io.airlift.airline.OptionType;
 import io.airlift.airline.Suggester;
+import io.airlift.airline.util.ArgumentChecker;
+import io.airlift.airline.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.lang.reflect.Field;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import java.util.stream.Collectors;
 
 public class MetadataLoader
 {
     public static GlobalMetadata loadGlobal(String name,
-            String description,
-            CommandMetadata defaultCommand,
-            Iterable<CommandMetadata> defaultGroupCommands,
-            Iterable<CommandGroupMetadata> groups)
+                                            String description,
+                                            CommandMetadata defaultCommand,
+                                            Iterable<CommandMetadata> defaultGroupCommands,
+                                            Iterable<CommandGroupMetadata> groups)
     {
-        ImmutableList.Builder<OptionMetadata> globalOptionsBuilder = ImmutableList.builder();
+        List<OptionMetadata> globalOptionsBuilder = new ArrayList<>();
         if (defaultCommand != null) {
             globalOptionsBuilder.addAll(defaultCommand.getGlobalOptions());
         }
@@ -44,32 +39,28 @@ public class MetadataLoader
                 globalOptionsBuilder.addAll(command.getGlobalOptions());
             }
         }
-        List<OptionMetadata> globalOptions = mergeOptionSet(globalOptionsBuilder.build());
+        List<OptionMetadata> globalOptions = mergeOptionSet(globalOptionsBuilder);
         return new GlobalMetadata(name, description, globalOptions, defaultCommand, defaultGroupCommands, groups);
     }
 
     public static CommandGroupMetadata loadCommandGroup(String name, String description, CommandMetadata defaultCommand, Iterable<CommandMetadata> commands)
     {
-        ImmutableList.Builder<OptionMetadata> groupOptionsBuilder = ImmutableList.builder();
+        List<OptionMetadata> groupOptionsBuilder = new ArrayList<>();
         if (defaultCommand != null) {
             groupOptionsBuilder.addAll(defaultCommand.getGroupOptions());
         }
         for (CommandMetadata command : commands) {
             groupOptionsBuilder.addAll(command.getGroupOptions());
         }
-        List<OptionMetadata> groupOptions = mergeOptionSet(groupOptionsBuilder.build());
+        List<OptionMetadata> groupOptions = mergeOptionSet(groupOptionsBuilder);
         return new CommandGroupMetadata(name, description, groupOptions, defaultCommand, commands);
     }
 
-    public static <T> ImmutableList<CommandMetadata> loadCommands(Iterable<Class<? extends T>> defaultCommands)
+    public static <T> List<CommandMetadata> loadCommands(Iterable<Class<? extends T>> defaultCommands)
     {
-        return ImmutableList.copyOf(Iterables.transform(defaultCommands, new Function<Class<?>, CommandMetadata>()
-        {
-            public CommandMetadata apply(Class<?> commandType)
-            {
-                return loadCommand(commandType);
-            }
-        }));
+        return CollectionUtils.asList(defaultCommands).stream()
+                .map(MetadataLoader::loadCommand)
+                .collect(Collectors.toList());
     }
 
     public static CommandMetadata loadCommand(Class<?> commandType)
@@ -78,12 +69,17 @@ public class MetadataLoader
         for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
             command = cls.getAnnotation(Command.class);
         }
-        Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
+        ArgumentChecker.checkCondition(command != null, "Command %s is not annotated with @Command", commandType.getName());
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
         boolean hidden = command.hidden();
 
         InjectionMetadata injectionMetadata = loadInjectionMetadata(commandType);
+
+        ArgumentsMetadata firstArgument = null;
+        if(!injectionMetadata.arguments.isEmpty()) {
+            firstArgument = injectionMetadata.arguments.iterator().next();
+        }
 
         CommandMetadata commandMetadata = new CommandMetadata(
                 name,
@@ -91,7 +87,7 @@ public class MetadataLoader
                 hidden, injectionMetadata.globalOptions,
                 injectionMetadata.groupOptions,
                 injectionMetadata.commandOptions,
-                Iterables.getFirst(injectionMetadata.arguments, null),
+                firstArgument,
                 injectionMetadata.metadataInjections,
                 commandType);
 
@@ -108,7 +104,7 @@ public class MetadataLoader
     public static InjectionMetadata loadInjectionMetadata(Class<?> type)
     {
         InjectionMetadata injectionMetadata = new InjectionMetadata();
-        loadInjectionMetadata(type, injectionMetadata, ImmutableList.<Field>of());
+        loadInjectionMetadata(type, injectionMetadata, new ArrayList<Field>());
         injectionMetadata.compact();
         return injectionMetadata;
     }
@@ -118,7 +114,7 @@ public class MetadataLoader
         for (Class<?> cls = type; !Object.class.equals(cls); cls = cls.getSuperclass()) {
             for (Field field : cls.getDeclaredFields()) {
                 field.setAccessible(true);
-                ImmutableList<Field> path = concat(fields, field);
+                List<Field> path = concat(fields, field);
 
                 Inject injectAnnotation = field.getAnnotation(Inject.class);
                 if (injectAnnotation != null) {
@@ -142,11 +138,11 @@ public class MetadataLoader
                         name = field.getName();
                     }
 
-                    List<String> options = ImmutableList.copyOf(optionAnnotation.name());
+                    List<String> options = Arrays.asList(optionAnnotation.name());
                     String description = optionAnnotation.description();
 
                     int arity = optionAnnotation.arity();
-                    Preconditions.checkArgument(arity >= 0 || arity == Integer.MIN_VALUE, "Invalid arity for option %s", name);
+                    ArgumentChecker.checkCondition(arity >= 0 || arity == Integer.MIN_VALUE, "Invalid arity for option {1}", name);
 
                     if (optionAnnotation.arity() >= 0) {
                         arity = optionAnnotation.arity();
@@ -163,7 +159,7 @@ public class MetadataLoader
 
                     boolean required = optionAnnotation.required();
                     boolean hidden = optionAnnotation.hidden();
-                    List<String> allowedValues = ImmutableList.copyOf(optionAnnotation.allowedValues());
+                    List<String> allowedValues = Arrays.asList(optionAnnotation.allowedValues());
                     if (allowedValues.isEmpty()) {
                         allowedValues = null;
                     }
@@ -204,21 +200,19 @@ public class MetadataLoader
 
     private static List<OptionMetadata> mergeOptionSet(List<OptionMetadata> options)
     {
-        ListMultimap<OptionMetadata, OptionMetadata> metadataIndex = ArrayListMultimap.create();
+        Map<OptionMetadata, List<OptionMetadata>> metadataIndex = new LinkedHashMap<>(options.size());
         for (OptionMetadata option : options) {
-            metadataIndex.put(option, option);
+            List<OptionMetadata> values = metadataIndex.get(option);
+            if(values == null) {
+                values = new ArrayList<>();
+                metadataIndex.put(option, values);
+            }
+            values.add(option);
         }
 
-        options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
-        {
-            @Override
-            public OptionMetadata apply(@Nullable Collection<OptionMetadata> options)
-            {
-                return new OptionMetadata(options);
-            }
-        }));
+        options = metadataIndex.values().stream().map(OptionMetadata::new).collect(Collectors.toList());
 
-        Map<String, OptionMetadata> optionIndex = newHashMap();
+        Map<String, OptionMetadata> optionIndex = new HashMap<>();
         for (OptionMetadata option : options) {
             for (String optionName : option.getOptions()) {
                 if (optionIndex.containsKey(optionName)) {
@@ -234,18 +228,20 @@ public class MetadataLoader
         return options;
     }
 
-    private static <T> ImmutableList<T> concat(Iterable<T> iterable, T item)
+    private static <T> List<T> concat(List<T> list, T item)
     {
-        return ImmutableList.<T>builder().addAll(iterable).add(item).build();
+        List<T> newList = new ArrayList<>(list);
+        newList.add(item);
+        return newList;
     }
 
     private static class InjectionMetadata
     {
-        private List<OptionMetadata> globalOptions = newArrayList();
-        private List<OptionMetadata> groupOptions = newArrayList();
-        private List<OptionMetadata> commandOptions = newArrayList();
-        private List<ArgumentsMetadata> arguments = newArrayList();
-        private List<Accessor> metadataInjections = newArrayList();
+        private List<OptionMetadata> globalOptions = new ArrayList<>();
+        private List<OptionMetadata> groupOptions = new ArrayList<>();
+        private List<OptionMetadata> commandOptions = new ArrayList<>();
+        private List<ArgumentsMetadata> arguments = new ArrayList<>();
+        private List<Accessor> metadataInjections = new ArrayList<>();
 
         private void compact()
         {
@@ -254,7 +250,7 @@ public class MetadataLoader
             commandOptions = mergeOptionSet(commandOptions);
 
             if (arguments.size() > 1) {
-                arguments = ImmutableList.of(new ArgumentsMetadata(arguments));
+                arguments = Arrays.asList(new ArgumentsMetadata(arguments));
             }
         }
     }

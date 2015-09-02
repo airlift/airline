@@ -1,41 +1,35 @@
 package io.airlift.airline;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.MetadataLoader;
-import io.airlift.airline.model.OptionMetadata;
 import io.airlift.airline.model.SuggesterMetadata;
+import io.airlift.airline.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.airlift.airline.ParserUtil.createInstance;
 
 @Command(name = "suggest")
 public class SuggestCommand
         implements Runnable, Callable<Void>
 {
-    private static final Map<Context, Class<? extends Suggester>> BUILTIN_SUGGESTERS = ImmutableMap.<Context, Class<? extends Suggester>>builder()
-            .put(Context.GLOBAL, GlobalSuggester.class)
-            .put(Context.GROUP, GroupSuggester.class)
-            .put(Context.COMMAND, CommandSuggester.class)
-            .build();
+    private static final Map<Context, Class<? extends Suggester>> BUILTIN_SUGGESTERS = createBuiltinSuggesters();
 
     @Inject
     public GlobalMetadata metadata;
 
     @Arguments
-    public List<String> arguments = newArrayList();
+    public List<String> arguments = new ArrayList<>();
 
-    @VisibleForTesting
     public Iterable<String> generateSuggestions()
     {
         Parser parser = new Parser();
@@ -46,8 +40,9 @@ public class SuggestCommand
             SuggesterMetadata suggesterMetadata = MetadataLoader.loadSuggester(suggesterClass);
 
             if (suggesterMetadata != null) {
-                ImmutableMap.Builder<Class<?>, Object> bindings = ImmutableMap.<Class<?>, Object>builder()
-                        .put(GlobalMetadata.class, metadata);
+
+                Map<Class<?>, Object> bindings = new HashMap<>(3);
+                bindings.put(GlobalMetadata.class, metadata);
 
                 if (state.getGroup() != null) {
                     bindings.put(CommandGroupMetadata.class, state.getGroup());
@@ -58,24 +53,24 @@ public class SuggestCommand
                 }
 
                 Suggester suggester = createInstance(suggesterMetadata.getSuggesterClass(),
-                        ImmutableList.<OptionMetadata>of(),
+                        new ArrayList<>(),
                         null,
                         null,
                         null,
                         suggesterMetadata.getMetadataInjections(),
-                        bindings.build());
+                        bindings);
 
                 return suggester.suggest();
             }
         }
 
-        return ImmutableList.of();
+        return new ArrayList<>();
     }
 
     @Override
     public void run()
     {
-        System.out.println(Joiner.on("\n").join(generateSuggestions()));
+        System.out.println(CollectionUtils.asList(generateSuggestions()).stream().collect(Collectors.joining("\n")));
     }
 
     @Override
@@ -83,5 +78,13 @@ public class SuggestCommand
     {
         run();
         return null;
+    }
+
+    private static Map<Context, Class<? extends Suggester>> createBuiltinSuggesters() {
+        Map<Context, Class<? extends Suggester>> suggesters = new EnumMap<>(Context.class);
+        suggesters.put(Context.GLOBAL, GlobalSuggester.class);
+        suggesters.put(Context.GROUP, GroupSuggester.class);
+        suggesters.put(Context.COMMAND, CommandSuggester.class);
+        return suggesters;
     }
 }

@@ -1,6 +1,6 @@
 package io.airlift.airline;
 
-import com.google.common.base.Preconditions;
+import io.airlift.airline.util.ArgumentChecker;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -14,9 +14,9 @@ public class TypeConverter
 
     public Object convert(String name, Class<?> type, String value)
     {
-        Preconditions.checkNotNull(name, "name is null");
-        Preconditions.checkNotNull(type, "type is null");
-        Preconditions.checkNotNull(value, "value is null");
+        ArgumentChecker.checkNotNull(name, "name is null");
+        ArgumentChecker.checkNotNull(type, "type is null");
+        ArgumentChecker.checkNotNull(value, "value is null");
 
         try {
             if (String.class.isAssignableFrom(type)) {

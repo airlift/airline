@@ -1,22 +1,13 @@
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
-import static io.airlift.airline.model.OptionMetadata.isHiddenPredicate;
+import java.util.stream.Collectors;
 
 public class UsageHelper
 {
@@ -31,11 +22,15 @@ public class UsageHelper
             String option2 = o2.getOptions().iterator().next();
             option2 = option2.replaceFirst("^-+", "");
 
-            return ComparisonChain.start()
-                    .compare(option1.toLowerCase(), option2.toLowerCase())
-                    .compare(option2, option1) // print lower case letters before upper case
-                    .compare(System.identityHashCode(o1), System.identityHashCode(o2))
-                    .result();
+
+            int result = option1.toLowerCase().compareTo(option2.toLowerCase());
+            if(result == 0) {
+                result = option2.compareTo(option1); // print lower case letters before upper case
+                if(result == 0) {
+                    result = Integer.valueOf(System.identityHashCode(o1)).compareTo(System.identityHashCode(o2));
+                }
+            }
+            return result;
         }
     };
     public static final Comparator<CommandMetadata> DEFAULT_COMMAND_COMPARATOR = new Comparator<CommandMetadata>()
@@ -43,44 +38,25 @@ public class UsageHelper
         @Override
         public int compare(CommandMetadata o1, CommandMetadata o2)
         {
-            return ComparisonChain.start()
-                    .compare(o1.getName().toLowerCase(), o2.getName().toLowerCase())
-                    .compare(o2.getName(), o1.getName()) // print lower case letters before upper case
-                    .compare(System.identityHashCode(o1), System.identityHashCode(o2))
-                    .result();
+            int result = o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+            if(result == 0) {
+                result = o2.getName().compareTo(o1.getName()); // print lower case letters before upper case
+                if(result == 0) {
+                    result = Integer.valueOf(System.identityHashCode(o1)).compareTo(System.identityHashCode(o2));
+                }
+            }
+            return result;
         }
     };
 
     public static String toDescription(OptionMetadata option)
     {
         Set<String> options = option.getOptions();
-        StringBuilder stringBuilder = new StringBuilder();
 
-        final String argumentString;
-        if (option.getArity() > 0) {
-            argumentString = Joiner.on(" ").join(Lists.transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
-            {
-                public String apply(@Nullable String argument)
-                {
-                    return "<" + argument + ">";
-                }
-            }));
-        } else {
-            argumentString = null;
-        }
+        String argumentString = formatArgumentString(option);
 
-        Joiner.on(", ").appendTo(stringBuilder, transform(options, new Function<String, String>()
-        {
-            public String apply(@Nullable String option)
-            {
-                if (argumentString != null) {
-                    return option + " " + argumentString;
-                }
-                return option;
-            }
-        }));
-
-        return stringBuilder.toString();
+        Set<String> optionsFormatted = formatOptions(options, argumentString);
+        return optionsFormatted.stream().collect(Collectors.joining(", "));
     }
 
     public static String toDescription(ArgumentsMetadata arguments)
@@ -106,32 +82,10 @@ public class UsageHelper
             stringBuilder.append('(');
         }
 
-        final String argumentString;
-        if (option.getArity() > 0) {
-            argumentString = Joiner.on(" ").join(transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
-            {
-                public String apply(@Nullable String argument)
-                {
-                    return "<" + argument + ">";
-                }
-            }));
-        }
-        else {
-            argumentString = null;
-        }
+        String argumentString = formatArgumentString(option);
 
-        Joiner.on(" | ").appendTo(stringBuilder, transform(options, new Function<String, String>()
-        {
-            public String apply(@Nullable String option)
-            {
-                if (argumentString != null) {
-                    return option + " " + argumentString;
-                }
-                else {
-                    return option;
-                }
-            }
-        }));
+        Set<String> optionsFormatted = formatOptions(options, argumentString);
+        stringBuilder.append(optionsFormatted.stream().collect(Collectors.joining(" | ")));
 
         if (options.size() > 1) {
             stringBuilder.append(')');
@@ -173,12 +127,24 @@ public class UsageHelper
 
     public static List<String> toSynopsisUsage(List<OptionMetadata> options)
     {
-        return ImmutableList.copyOf(transform(filter(options, isHiddenPredicate()), new Function<OptionMetadata, String>()
-        {
-            public String apply(OptionMetadata option)
-            {
-                return toUsage(option);
-            }
-        }));
+        return options.stream().filter(option -> !option.isHidden()).map(UsageHelper::toUsage).collect(Collectors.toList());
+    }
+
+    private static Set<String> formatOptions(Set<String> aOptions, String aArgumentString) {
+        Set<String> optionsFormatted = aOptions;
+        if(aArgumentString != null) {
+            optionsFormatted = aOptions.stream().map(entry -> entry + ' ' + aArgumentString).collect(Collectors.toSet());
+        }
+        return optionsFormatted;
+    }
+
+    private static String formatArgumentString(OptionMetadata option) {
+        final String argumentString;
+        if (option.getArity() > 0) {
+            argumentString = '<' + option.getTitle() + '>';
+        } else {
+            argumentString = null;
+        }
+        return argumentString;
     }
 }

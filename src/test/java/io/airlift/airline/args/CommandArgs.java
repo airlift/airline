@@ -18,15 +18,20 @@
 
 package io.airlift.airline.args;
 
-import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Command(name = "ArgsRequired")
-public class ArgsRequired
+@Command(name = "command", description = "command description")
+public class CommandArgs
 {
-    @Arguments(description = "List of files", required = true)
-    public List<String> parameters = new ArrayList<>();
+    @Option(name = "-noValue", description = "0 values")
+    public boolean noValue;
+
+    @Option(name = "-oneValue", description = "1 value")
+    public int oneValue;
+
+    @Option(name = "-twoValues", description = "2 values", arity = 2)
+    public List<Integer> twoValues;
 }

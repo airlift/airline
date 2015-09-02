@@ -18,22 +18,8 @@
 
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
 import io.airlift.airline.Cli.CliBuilder;
-import io.airlift.airline.args.Args1;
-import io.airlift.airline.args.Args2;
-import io.airlift.airline.args.ArgsArityString;
-import io.airlift.airline.args.ArgsBooleanArity;
-import io.airlift.airline.args.ArgsBooleanArity0;
-import io.airlift.airline.args.ArgsEnum;
-import io.airlift.airline.args.ArgsInherited;
-import io.airlift.airline.args.ArgsMultipleUnparsed;
-import io.airlift.airline.args.ArgsOutOfMemory;
-import io.airlift.airline.args.ArgsPrivate;
-import io.airlift.airline.args.ArgsRequired;
-import io.airlift.airline.args.ArgsSingleChar;
-import io.airlift.airline.args.Arity1;
-import io.airlift.airline.args.OptionsRequired;
+import io.airlift.airline.args.*;
 import io.airlift.airline.command.CommandAdd;
 import io.airlift.airline.command.CommandCommit;
 import io.airlift.airline.model.CommandMetadata;
@@ -41,19 +27,65 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.base.Predicates.compose;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.collect.Iterables.find;
 import static io.airlift.airline.TestingUtil.singleCommandParser;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class TestCommand
 {
+    @Test
+    public void globalOption_without_value()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-noValue", "command");
+        assertTrue(args.noValue);
+    }
+
+    @Test
+    public void globalOption_with_one_value()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-oneValue", "1", "command");
+        assertEquals(args.oneValue, 1);
+    }
+
+    @Test
+    public void globalOption_with_multiple_values()
+            throws ParseException
+    {
+        GlobalArgs args = singleCommandParser(GlobalArgs.class).parse("-twoValues", "1", "2", "command");
+        assertEquals(args.twoValues.get(0), Integer.valueOf(1));
+        assertEquals(args.twoValues.get(1), Integer.valueOf(2));
+    }
+
+    @Test
+    public void commandOption_without_value()
+            throws ParseException
+    {
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-noValue");
+        assertTrue(args.noValue);
+    }
+
+    @Test
+    public void commandOption_with_one_value()
+            throws ParseException
+    {
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-oneValue", "1");
+        assertEquals(args.oneValue, 1);
+    }
+
+    @Test
+    public void commandOption_with_multiple_values()
+            throws ParseException
+    {
+        CommandArgs args = singleCommandParser(CommandArgs.class).parse("command", "-twoValues", "1", "2");
+        assertEquals(args.twoValues.get(0), Integer.valueOf(1));
+        assertEquals(args.twoValues.get(1), Integer.valueOf(2));
+    }
+
     @Test
     public void simpleArgs()
             throws ParseException
@@ -128,7 +160,7 @@ public class TestCommand
     public void repeatedArgs()
     {
         Cli<Args1> parser = singleCommandParser(Args1.class);
-        CommandMetadata command = find(parser.getMetadata().getDefaultGroupCommands(), compose(equalTo("Args1"), CommandMetadata.nameGetter()));
+        CommandMetadata command = parser.getMetadata().getDefaultGroupCommands().stream().filter(entry -> "Args1".equals(entry.getName())).findFirst().get();
         assertEquals(command.getAllOptions().size(), 8);
     }
 
@@ -204,14 +236,20 @@ public class TestCommand
 
     private void argsBoolean1(String[] params, Boolean expected)
     {
-        List<String> values = ImmutableList.<String>builder().add("ArgsBooleanArity").add(params).build();
+        List<String> values = new ArrayList<>(params.length + 1);
+        values.add("ArgsBooleanArity");
+        values.addAll(Arrays.asList(params));
+
         ArgsBooleanArity args = singleCommandParser(ArgsBooleanArity.class).parse(values);
         assertEquals(args.debug, expected);
     }
 
     private void argsBoolean0(String[] params, Boolean expected)
     {
-        List<String> values = ImmutableList.<String>builder().add("ArgsBooleanArity0").add(params).build();
+        List<String> values = new ArrayList<>(params.length + 1);
+        values.add("ArgsBooleanArity0");
+        values.addAll(Arrays.asList(params));
+
         ArgsBooleanArity0 args = singleCommandParser(ArgsBooleanArity0.class).parse(values);
         assertEquals(args.debug, expected);
     }

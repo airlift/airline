@@ -1,14 +1,13 @@
 package io.airlift.airline;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.OptionMetadata;
+import io.airlift.airline.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Iterables.concat;
+import java.util.stream.Collectors;
 
 public class ParserUtil
 {
@@ -27,7 +26,7 @@ public class ParserUtil
 
     public static <T> T createInstance(Class<?> type,
             Iterable<OptionMetadata> options,
-            ListMultimap<OptionMetadata, Object> parsedOptions,
+            Map<OptionMetadata, List<Object>> parsedOptions,
             ArgumentsMetadata arguments,
             Iterable<Object> parsedArguments,
             Iterable<Accessor> metadataInjection,
@@ -39,9 +38,9 @@ public class ParserUtil
         // inject options
         for (OptionMetadata option : options) {
             List<?> values = parsedOptions.get(option);
-            if (option.getArity() > 1 && !values.isEmpty()) {
+            if (option.getArity() > 1 && values != null && !values.isEmpty()) {
                 // hack: flatten the collection
-                values = ImmutableList.copyOf(concat((Iterable<Iterable<Object>>) values));
+                values = (List<?>)values.stream().flatMap(value -> CollectionUtils.asList(((Iterable<Object>)value)).stream()).collect(Collectors.toList());
             }
             if (values != null && !values.isEmpty()) {
                 for (Accessor accessor : option.getAccessors()) {
@@ -61,7 +60,7 @@ public class ParserUtil
             Object injectee = bindings.get(accessor.getJavaType());
 
             if (injectee != null) {
-                accessor.addValues(commandInstance, ImmutableList.of(injectee));
+                accessor.addValues(commandInstance, Arrays.asList(injectee));
             }
         }
 

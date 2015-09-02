@@ -22,6 +22,7 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Command(name = "CommandLineArgs")
@@ -29,7 +30,7 @@ public class CommandLineArgs
 {
 
     @Arguments(description = "The XML suite files to run")
-    public List<String> suiteFiles = com.google.common.collect.Lists.newArrayList();
+    public List<String> suiteFiles = new ArrayList<>();
 
     @Option(name = {"-log", "-verbose"}, description = "Level of verbosity")
     public Integer verbose;

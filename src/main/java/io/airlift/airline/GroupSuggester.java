@@ -5,9 +5,7 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
 import javax.inject.Inject;
-
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Iterables.transform;
+import java.util.stream.Stream;
 
 public class GroupSuggester
         implements Suggester
@@ -18,9 +16,9 @@ public class GroupSuggester
     @Override
     public Iterable<String> suggest()
     {
-        return concat(
-                transform(group.getCommands(), CommandMetadata.nameGetter()),
-                concat(transform(group.getOptions(), OptionMetadata.optionsGetter()))
-        );
+        return () -> Stream.concat(
+            group.getCommands().stream().map(CommandMetadata::getName),
+            group.getOptions().stream().map(OptionMetadata::getOptions).flatMap(options -> options.stream())
+        ).iterator();
     }
 }
