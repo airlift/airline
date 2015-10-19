@@ -141,16 +141,16 @@ public class TestGalaxyCommandLineParser
     public static class AgentFilter
     {
         @Option(name = {"-i", "--host"}, description = "Select slots on the given host")
-        public final List<String> host = newArrayList();
+        public List<String> host = newArrayList();
 
         @Option(name = {"-I", "--ip"}, description = "Select slots at the given IP address")
-        public final List<String> ip = newArrayList();
+        public List<String> ip = newArrayList();
 
         @Option(name = {"-u", "--uuid"}, description = "Select slot with the given UUID")
-        public final List<String> uuid = newArrayList();
+        public List<String> uuid = newArrayList();
 
         @Option(name = {"-s", "--state"}, description = "Select 'r{unning}', 's{topped}' or 'unknown' slots")
-        public final List<String> state = newArrayList();
+        public List<String> state = newArrayList();
 
         @Override
         public String toString()
@@ -218,7 +218,7 @@ public class TestGalaxyCommandLineParser
 
         @Arguments(usage = "<groupId:artifactId[:packaging[:classifier]]:version> @<component:pools:version>",
                 description = "The binary and @configuration to install.  The default packaging is tar.gz")
-        public final List<String> assignment = Lists.newArrayList();
+        public List<String> assignment = Lists.newArrayList();
 
         @Override
         public String toString()
@@ -241,7 +241,7 @@ public class TestGalaxyCommandLineParser
 
         @Arguments(usage = "[<binary-version>] [@<config-version>]",
                 description = "Version of the binary and/or @configuration")
-        public final List<String> versions = Lists.newArrayList();
+        public List<String> versions = Lists.newArrayList();
 
         @Override
         public String toString()
