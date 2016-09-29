@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.airline.Cli.CliBuilder;
 import io.airlift.airline.args.Args1;
 import io.airlift.airline.args.Args2;
+import io.airlift.airline.args.ArgsAllowedValues;
 import io.airlift.airline.args.ArgsArityString;
 import io.airlift.airline.args.ArgsBooleanArity;
 import io.airlift.airline.args.ArgsBooleanArity0;
@@ -222,6 +223,40 @@ public class TestSingleCommand
     public void badParameterShouldThrowParameter2Exception()
     {
         singleCommand(Args1.class).parse("-long", "foo");
+    }
+    
+    @Test
+    public void allowedValues1()
+    {
+        ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode", "a");
+        assertEquals(a.mode, "a");
+        a = singleCommand(ArgsAllowedValues.class).parse("-mode", "b");
+        assertEquals(a.mode, "b");
+        a = singleCommand(ArgsAllowedValues.class).parse("-mode", "c");
+        assertEquals(a.mode, "c");
+    }
+    
+    @Test
+    public void allowedValues2()
+    {
+        ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode=a");
+        assertEquals(a.mode, "a");
+        a = singleCommand(ArgsAllowedValues.class).parse("-mode=b");
+        assertEquals(a.mode, "b");
+        a = singleCommand(ArgsAllowedValues.class).parse("-mode=c");
+        assertEquals(a.mode, "c");
+    }
+    
+    @Test(expectedExceptions = ParseException.class)
+    public void allowedValuesShouldThrowIfNotAllowed1()
+    {
+        ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode", "d");
+    }
+    
+    @Test(expectedExceptions = ParseException.class)
+    public void allowedValuesShouldThrowIfNotAllowed2()
+    {
+        ArgsAllowedValues a = singleCommand(ArgsAllowedValues.class).parse("-mode=d");
     }
 
     @Test
