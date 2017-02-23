@@ -27,6 +27,7 @@
         <version>45</version>
     </parent>
 
+    <groupId>it.ibttn</groupId>
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
     <version>0.8-SNAPSHOT</version>
