@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>45</version>
+        <version>68</version>
     </parent>
 
     <artifactId>airline</artifactId>
@@ -44,7 +44,7 @@
     </scm>
 
     <properties>
-        <air.check.skip-findbugs>true</air.check.skip-findbugs>
+        <air.check.skip-spotbugs>true</air.check.skip-spotbugs>
         <air.check.skip-pmd>true</air.check.skip-pmd>
         <air.check.skip-license>true</air.check.skip-license>
     </properties>
@@ -57,13 +57,12 @@
 
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
+            <artifactId>jsr305</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
         </dependency>
 
         <!-- for testing -->
