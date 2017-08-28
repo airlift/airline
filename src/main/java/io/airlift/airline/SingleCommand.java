@@ -27,8 +27,8 @@ import io.airlift.airline.model.OptionMetadata;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.airlift.airline.ParserUtil.createInstance;
+import static java.util.Objects.requireNonNull;
 
 public class SingleCommand<C>
 {
@@ -41,7 +41,7 @@ public class SingleCommand<C>
 
     private SingleCommand(Class<C> command)
     {
-        checkNotNull(command, "command is null");
+        requireNonNull(command, "command is null");
 
         commandMetadata = MetadataLoader.loadCommand(command);
     }
@@ -58,7 +58,7 @@ public class SingleCommand<C>
 
     public C parse(Iterable<String> args)
     {
-        checkNotNull(args, "args is null");
+        requireNonNull(args, "args is null");
 
         Parser parser = new Parser();
         ParseState state = parser.parseCommand(commandMetadata, args);

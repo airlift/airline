@@ -37,12 +37,13 @@ import java.util.Map;
 
 import static io.airlift.airline.ParserUtil.createInstance;
 import static io.airlift.airline.ParserUtil.injectOptions;
+import static java.util.Objects.requireNonNull;
 
 public class Cli<C>
 {
     public static <T> CliBuilder<T> builder(String name)
     {
-        Preconditions.checkNotNull(name, "name is null");
+        requireNonNull(name, "name is null");
         return new CliBuilder<T>(name);
     }
 
@@ -67,8 +68,8 @@ public class Cli<C>
             Iterable<Class<? extends C>> defaultGroupCommands,
             Iterable<GroupBuilder<C>> groups)
     {
-        Preconditions.checkNotNull(name, "name is null");
-        Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+        requireNonNull(name, "name is null");
+        requireNonNull(typeConverter, "typeConverter is null");
 
         CommandMetadata defaultCommandMetadata = null;
         if (defaultCommand != null) {
@@ -111,7 +112,7 @@ public class Cli<C>
 
     public C parse(CommandFactory<C> commandFactory, Iterable<String> args)
     {
-        Preconditions.checkNotNull(args, "args is null");
+        requireNonNull(args, "args is null");
 
         Parser parser = new Parser();
         ParseState state = parser.parse(metadata, args);
@@ -141,7 +142,7 @@ public class Cli<C>
 
     public C parse(C commandInstance, String... args)
     {
-        Preconditions.checkNotNull(args, "args is null");
+        requireNonNull(args, "args is null");
 
         Parser parser = new Parser();
         ParseState state = parser.parse(metadata, args);
@@ -218,14 +219,14 @@ public class Cli<C>
 
         public CliBuilder(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
+            requireNonNull(name, "name is null");
             Preconditions.checkArgument(!name.isEmpty(), "name is empty");
             this.name = name;
         }
 
         public CliBuilder<C> withDescription(String description)
         {
-            Preconditions.checkNotNull(description, "description is null");
+            requireNonNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
             this.description = description;
             return this;
@@ -233,21 +234,21 @@ public class Cli<C>
 
         public CliBuilder<C> withCommandFactory(CommandFactory<C> commandFactory)
         {
-            Preconditions.checkNotNull(commandFactory, "commandFactory is null");
+            requireNonNull(commandFactory, "commandFactory is null");
             this.commandFactory = commandFactory;
             return this;
         }
 
 //        public CliBuilder<C> withTypeConverter(TypeConverter typeConverter)
 //        {
-//            Preconditions.checkNotNull(typeConverter, "typeConverter is null");
+//            Preconditions.requireNonNull(typeConverter, "typeConverter is null");
 //            this.typeConverter = typeConverter;
 //            return this;
 //        }
 
 //        public CliBuilder<C> withOptionSeparators(String optionsSeparator)
 //        {
-//            Preconditions.checkNotNull(optionsSeparator, "optionsSeparator is null");
+//            Preconditions.requireNonNull(optionsSeparator, "optionsSeparator is null");
 //            this.optionSeparators = optionsSeparator;
 //            return this;
 //        }
@@ -280,7 +281,7 @@ public class Cli<C>
 
         public GroupBuilder<C> withGroup(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
+            requireNonNull(name, "name is null");
             Preconditions.checkArgument(!name.isEmpty(), "name is empty");
 
             if (groups.containsKey(name)) {
@@ -308,13 +309,13 @@ public class Cli<C>
 
         private GroupBuilder(String name)
         {
-            Preconditions.checkNotNull(name, "name is null");
+            requireNonNull(name, "name is null");
             this.name = name;
         }
 
         public GroupBuilder<C> withDescription(String description)
         {
-            Preconditions.checkNotNull(description, "description is null");
+            requireNonNull(description, "description is null");
             Preconditions.checkArgument(!description.isEmpty(), "description is empty");
             Preconditions.checkState(this.description == null, "description is already set");
             this.description = description;
@@ -323,7 +324,7 @@ public class Cli<C>
 
         public GroupBuilder<C> withDefaultCommand(Class<? extends C> defaultCommand)
         {
-            Preconditions.checkNotNull(defaultCommand, "defaultCommand is null");
+            requireNonNull(defaultCommand, "defaultCommand is null");
             Preconditions.checkState(this.defaultCommand == null, "defaultCommand is already set");
             this.defaultCommand = defaultCommand;
             return this;
@@ -331,7 +332,7 @@ public class Cli<C>
 
         public GroupBuilder<C> withCommand(Class<? extends C> command)
         {
-            Preconditions.checkNotNull(command, "command is null");
+            requireNonNull(command, "command is null");
             commands.add(command);
             return this;
         }

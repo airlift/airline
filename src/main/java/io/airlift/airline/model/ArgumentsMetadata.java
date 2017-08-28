@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public class ArgumentsMetadata
 {
     private final String title;
@@ -19,8 +21,8 @@ public class ArgumentsMetadata
 
     public ArgumentsMetadata(String title, String description, String usage, boolean required, Iterable<Field> path)
     {
-        Preconditions.checkNotNull(title, "title is null");
-        Preconditions.checkNotNull(path, "path is null");
+        requireNonNull(title, "title is null");
+        requireNonNull(path, "path is null");
         Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.title = title;
@@ -32,7 +34,7 @@ public class ArgumentsMetadata
 
     public ArgumentsMetadata(Iterable<ArgumentsMetadata> arguments)
     {
-        Preconditions.checkNotNull(arguments, "arguments is null");
+        requireNonNull(arguments, "arguments is null");
         Preconditions.checkArgument(!Iterables.isEmpty(arguments), "arguments is empty");
 
         ArgumentsMetadata first = arguments.iterator().next();

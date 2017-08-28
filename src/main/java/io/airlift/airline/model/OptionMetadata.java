@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public class OptionMetadata
 {
     private final OptionType optionType;
@@ -36,11 +38,11 @@ public class OptionMetadata
             Iterable<String> allowedValues,
             Iterable<Field> path)
     {
-        Preconditions.checkNotNull(optionType, "optionType is null");
-        Preconditions.checkNotNull(options, "options is null");
+        requireNonNull(optionType, "optionType is null");
+        requireNonNull(options, "options is null");
         Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
-        Preconditions.checkNotNull(title, "title is null");
-        Preconditions.checkNotNull(path, "path is null");
+        requireNonNull(title, "title is null");
+        requireNonNull(path, "path is null");
         Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.optionType = optionType;
@@ -63,7 +65,7 @@ public class OptionMetadata
 
     public OptionMetadata(Iterable<OptionMetadata> options)
     {
-        Preconditions.checkNotNull(options, "options is null");
+        requireNonNull(options, "options is null");
         Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
 
         OptionMetadata option = options.iterator().next();

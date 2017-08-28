@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static java.util.Objects.requireNonNull;
+
 public class Accessor
 {
     private final String name;
@@ -32,7 +34,7 @@ public class Accessor
 
     public Accessor(Iterable<Field> path)
     {
-        Preconditions.checkNotNull(path, "path is null");
+        requireNonNull(path, "path is null");
         Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.path = ImmutableList.copyOf(path);
