@@ -6,9 +6,8 @@ import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 public class ArgumentsMetadata
 {
@@ -43,7 +42,7 @@ public class ArgumentsMetadata
         this.usage = first.usage;
         this.required = first.required;
 
-        Set<Accessor> accessors = newHashSet();
+        Set<Accessor> accessors = new HashSet<>();
         for (ArgumentsMetadata other : arguments) {
             Preconditions.checkArgument(first.equals(other),
                     "Conflicting arguments definitions: %s, %s", first, other);

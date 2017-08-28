@@ -30,11 +30,11 @@ import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.MetadataLoader;
 import io.airlift.airline.model.OptionMetadata;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static io.airlift.airline.ParserUtil.createInstance;
 import static io.airlift.airline.ParserUtil.injectOptions;
 
@@ -212,8 +212,8 @@ public class Cli<C>
         protected TypeConverter typeConverter = new TypeConverter();
         protected String optionSeparators;
         private Class<? extends C> defaultCommand;
-        private final List<Class<? extends C>> defaultCommandGroupCommands = newArrayList();
-        protected final Map<String, GroupBuilder<C>> groups = newHashMap();
+        private final List<Class<? extends C>> defaultCommandGroupCommands = new ArrayList<>();
+        protected final Map<String, GroupBuilder<C>> groups = new HashMap<>();
         protected CommandFactory<C> commandFactory;
 
         public CliBuilder(String name)
@@ -304,7 +304,7 @@ public class Cli<C>
         private String description = null;
         private Class<? extends C> defaultCommand = null;
 
-        private final List<Class<? extends C>> commands = newArrayList();
+        private final List<Class<? extends C>> commands = new ArrayList<>();
 
         private GroupBuilder(String name)
         {

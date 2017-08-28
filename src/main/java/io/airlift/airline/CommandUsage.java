@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.airlift.airline.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 import static io.airlift.airline.UsageHelper.toSynopsisUsage;
 
@@ -77,7 +76,7 @@ public class CommandUsage
         //
         out.append("SYNOPSIS").newline();
         UsagePrinter synopsis = out.newIndentedPrinter(8).newPrinterWithHangingIndent(8);
-        List<OptionMetadata> options = newArrayList();
+        List<OptionMetadata> options = new ArrayList<>();
         if (programName != null) {
             synopsis.append(programName).appendWords(toSynopsisUsage(sortOptions(command.getGlobalOptions())));
             options.addAll(command.getGlobalOptions());

@@ -11,9 +11,8 @@ import io.airlift.airline.OptionType;
 import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 public class OptionMetadata
 {
@@ -83,7 +82,7 @@ public class OptionMetadata
             this.allowedValues = null;
         }
 
-        Set<Accessor> accessors = newHashSet();
+        Set<Accessor> accessors = new HashSet<>();
         for (OptionMetadata other : options) {
             Preconditions.checkArgument(option.equals(other),
                     "Conflicting options definitions: %s, %s", option, other);

@@ -13,11 +13,11 @@ import io.airlift.airline.model.SuggesterMetadata;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.airlift.airline.ParserUtil.createInstance;
 
 @Command(name = "suggest")
@@ -34,7 +34,7 @@ public class SuggestCommand
     public GlobalMetadata metadata;
 
     @Arguments
-    public List<String> arguments = newArrayList();
+    public List<String> arguments = new ArrayList<>();
 
     @VisibleForTesting
     public Iterable<String> generateSuggestions()

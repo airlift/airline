@@ -17,13 +17,13 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 public class MetadataLoader
 {
@@ -219,7 +219,7 @@ public class MetadataLoader
             }
         }));
 
-        Map<String, OptionMetadata> optionIndex = newHashMap();
+        Map<String, OptionMetadata> optionIndex = new HashMap<>();
         for (OptionMetadata option : options) {
             for (String optionName : option.getOptions()) {
                 if (optionIndex.containsKey(optionName)) {
@@ -242,11 +242,11 @@ public class MetadataLoader
 
     private static class InjectionMetadata
     {
-        private List<OptionMetadata> globalOptions = newArrayList();
-        private List<OptionMetadata> groupOptions = newArrayList();
-        private List<OptionMetadata> commandOptions = newArrayList();
-        private List<ArgumentsMetadata> arguments = newArrayList();
-        private List<Accessor> metadataInjections = newArrayList();
+        private List<OptionMetadata> globalOptions = new ArrayList<>();
+        private List<OptionMetadata> groupOptions = new ArrayList<>();
+        private List<OptionMetadata> commandOptions = new ArrayList<>();
+        private List<ArgumentsMetadata> arguments = new ArrayList<>();
+        private List<Accessor> metadataInjections = new ArrayList<>();
 
         private void compact()
         {

@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -128,7 +129,7 @@ public class TestParametersDelegate
     {
         CombinedAndNestedDelegates p = singleCommandParser(CombinedAndNestedDelegates.class)
                 .parse("command", "-d", "234", "--list", "a", "--list", "b", "-a");
-        assertEquals(p.nestedDelegate2.nestedDelegate1.leafDelegate.list, newArrayList("value1", "value2", "a", "b"));
+        assertEquals(p.nestedDelegate2.nestedDelegate1.leafDelegate.list, ImmutableList.of("value1", "value2", "a", "b"));
         assertFalse(p.nestedDelegate2.nestedDelegate1.leafDelegate.bool);
         assertEquals(p.nestedDelegate2.nestedDelegate1.d, Integer.valueOf(234));
         assertFalse(p.nestedDelegate2.isC);
@@ -214,13 +215,13 @@ public class TestParametersDelegate
         public static class Delegate1
         {
             @Arguments
-            public List<String> mainParams1 = newArrayList();
+            public List<String> mainParams1 = new ArrayList<>();
         }
 
         public static class Delegate2
         {
             @Arguments
-            public List<String> mainParams1 = newArrayList();
+            public List<String> mainParams1 = new ArrayList<>();
         }
 
         @Inject
@@ -247,13 +248,13 @@ public class TestParametersDelegate
         public static class Delegate1
         {
             @Arguments(description = "foo")
-            public List<String> mainParams1 = newArrayList();
+            public List<String> mainParams1 = new ArrayList<>();
         }
 
         public static class Delegate2
         {
             @Arguments(description = "bar")
-            public List<String> mainParams1 = newArrayList();
+            public List<String> mainParams1 = new ArrayList<>();
         }
 
         @Inject

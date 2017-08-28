@@ -9,12 +9,12 @@ import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import io.airlift.airline.model.OptionMetadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newTreeMap;
 import static io.airlift.airline.UsageHelper.toUsage;
 import static java.util.stream.Collectors.toList;
 
@@ -58,7 +58,7 @@ public class GlobalUsageSummary
         //
 
         // build arguments
-        List<String> commandArguments = newArrayList();
+        List<String> commandArguments = new ArrayList<>();
         commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
         {
             public String apply(OptionMetadata option)
@@ -81,7 +81,7 @@ public class GlobalUsageSummary
         // Common commands
         //
 
-        Map<String, String> commands = newTreeMap();
+        Map<String, String> commands = new TreeMap<>();
         for (CommandMetadata commandMetadata : global.getDefaultGroupCommands()) {
             if (!commandMetadata.isHidden()) {
                 commands.put(commandMetadata.getName(), commandMetadata.getDescription());

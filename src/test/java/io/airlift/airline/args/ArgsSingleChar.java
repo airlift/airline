@@ -18,18 +18,18 @@
 
 package io.airlift.airline.args;
 
-import com.google.common.collect.Lists;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Command(name = "ArgsSingleChar")
 public class ArgsSingleChar
 {
     @Arguments
-    public List<String> parameters = Lists.newArrayList();
+    public List<String> parameters = new ArrayList<>();
 
     @Option(name = {"-l"}, description = "Long")
     public boolean l = false;
