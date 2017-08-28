@@ -1,6 +1,5 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
@@ -9,6 +8,7 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class ArgumentsMetadata
@@ -23,7 +23,7 @@ public class ArgumentsMetadata
     {
         requireNonNull(title, "title is null");
         requireNonNull(path, "path is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+        checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.title = title;
         this.description = description;
@@ -35,7 +35,7 @@ public class ArgumentsMetadata
     public ArgumentsMetadata(Iterable<ArgumentsMetadata> arguments)
     {
         requireNonNull(arguments, "arguments is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(arguments), "arguments is empty");
+        checkArgument(!Iterables.isEmpty(arguments), "arguments is empty");
 
         ArgumentsMetadata first = arguments.iterator().next();
 
@@ -46,7 +46,7 @@ public class ArgumentsMetadata
 
         Set<Accessor> accessors = new HashSet<>();
         for (ArgumentsMetadata other : arguments) {
-            Preconditions.checkArgument(first.equals(other),
+            checkArgument(first.equals(other),
                     "Conflicting arguments definitions: %s, %s", first, other);
 
             accessors.addAll(other.getAccessors());

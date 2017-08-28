@@ -1,6 +1,5 @@
 package io.airlift.airline;
 
-import com.google.common.base.Preconditions;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
@@ -13,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.airline.UsageHelper.DEFAULT_COMMAND_COMPARATOR;
 import static io.airlift.airline.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 
@@ -40,7 +40,7 @@ public class CommandGroupUsage
 
     public CommandGroupUsage(int columnSize, boolean hideGlobalOptions, @Nullable Comparator<? super OptionMetadata> optionComparator)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        checkArgument(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
         this.hideGlobalOptions = hideGlobalOptions;
         this.optionComparator = optionComparator;

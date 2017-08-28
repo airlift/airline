@@ -2,7 +2,6 @@ package io.airlift.airline;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -18,6 +17,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class Accessor
@@ -35,7 +35,7 @@ public class Accessor
     public Accessor(Iterable<Field> path)
     {
         requireNonNull(path, "path is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+        checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.path = ImmutableList.copyOf(path);
         this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()

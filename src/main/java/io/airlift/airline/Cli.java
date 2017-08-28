@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.airline.ParserUtil.createInstance;
 import static io.airlift.airline.ParserUtil.injectOptions;
 import static java.util.Objects.requireNonNull;
@@ -220,14 +221,14 @@ public class Cli<C>
         public CliBuilder(String name)
         {
             requireNonNull(name, "name is null");
-            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
+            checkArgument(!name.isEmpty(), "name is empty");
             this.name = name;
         }
 
         public CliBuilder<C> withDescription(String description)
         {
             requireNonNull(description, "description is null");
-            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            checkArgument(!description.isEmpty(), "description is empty");
             this.description = description;
             return this;
         }
@@ -282,7 +283,7 @@ public class Cli<C>
         public GroupBuilder<C> withGroup(String name)
         {
             requireNonNull(name, "name is null");
-            Preconditions.checkArgument(!name.isEmpty(), "name is empty");
+            checkArgument(!name.isEmpty(), "name is empty");
 
             if (groups.containsKey(name)) {
                 return groups.get(name);
@@ -316,7 +317,7 @@ public class Cli<C>
         public GroupBuilder<C> withDescription(String description)
         {
             requireNonNull(description, "description is null");
-            Preconditions.checkArgument(!description.isEmpty(), "description is empty");
+            checkArgument(!description.isEmpty(), "description is empty");
             Preconditions.checkState(this.description == null, "description is already set");
             this.description = description;
             return this;

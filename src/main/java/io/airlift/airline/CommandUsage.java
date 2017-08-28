@@ -1,6 +1,5 @@
 package io.airlift.airline;
 
-import com.google.common.base.Preconditions;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
@@ -12,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.airline.UsageHelper.DEFAULT_OPTION_COMPARATOR;
 import static io.airlift.airline.UsageHelper.toSynopsisUsage;
 
@@ -32,7 +32,7 @@ public class CommandUsage
 
     public CommandUsage(int columnSize, @Nullable Comparator<? super OptionMetadata> optionComparator)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        checkArgument(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
         this.optionComparator = optionComparator;
     }

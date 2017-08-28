@@ -1,7 +1,6 @@
 package io.airlift.airline;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import io.airlift.airline.model.CommandGroupMetadata;
@@ -15,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.airline.UsageHelper.toUsage;
 import static java.util.stream.Collectors.toList;
 
@@ -29,7 +29,7 @@ public class GlobalUsageSummary
 
     public GlobalUsageSummary(int columnSize)
     {
-        Preconditions.checkArgument(columnSize > 0, "columnSize must be greater than 0");
+        checkArgument(columnSize > 0, "columnSize must be greater than 0");
         this.columnSize = columnSize;
     }
 

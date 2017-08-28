@@ -1,7 +1,6 @@
 package io.airlift.airline.model;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -23,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.transform;
 
 public class MetadataLoader
@@ -79,7 +79,7 @@ public class MetadataLoader
         for (Class<?> cls = commandType; command == null && !Object.class.equals(cls); cls = cls.getSuperclass()) {
             command = cls.getAnnotation(Command.class);
         }
-        Preconditions.checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
+        checkArgument(command != null, "Command %s is not annotated with @Command", commandType.getName());
         String name = command.name();
         String description = command.description().isEmpty() ? null : command.description();
         boolean hidden = command.hidden();
@@ -147,7 +147,7 @@ public class MetadataLoader
                     String description = optionAnnotation.description();
 
                     int arity = optionAnnotation.arity();
-                    Preconditions.checkArgument(arity >= 0 || arity == Integer.MIN_VALUE, "Invalid arity for option %s", name);
+                    checkArgument(arity >= 0 || arity == Integer.MIN_VALUE, "Invalid arity for option %s", name);
 
                     if (optionAnnotation.arity() >= 0) {
                         arity = optionAnnotation.arity();

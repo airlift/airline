@@ -1,7 +1,6 @@
 package io.airlift.airline.model;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -14,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class OptionMetadata
@@ -40,10 +40,10 @@ public class OptionMetadata
     {
         requireNonNull(optionType, "optionType is null");
         requireNonNull(options, "options is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
+        checkArgument(!Iterables.isEmpty(options), "options is empty");
         requireNonNull(title, "title is null");
         requireNonNull(path, "path is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
+        checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.optionType = optionType;
         this.options = ImmutableSet.copyOf(options);
@@ -66,7 +66,7 @@ public class OptionMetadata
     public OptionMetadata(Iterable<OptionMetadata> options)
     {
         requireNonNull(options, "options is null");
-        Preconditions.checkArgument(!Iterables.isEmpty(options), "options is empty");
+        checkArgument(!Iterables.isEmpty(options), "options is empty");
 
         OptionMetadata option = options.iterator().next();
 
@@ -86,7 +86,7 @@ public class OptionMetadata
 
         Set<Accessor> accessors = new HashSet<>();
         for (OptionMetadata other : options) {
-            Preconditions.checkArgument(option.equals(other),
+            checkArgument(option.equals(other),
                     "Conflicting options definitions: %s, %s", option, other);
 
             accessors.addAll(other.getAccessors());
