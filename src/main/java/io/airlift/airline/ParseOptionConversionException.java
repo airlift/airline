@@ -25,12 +25,17 @@ public class ParseOptionConversionException
     private final String value;
     private final String typeName;
 
-    ParseOptionConversionException(String optionTitle, String value, String typeName)
+    ParseOptionConversionException(String optionTitle, String value, String typeName, String additionalComment)
     {
-        super("%s: can not convert \"%s\" to a %s", optionTitle, value, typeName);
+        super("%s: can not convert \"%s\" to a %s. %s", optionTitle, value, typeName, additionalComment);
         this.optionTitle = optionTitle;
         this.value = value;
         this.typeName = typeName;
+    }
+
+    ParseOptionConversionException(String optionTitle, String value, String typeName)
+    {
+        this(optionTitle, value, typeName, "");
     }
 
     public String getOptionTitle()

@@ -1,9 +1,15 @@
 package io.airlift.airline;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 public class TypeConverter
 {
@@ -61,8 +67,26 @@ public class TypeConverter
         try {
             Method valueOf = type.getMethod("valueOf", String.class);
             if (valueOf.getReturnType().isAssignableFrom(type)) {
-                return valueOf.invoke(null, value);
+                try {
+                    return valueOf.invoke(null, value);
+                }
+                catch (InvocationTargetException e) {
+                    if (type.isEnum()) {
+                        List<String> enumConstantNames = Lists.transform(Arrays.asList(((Class<Enum>) type).getEnumConstants()), new Function<Enum, String>() {
+                            @Override
+                            public String apply(Enum input)
+                            {
+                                return input.name();
+                            }
+                        });
+                        String message = String.format("Invalid %s, Valid values are: %s", name, Joiner.on(", ").join(enumConstantNames));
+                        throw new ParseOptionConversionException(name, value, type.getSimpleName(), message);
+                    }
+                }
             }
+        }
+        catch (ParseOptionConversionException e) {
+            throw e;
         }
         catch (Throwable ignored) {
         }
