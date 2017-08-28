@@ -154,7 +154,7 @@ public class TestCommand
     public void repeatedArgs()
     {
         Cli<Args1> parser = singleCommandParser(Args1.class);
-        CommandMetadata command = find(parser.getMetadata().getDefaultGroupCommands(), compose(equalTo("Args1"), CommandMetadata.nameGetter()));
+        CommandMetadata command = find(parser.getMetadata().getDefaultGroupCommands(), compose(equalTo("Args1"), CommandMetadata::getName));
         assertEquals(command.getAllOptions().size(), 8);
     }
 

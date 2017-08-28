@@ -1,7 +1,5 @@
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -19,6 +17,7 @@ import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 public class Accessor
 {
@@ -38,13 +37,8 @@ public class Accessor
         checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.path = ImmutableList.copyOf(path);
-        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()
-        {
-            public String apply(Field field)
-            {
-                return field.getName();
-            }
-        }));
+        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." +
+                this.path.stream().map(Field::getName).collect(joining("."));
 
         Field field = this.path.get(this.path.size() - 1);
         multiValued = Collection.class.isAssignableFrom(field.getType());

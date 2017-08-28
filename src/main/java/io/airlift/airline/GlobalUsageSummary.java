@@ -1,21 +1,17 @@
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
-import io.airlift.airline.model.OptionMetadata;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.airlift.airline.UsageHelper.toUsage;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.stream.Collectors.toList;
 
 public class GlobalUsageSummary
@@ -58,17 +54,11 @@ public class GlobalUsageSummary
         //
 
         // build arguments
-        List<String> commandArguments = new ArrayList<>();
-        commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
-        {
-            public String apply(OptionMetadata option)
-            {
-                if (option.isHidden()) {
-                    return null;
-                }
-                return toUsage(option);
-            }
-        }));
+        List<String> commandArguments = global.getOptions().stream()
+                .filter(option -> !option.isHidden())
+                .map(UsageHelper::toUsage)
+                .collect(toImmutableList());
+
         out.newPrinterWithHangingIndent(8)
                 .append("usage:")
                 .append(global.getName())

@@ -20,9 +20,9 @@ public class GlobalSuggester
     public Iterable<String> suggest()
     {
         return concat(
-                transform(metadata.getCommandGroups(), CommandGroupMetadata.nameGetter()),
-                transform(metadata.getDefaultGroupCommands(), CommandMetadata.nameGetter()),
-                concat(transform(metadata.getOptions(), OptionMetadata.optionsGetter()))
+                transform(metadata.getCommandGroups(), CommandGroupMetadata::getName),
+                transform(metadata.getDefaultGroupCommands(), CommandMetadata::getName),
+                concat(transform(metadata.getOptions(), OptionMetadata::getOptions))
         );
     }
 }

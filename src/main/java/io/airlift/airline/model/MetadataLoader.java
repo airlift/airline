@@ -1,6 +1,5 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -12,18 +11,17 @@ import io.airlift.airline.Option;
 import io.airlift.airline.OptionType;
 import io.airlift.airline.Suggester;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.Streams.stream;
 
 public class MetadataLoader
 {
@@ -64,13 +62,9 @@ public class MetadataLoader
 
     public static <T> ImmutableList<CommandMetadata> loadCommands(Iterable<Class<? extends T>> defaultCommands)
     {
-        return ImmutableList.copyOf(Iterables.transform(defaultCommands, new Function<Class<?>, CommandMetadata>()
-        {
-            public CommandMetadata apply(Class<?> commandType)
-            {
-                return loadCommand(commandType);
-            }
-        }));
+        return stream(defaultCommands)
+                .map(MetadataLoader::loadCommand)
+                .collect(toImmutableList());
     }
 
     public static CommandMetadata loadCommand(Class<?> commandType)
@@ -210,14 +204,9 @@ public class MetadataLoader
             metadataIndex.put(option, option);
         }
 
-        options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
-        {
-            @Override
-            public OptionMetadata apply(@Nullable Collection<OptionMetadata> options)
-            {
-                return new OptionMetadata(options);
-            }
-        }));
+        options = metadataIndex.asMap().values().stream()
+                .map(OptionMetadata::new)
+                .collect(toImmutableList());
 
         Map<String, OptionMetadata> optionIndex = new HashMap<>();
         for (OptionMetadata option : options) {

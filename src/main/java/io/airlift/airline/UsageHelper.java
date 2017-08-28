@@ -1,23 +1,16 @@
 package io.airlift.airline;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.OptionMetadata;
-
-import javax.annotation.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
-import static io.airlift.airline.model.OptionMetadata.isHiddenPredicate;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static java.util.stream.Collectors.joining;
 
 public class UsageHelper
 {
@@ -54,35 +47,21 @@ public class UsageHelper
 
     public static String toDescription(OptionMetadata option)
     {
-        Set<String> options = option.getOptions();
-        StringBuilder stringBuilder = new StringBuilder();
+        return optionString(option, ", ");
+    }
 
-        final String argumentString;
-        if (option.getArity() > 0) {
-            argumentString = Joiner.on(" ").join(Lists.transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
-            {
-                public String apply(@Nullable String argument)
-                {
-                    return "<" + argument + ">";
-                }
-            }));
-        }
-        else {
-            argumentString = null;
-        }
+    private static String optionString(OptionMetadata option, String delimiter)
+    {
+        String argument = (option.getArity() > 0) ? ("<" + option.getTitle() + ">") : null;
 
-        Joiner.on(", ").appendTo(stringBuilder, transform(options, new Function<String, String>()
-        {
-            public String apply(@Nullable String option)
-            {
-                if (argumentString != null) {
-                    return option + " " + argumentString;
-                }
-                return option;
-            }
-        }));
-
-        return stringBuilder.toString();
+        return option.getOptions().stream()
+                .map(value -> {
+                    if (argument != null) {
+                        return value + " " + argument;
+                    }
+                    return value;
+                })
+                .collect(joining(delimiter));
     }
 
     public static String toDescription(ArgumentsMetadata arguments)
@@ -107,32 +86,7 @@ public class UsageHelper
             stringBuilder.append('(');
         }
 
-        final String argumentString;
-        if (option.getArity() > 0) {
-            argumentString = Joiner.on(" ").join(transform(ImmutableList.of(option.getTitle()), new Function<String, String>()
-            {
-                public String apply(@Nullable String argument)
-                {
-                    return "<" + argument + ">";
-                }
-            }));
-        }
-        else {
-            argumentString = null;
-        }
-
-        Joiner.on(" | ").appendTo(stringBuilder, transform(options, new Function<String, String>()
-        {
-            public String apply(@Nullable String option)
-            {
-                if (argumentString != null) {
-                    return option + " " + argumentString;
-                }
-                else {
-                    return option;
-                }
-            }
-        }));
+        stringBuilder.append(optionString(option, " | "));
 
         if (options.size() > 1) {
             stringBuilder.append(')');
@@ -174,12 +128,9 @@ public class UsageHelper
 
     public static List<String> toSynopsisUsage(List<OptionMetadata> options)
     {
-        return ImmutableList.copyOf(transform(filter(options, isHiddenPredicate()), new Function<OptionMetadata, String>()
-        {
-            public String apply(OptionMetadata option)
-            {
-                return toUsage(option);
-            }
-        }));
+        return options.stream()
+                .filter(input -> !input.isHidden())
+                .map(UsageHelper::toUsage)
+                .collect(toImmutableList());
     }
 }

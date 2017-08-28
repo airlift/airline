@@ -1,13 +1,9 @@
 package io.airlift.airline.model;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.airline.Accessor;
 import io.airlift.airline.OptionType;
-
-import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -218,28 +214,5 @@ public class OptionMetadata
         sb.append(", accessors=").append(accessors);
         sb.append('}');
         return sb.toString();
-    }
-
-    public static Function<OptionMetadata, Set<String>> optionsGetter()
-    {
-        return new Function<OptionMetadata, Set<String>>()
-        {
-            public Set<String> apply(OptionMetadata input)
-            {
-                return input.getOptions();
-            }
-        };
-    }
-
-    public static Predicate<OptionMetadata> isHiddenPredicate()
-    {
-        return new Predicate<OptionMetadata>()
-        {
-            @Override
-            public boolean apply(@Nullable OptionMetadata input)
-            {
-                return !input.isHidden();
-            }
-        };
     }
 }

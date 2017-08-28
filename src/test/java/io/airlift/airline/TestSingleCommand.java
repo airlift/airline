@@ -130,7 +130,7 @@ public class TestSingleCommand
     public void repeatedArgs()
     {
         SingleCommand<Args1> parser = singleCommand(Args1.class);
-        CommandMetadata command = find(ImmutableList.of(parser.getCommandMetadata()), compose(equalTo("Args1"), CommandMetadata.nameGetter()));
+        CommandMetadata command = find(ImmutableList.of(parser.getCommandMetadata()), compose(equalTo("Args1"), CommandMetadata::getName));
         assertEquals(command.getAllOptions().size(), 8);
     }
 

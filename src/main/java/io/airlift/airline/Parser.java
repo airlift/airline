@@ -38,7 +38,7 @@ public class Parser
 
         // parse group
         if (tokens.hasNext()) {
-            CommandGroupMetadata group = find(metadata.getCommandGroups(), compose(equalTo(tokens.peek()), CommandGroupMetadata.nameGetter()), null);
+            CommandGroupMetadata group = find(metadata.getCommandGroups(), compose(equalTo(tokens.peek()), CommandGroupMetadata::getName), null);
             if (group != null) {
                 tokens.next();
                 state = state.withGroup(group).pushContext(Context.GROUP);
@@ -54,7 +54,7 @@ public class Parser
         }
 
         if (tokens.hasNext()) {
-            CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata.nameGetter()), null);
+            CommandMetadata command = find(expectedCommands, compose(equalTo(tokens.peek()), CommandMetadata::getName), null);
             if (command == null) {
                 while (tokens.hasNext()) {
                     state = state.withUnparsedInput(tokens.next());

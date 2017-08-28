@@ -18,11 +18,9 @@
 
 package io.airlift.airline;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import io.airlift.airline.model.ArgumentsMetadata;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
@@ -36,8 +34,13 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.Streams.stream;
 import static io.airlift.airline.ParserUtil.createInstance;
 import static io.airlift.airline.ParserUtil.injectOptions;
+import static io.airlift.airline.model.MetadataLoader.loadCommand;
+import static io.airlift.airline.model.MetadataLoader.loadCommandGroup;
+import static io.airlift.airline.model.MetadataLoader.loadCommands;
 import static java.util.Objects.requireNonNull;
 
 public class Cli<C>
@@ -74,19 +77,18 @@ public class Cli<C>
 
         CommandMetadata defaultCommandMetadata = null;
         if (defaultCommand != null) {
-            defaultCommandMetadata = MetadataLoader.loadCommand(defaultCommand);
+            defaultCommandMetadata = loadCommand(defaultCommand);
         }
 
-        List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
+        List<CommandMetadata> defaultCommandGroup = loadCommands(defaultGroupCommands);
 
-        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
-        {
-            @Override
-            public CommandGroupMetadata apply(GroupBuilder<C> group)
-            {
-                return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
-            }
-        }));
+        List<CommandGroupMetadata> commandGroups = stream(groups)
+                .map(group -> loadCommandGroup(
+                        group.name,
+                        group.description,
+                        loadCommand(group.defaultCommand),
+                        loadCommands(group.commands)))
+                .collect(toImmutableList());
 
         this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
     }

@@ -19,8 +19,8 @@ public class GroupSuggester
     public Iterable<String> suggest()
     {
         return concat(
-                transform(group.getCommands(), CommandMetadata.nameGetter()),
-                concat(transform(group.getOptions(), OptionMetadata.optionsGetter()))
+                transform(group.getCommands(), CommandMetadata::getName),
+                concat(transform(group.getOptions(), OptionMetadata::getOptions))
         );
     }
 }
