@@ -1,7 +1,7 @@
 package io.airlift.airline;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -97,7 +97,7 @@ public class GlobalUsageSummary
         {
             public Iterable<String> apply(Entry<String, String> entry)
             {
-                return ImmutableList.of(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""));
+                return ImmutableList.of(entry.getKey(), MoreObjects.firstNonNull(entry.getValue(), ""));
             }
         }));
         out.newline();

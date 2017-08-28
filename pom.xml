@@ -27,9 +27,10 @@
         <version>45</version>
     </parent>
 
+    <groupId>it.ibttn</groupId>
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
 
     <name>airline</name>
     <description>Java annotation-based framework for parsing Git like command line structures</description>
@@ -38,8 +39,8 @@
     <inceptionYear>2012</inceptionYear>
 
     <scm>
-        <connection>scm:git:git@github.com:airlift/airline.git</connection>
-        <url>http://github.com/airlift/airline/tree/master</url>
+        <connection>scm:git:git@github.com:marchign/airline.git</connection>
+        <url>http://github.com/marchign/airline/tree/master</url>
         <tag>HEAD</tag>
     </scm>
 
