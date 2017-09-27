@@ -33,7 +33,7 @@ public @interface Option
     OptionType type() default OptionType.COMMAND;
 
     /**
-     * Name use to identify the option value in documentation and error messages.
+     * Name used to identify the option value in documentation and error messages.
      */
     String title() default "";
 
