@@ -10,7 +10,6 @@ atlassian-ide-plugin.xml
 .classpath
 .project
 .settings
-.project
 temp-testng-customsuite.xml
 .externalToolBuilders
 *~
