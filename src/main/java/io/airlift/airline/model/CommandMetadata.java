@@ -107,12 +107,6 @@ public class CommandMetadata
 
     public static Function<CommandMetadata, String> nameGetter()
     {
-        return new Function<CommandMetadata, String>()
-        {
-            public String apply(CommandMetadata input)
-            {
-                return input.getName();
-            }
-        };
+        return input -> input.getName();
     }
 }

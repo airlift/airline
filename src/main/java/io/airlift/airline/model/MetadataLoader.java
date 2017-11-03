@@ -64,13 +64,7 @@ public class MetadataLoader
 
     public static <T> ImmutableList<CommandMetadata> loadCommands(Iterable<Class<? extends T>> defaultCommands)
     {
-        return ImmutableList.copyOf(Iterables.transform(defaultCommands, new Function<Class<?>, CommandMetadata>()
-        {
-            public CommandMetadata apply(Class<?> commandType)
-            {
-                return loadCommand(commandType);
-            }
-        }));
+        return ImmutableList.copyOf(Iterables.transform(defaultCommands, commandType -> loadCommand(commandType)));
     }
 
     public static CommandMetadata loadCommand(Class<?> commandType)
@@ -210,14 +204,7 @@ public class MetadataLoader
             metadataIndex.put(option, option);
         }
 
-        options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), new Function<Collection<OptionMetadata>, OptionMetadata>()
-        {
-            @Override
-            public OptionMetadata apply(@Nullable Collection<OptionMetadata> options)
-            {
-                return new OptionMetadata(options);
-            }
-        }));
+        options = ImmutableList.copyOf(transform(metadataIndex.asMap().values(), optionsDatas -> new OptionMetadata(optionsDatas)));
 
         Map<String, OptionMetadata> optionIndex = newHashMap();
         for (OptionMetadata option : options) {

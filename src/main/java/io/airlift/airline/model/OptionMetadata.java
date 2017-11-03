@@ -221,24 +221,11 @@ public class OptionMetadata
 
     public static Function<OptionMetadata, Set<String>> optionsGetter()
     {
-        return new Function<OptionMetadata, Set<String>>()
-        {
-            public Set<String> apply(OptionMetadata input)
-            {
-                return input.getOptions();
-            }
-        };
+        return input -> input.getOptions();
     }
 
     public static Predicate<OptionMetadata> isHiddenPredicate()
     {
-        return new Predicate<OptionMetadata>()
-        {
-            @Override
-            public boolean apply(@Nullable OptionMetadata input)
-            {
-                return !input.isHidden();
-            }
-        };
+        return input ->  !input.isHidden();
     }
 }

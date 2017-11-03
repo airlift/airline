@@ -77,14 +77,9 @@ public class Cli<C>
 
         List<CommandMetadata> defaultCommandGroup = MetadataLoader.loadCommands(defaultGroupCommands);
 
-        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups, new Function<GroupBuilder<C>, CommandGroupMetadata>()
-        {
-            @Override
-            public CommandGroupMetadata apply(GroupBuilder<C> group)
-            {
-                return MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands));
-            }
-        }));
+        List<CommandGroupMetadata> commandGroups = ImmutableList.copyOf(Iterables.transform(groups,         		
+        		group -> MetadataLoader.loadCommandGroup(group.name, group.description, MetadataLoader.loadCommand(group.defaultCommand), MetadataLoader.loadCommands(group.commands))
+        		));
 
         this.metadata = MetadataLoader.loadGlobal(name, description, defaultCommandMetadata, defaultCommandGroup, commandGroups);
     }

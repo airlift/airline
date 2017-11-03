@@ -36,13 +36,7 @@ public class Accessor
         Preconditions.checkArgument(!Iterables.isEmpty(path), "path is empty");
 
         this.path = ImmutableList.copyOf(path);
-        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, new Function<Field, String>()
-        {
-            public String apply(Field field)
-            {
-                return field.getName();
-            }
-        }));
+        this.name = this.path.get(0).getDeclaringClass().getSimpleName() + "." + Joiner.on('.').join(Iterables.transform(this.path, field -> field.getName()));
 
         Field field = this.path.get(this.path.size() - 1);
         multiValued = Collection.class.isAssignableFrom(field.getType());

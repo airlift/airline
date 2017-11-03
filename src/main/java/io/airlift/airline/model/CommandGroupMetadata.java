@@ -63,12 +63,6 @@ public class CommandGroupMetadata
 
     public static Function<CommandGroupMetadata, String> nameGetter()
     {
-        return new Function<CommandGroupMetadata, String>()
-        {
-            public String apply(CommandGroupMetadata input)
-            {
-                return input.getName();
-            }
-        };
+        return input -> input.getName();
     }
 }

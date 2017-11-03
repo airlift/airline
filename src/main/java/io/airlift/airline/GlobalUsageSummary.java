@@ -60,16 +60,8 @@ public class GlobalUsageSummary
 
         // build arguments
         List<String> commandArguments = newArrayList();
-        commandArguments.addAll(Collections2.transform(global.getOptions(), new Function<OptionMetadata, String>()
-        {
-            public String apply(OptionMetadata option)
-            {
-                if (option.isHidden()) {
-                    return null;
-                }
-                return toUsage(option);
-            }
-        }));
+        commandArguments.addAll(Collections2.transform(global.getOptions(), 
+        		optionValue -> (optionValue.isHidden())?null:toUsage(optionValue)));
         out.newPrinterWithHangingIndent(8)
                 .append("usage:")
                 .append(global.getName())
@@ -93,13 +85,8 @@ public class GlobalUsageSummary
         }
 
         out.append("The most commonly used ").append(global.getName()).append(" commands are:").newline();
-        out.newIndentedPrinter(4).appendTable(Iterables.transform(commands.entrySet(), new Function<Entry<String, String>, Iterable<String>>()
-        {
-            public Iterable<String> apply(Entry<String, String> entry)
-            {
-                return ImmutableList.of(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""));
-            }
-        }));
+        out.newIndentedPrinter(4).appendTable(Iterables.transform(commands.entrySet(), 
+        		entry -> ImmutableList.of(entry.getKey(), Objects.firstNonNull(entry.getValue(), ""))));
         out.newline();
         out.append("See").append("'" + global.getName()).append("help <command>' for more information on a specific command.").newline();
     }
