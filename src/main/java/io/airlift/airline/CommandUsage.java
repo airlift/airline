@@ -147,7 +147,7 @@ public class CommandUsage
     private List<OptionMetadata> sortOptions(List<OptionMetadata> options)
     {
         if (optionComparator != null) {
-            options = new ArrayList<OptionMetadata>(options);
+            options = new ArrayList<>(options);
             Collections.sort(options, optionComparator);
         }
         return options;

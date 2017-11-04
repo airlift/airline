@@ -146,10 +146,10 @@ public class Accessor
     private static Collection<Object> newCollection(Class<?> type)
     {
         if (Collection.class.equals(type) || List.class.equals(type)) {
-            return new ArrayList<Object>();
+            return new ArrayList<>();
         }
         if (Set.class.equals(type)) {
-            return new HashSet<Object>();
+            return new HashSet<>();
         }
         if (SortedSet.class.equals(type)) {
             return new TreeSet();

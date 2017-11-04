@@ -34,7 +34,7 @@ public class SingleCommand<C>
 {
     public static <C> SingleCommand<C> singleCommand(Class<C> command)
     {
-        return new SingleCommand<C>(command);
+        return new SingleCommand<>(command);
     }
 
     private final CommandMetadata commandMetadata;

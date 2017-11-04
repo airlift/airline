@@ -43,7 +43,7 @@ public class Cli<C>
     public static <T> CliBuilder<T> builder(String name)
     {
         Preconditions.checkNotNull(name, "name is null");
-        return new CliBuilder<T>(name);
+        return new CliBuilder<>(name);
     }
 
     @Deprecated
@@ -281,14 +281,14 @@ public class Cli<C>
                 return groups.get(name);
             }
 
-            GroupBuilder<C> group = new GroupBuilder<C>(name);
+            GroupBuilder<C> group = new GroupBuilder<>(name);
             groups.put(name, group);
             return group;
         }
 
         public Cli<C> build()
         {
-            return new Cli<C>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
+            return new Cli<>(name, description, typeConverter, defaultCommand, defaultCommandGroupCommands, groups.values());
         }
     }
 
