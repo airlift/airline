@@ -28,38 +28,38 @@ public class Help implements Runnable, Callable<Void> {
     public List<String> command = newArrayList();
 
     @Override
-    public void run()
+    public void run() throws UnsupportedOperationException
     {
         help(global, command);
     }
 
     @Override
-    public Void call()
+    public Void call() throws UnsupportedOperationException
     {
         run();
         return null;
     }
 
-    public static void help(CommandMetadata command)
+    public static void help(CommandMetadata command) throws UnsupportedOperationException
     {
         StringBuilder stringBuilder = new StringBuilder();
         help(command, stringBuilder);
         System.out.println(stringBuilder.toString());
     }
 
-    public static void help(CommandMetadata command, StringBuilder out)
+    public static void help(CommandMetadata command, StringBuilder out) throws UnsupportedOperationException
     {
         new CommandUsage().usage(null, null, command.getName(), command, out);
     }
 
-    public static void help(GlobalMetadata global, List<String> commandNames)
+    public static void help(GlobalMetadata global, List<String> commandNames) throws UnsupportedOperationException
     {
         StringBuilder stringBuilder = new StringBuilder();
         help(global, commandNames, stringBuilder);
         System.out.println(stringBuilder.toString());
     }
 
-    public static void help(GlobalMetadata global, List<String> commandNames, StringBuilder out)
+    public static void help(GlobalMetadata global, List<String> commandNames, StringBuilder out) throws UnsupportedOperationException
     {
         if (commandNames.isEmpty()) {
             new GlobalUsageSummary().usage(global, out);
@@ -115,11 +115,11 @@ public class Help implements Runnable, Callable<Void> {
                             return;
                         }
                     }
-                    System.out.println("Unknown command " + name + " " + commandName);
+                    throw new UnsupportedOperationException("Unknown command " + name + " " + commandName);
                 }
             }
         }
 
-        System.out.println("Unknown command " + name);
+        throw new UnsupportedOperationException("Unknown command " + name);
     }
 }

@@ -576,4 +576,21 @@ public class HelpTest
                 "\n" +
                 "\n");
     }
+
+    @Test
+    public void testUnknownCommand() {
+        CliBuilder<Object> builder = Cli.builder("test")
+                                             .withDescription("Test commandline")
+                                             .withDefaultCommand(Help.class)
+                                             .withCommands(Help.class,
+                                                     OptionsRequired.class);
+        try {
+            Help help = (Help) builder.build().parse("asdf");
+            help.call();
+            Assert.fail("Exception should have been thrown for unknown command");
+        }
+        catch (UnsupportedOperationException e) {
+            Assert.assertEquals("Unknown command asdf", e.getMessage());
+        }
+    }
 }
