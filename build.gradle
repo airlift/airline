@@ -9,9 +9,9 @@ task wrapper(type: Wrapper) {
 
 allprojects {
 	group = "com.complexible.airline"
-	sourceCompatibility = '1.6'
-	targetCompatibility = '1.6'
-	version = "0.7.4"
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	version = "0.7.5"
 
 	repositories {
 		mavenCentral()
