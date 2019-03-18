@@ -116,7 +116,7 @@ public class Parser
                 continue;
             }
 
-            // did not match an option
+			System.err.println(tokens.peek() + " did not match any supported option style");
             break;
         }
 
@@ -127,7 +127,7 @@ public class Parser
     {
         OptionMetadata option = findOption(allowedOptions, tokens.peek());
         if (option == null) {
-            return null;
+        	return state.withUnparsedInput(tokens.peek());
         }
 
         tokens.next();
@@ -168,8 +168,7 @@ public class Parser
 
         OptionMetadata option = findOption(allowedOptions, parts.get(0));
         if (option == null || option.getArity() != 1) {
-            // TODO: this is not exactly correct. It should be an error condition
-            return null;
+        	return state.withUnparsedInput(tokens.peek());
         }
 
         // we have a match so consume the token
@@ -199,7 +198,7 @@ public class Parser
             // is the current token character a single letter option?
             OptionMetadata option = findOption(allowedOptions, "-" + tokenCharacter);
             if (option == null) {
-                return null;
+                return nextState.withUnparsedInput(tokens.peek());
             }
 
             nextState = nextState.pushContext(Context.OPTION).withOption(option);
