@@ -88,7 +88,7 @@ public class TestGalaxyCommandLineParser
     public static class GlobalOptions
     {
         @Option(type = GLOBAL, name = "--debug", description = "Enable debug messages")
-        public boolean debug = false;
+        public boolean debug;
 
         @Option(type = GLOBAL, name = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
         public String coordinator = firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
@@ -163,7 +163,7 @@ public class TestGalaxyCommandLineParser
         }
     }
 
-    public static abstract class GalaxyCommand
+    public abstract static class GalaxyCommand
     {
         @Inject
         public GlobalOptions globalOptions = new GlobalOptions();

@@ -28,7 +28,6 @@ import java.util.List;
 @Command(name = "CommandLineArgs")
 public class CommandLineArgs
 {
-
     @Arguments(description = "The XML suite files to run")
     public List<String> suiteFiles = new ArrayList<>();
 
@@ -38,8 +37,7 @@ public class CommandLineArgs
     @Option(name = "-groups", description = "Comma-separated list of group names to be run")
     public String groups;
 
-    @Option(name = "-excludedgroups", description = "Comma-separated list of group names to be " +
-            "run")
+    @Option(name = "-excludedgroups", description = "Comma-separated list of group names to be run")
     public String excludedGroups;
 
     @Option(name = "-d", description = "Output directory")
@@ -48,16 +46,13 @@ public class CommandLineArgs
     @Option(name = "-junit", description = "JUnit mode")
     public Boolean junit = Boolean.FALSE;
 
-    @Option(name = "-listener", description = "List of .class files or list of class names" +
-            " implementing ITestListener or ISuiteListener")
+    @Option(name = "-listener", description = "List of .class files or list of class names implementing ITestListener or ISuiteListener")
     public String listener;
 
-    @Option(name = "-methodselectors", description = "List of .class files or list of class " +
-            "names implementing IMethodSelector")
+    @Option(name = "-methodselectors", description = "List of .class files or list of class names implementing IMethodSelector")
     public String methodSelectors;
 
-    @Option(name = "-objectfactory", description = "List of .class files or list of class " +
-            "names implementing ITestRunnerFactory")
+    @Option(name = "-objectfactory", description = "List of .class files or list of class names implementing ITestRunnerFactory")
     public String objectFactory;
 
     @Option(name = "-parallel", description = "Parallel mode (methods, tests or classes)")
@@ -66,20 +61,16 @@ public class CommandLineArgs
     @Option(name = "-configfailurepolicy", description = "Configuration failure policy (skip or continue)")
     public String configFailurePolicy;
 
-    @Option(name = "-threadcount", description = "Number of threads to use when running tests " +
-            "in parallel")
+    @Option(name = "-threadcount", description = "Number of threads to use when running tests in parallel")
     public Integer threadCount;
 
-    @Option(name = "-dataproviderthreadcount", description = "Number of threads to use when " +
-            "running data providers")
+    @Option(name = "-dataproviderthreadcount", description = "Number of threads to use when running data providers")
     public Integer dataProviderThreadCount;
 
-    @Option(name = "-suitename", description = "Default name of test suite, if not specified " +
-            "in suite definition file or source code")
+    @Option(name = "-suitename", description = "Default name of test suite, if not specified in suite definition file or source code")
     public String suiteName;
 
-    @Option(name = "-testname", description = "Default name of test, if not specified in suite" +
-            "definition file or source code")
+    @Option(name = "-testname", description = "Default name of test, if not specified in suitedefinition file or source code")
     public String testName;
 
     @Option(name = "-reporter", description = "Extended configuration for custom report listener")
@@ -103,10 +94,10 @@ public class CommandLineArgs
     @Option(name = "-testnames", description = "The list of test names to run")
     public String testNames;
 
-    @Option(name = "-testjar", description = "")
+    @Option(name = "-testjar")
     public String testJar;
 
-    @Option(name = "-testRunFactory", description = "")
+    @Option(name = "-testRunFactory")
     public String testRunFactory;
 
     @Option(name = "-port", description = "The port")

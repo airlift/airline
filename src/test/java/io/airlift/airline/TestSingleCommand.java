@@ -379,6 +379,7 @@ public class TestSingleCommand
             @Option(name = "-long")
             public long l;
         }
+
         singleCommand(A.class).parse("32");
     }
 

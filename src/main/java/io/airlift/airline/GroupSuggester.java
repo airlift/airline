@@ -20,7 +20,6 @@ public class GroupSuggester
     {
         return concat(
                 transform(group.getCommands(), CommandMetadata::getName),
-                concat(transform(group.getOptions(), OptionMetadata::getOptions))
-        );
+                concat(transform(group.getOptions(), OptionMetadata::getOptions)));
     }
 }

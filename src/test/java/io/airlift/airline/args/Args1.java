@@ -40,7 +40,7 @@ public class Args1
     public String groups;
 
     @Option(name = "-debug", description = "Debug mode")
-    public boolean debug = false;
+    public boolean debug;
 
     @Option(name = "-long", description = "A long number")
     public long l;

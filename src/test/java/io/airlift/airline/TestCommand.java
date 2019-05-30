@@ -425,6 +425,7 @@ public class TestCommand
             @Option(name = "-long")
             public long l;
         }
+
         singleCommandParser(A.class).parse("-lon", "32");
     }
 }

@@ -32,7 +32,6 @@ import java.util.List;
 @Command(name = "ArgsArityString")
 public class ArgsArityString
 {
-
     @Option(name = "-pairs", arity = 2, description = "Pairs")
     public List<String> pairs;
 

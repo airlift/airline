@@ -12,6 +12,8 @@ import static com.google.common.collect.Iterables.concat;
 
 public class ParserUtil
 {
+    private ParserUtil() {}
+
     public static <T> T createInstance(Class<T> type)
     {
         if (type != null) {

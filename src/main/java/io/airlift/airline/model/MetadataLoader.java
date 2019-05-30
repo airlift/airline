@@ -25,6 +25,8 @@ import static com.google.common.collect.Streams.stream;
 
 public class MetadataLoader
 {
+    private MetadataLoader() {}
+
     public static GlobalMetadata loadGlobal(String name,
             String description,
             CommandMetadata defaultCommand,
