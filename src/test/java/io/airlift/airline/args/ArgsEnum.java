@@ -29,7 +29,6 @@ import io.airlift.airline.Option;
 @Command(name = "ArgsEnum")
 public class ArgsEnum
 {
-
     public enum ChoiceType
     {
         ONE, TWO, THREE
@@ -38,5 +37,3 @@ public class ArgsEnum
     @Option(name = "-choice", description = "Choice parameter")
     public ChoiceType choice = ChoiceType.ONE;
 }
-
-

@@ -1,7 +1,9 @@
 package io.airlift.airline;
 
-public class TestingUtil
+public final class TestingUtil
 {
+    private TestingUtil() {}
+
     public static <T> Cli<T> singleCommandParser(Class<T> commandClass)
     {
         return Cli.<T>builder("parser")

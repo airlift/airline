@@ -12,8 +12,10 @@ import java.util.Set;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.stream.Collectors.joining;
 
-public class UsageHelper
+public final class UsageHelper
 {
+    private UsageHelper() {}
+
     public static final Comparator<OptionMetadata> DEFAULT_OPTION_COMPARATOR = new Comparator<OptionMetadata>()
     {
         @Override

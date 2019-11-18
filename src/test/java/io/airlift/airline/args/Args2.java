@@ -38,7 +38,7 @@ public class Args2
     public String groups;
 
     @Option(name = "-debug", description = "Debug mode")
-    public boolean debug = false;
+    public boolean debug;
 
     @Option(name = "-host", description = "The host")
     public List<String> hosts = new ArrayList<>();
