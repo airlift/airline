@@ -305,8 +305,8 @@ public class Cli<C>
     public static class GroupBuilder<C>
     {
         private final String name;
-        private String description = null;
-        private Class<? extends C> defaultCommand = null;
+        private String description;
+        private Class<? extends C> defaultCommand;
 
         private final List<Class<? extends C>> commands = new ArrayList<>();
 

@@ -36,7 +36,7 @@ public class ArgsDefault
     public String groups;
 
     @Option(name = "-debug", description = "Debug mode")
-    public boolean debug = false;
+    public boolean debug;
 
     @Option(name = "-level", description = "A long number")
     public long level;

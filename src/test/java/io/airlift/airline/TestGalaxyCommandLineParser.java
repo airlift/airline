@@ -88,7 +88,7 @@ public class TestGalaxyCommandLineParser
     public static class GlobalOptions
     {
         @Option(type = GLOBAL, name = "--debug", description = "Enable debug messages")
-        public boolean debug = false;
+        public boolean debug;
 
         @Option(type = GLOBAL, name = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
         public String coordinator = firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
@@ -163,7 +163,7 @@ public class TestGalaxyCommandLineParser
         }
     }
 
-    public static abstract class GalaxyCommand
+    public abstract static class GalaxyCommand
     {
         @Inject
         public GlobalOptions globalOptions = new GlobalOptions();
@@ -209,7 +209,7 @@ public class TestGalaxyCommandLineParser
     public static class InstallCommand
             extends GalaxyCommand
     {
-        @Option(name = {"--count"}, description = "Number of instances to install")
+        @Option(name = "--count", description = "Number of instances to install")
         public int count = 1;
 
         @Inject
@@ -362,10 +362,10 @@ public class TestGalaxyCommandLineParser
     public static class AgentAddCommand
             extends GalaxyCommand
     {
-        @Option(name = {"--count"}, description = "Number of agents to provision")
+        @Option(name = "--count", description = "Number of agents to provision")
         public int count = 1;
 
-        @Option(name = {"--availability-zone"}, description = "Availability zone to provision")
+        @Option(name = "--availability-zone", description = "Availability zone to provision")
         public String availabilityZone;
 
         @Arguments(usage = "[<instance-type>]", description = "Instance type to provision")

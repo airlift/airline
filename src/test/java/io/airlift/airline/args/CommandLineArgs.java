@@ -28,7 +28,6 @@ import java.util.List;
 @Command(name = "CommandLineArgs")
 public class CommandLineArgs
 {
-
     @Arguments(description = "The XML suite files to run")
     public List<String> suiteFiles = new ArrayList<>();
 

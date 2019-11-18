@@ -23,8 +23,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
 
-public class MetadataLoader
+public final class MetadataLoader
 {
+    private MetadataLoader() {}
+
     public static GlobalMetadata loadGlobal(String name,
             String description,
             CommandMetadata defaultCommand,

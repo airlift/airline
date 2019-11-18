@@ -31,32 +31,32 @@ public class ArgsSingleChar
     @Arguments
     public List<String> parameters = new ArrayList<>();
 
-    @Option(name = {"-l"}, description = "Long")
-    public boolean l = false;
+    @Option(name = "-l", description = "Long")
+    public boolean l;
 
     @Option(name = "-g", description = "Global")
-    public boolean g = false;
+    public boolean g;
 
     @Option(name = "-d", description = "Debug mode")
-    public boolean d = false;
+    public boolean d;
 
     @Option(name = "-s", description = "A string")
-    public String s = null;
+    public String s;
 
     @Option(name = "-p", description = "A path")
-    public String p = null;
+    public String p;
 
     @Option(name = "-n", description = "No action")
-    public boolean n = false;
+    public boolean n;
 
     @Option(name = "-2", description = "Two")
-    public boolean two = false;
+    public boolean two;
 
     @Option(name = "-f", description = "A filename")
-    public String f = null;
+    public String f;
 
     @Option(name = "-z", description = "Compress")
-    public boolean z = false;
+    public boolean z;
 
     @Option(name = "--D", description = "Directory")
     public String dir;
