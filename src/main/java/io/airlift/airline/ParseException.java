@@ -26,7 +26,7 @@ public class ParseException
         super(String.format(string, args));
     }
 
-    public ParseException(Exception cause, String string, Object... args)
+    public ParseException(Throwable cause, String string, Object... args)
     {
         super(String.format(string, args), cause);
     }
