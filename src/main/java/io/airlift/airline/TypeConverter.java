@@ -1,6 +1,7 @@
 package io.airlift.airline;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static java.util.Objects.requireNonNull;
@@ -54,7 +55,10 @@ public class TypeConverter
                 return valueOf.invoke(null, value);
             }
         }
-        catch (Throwable ignored) {
+        catch (InvocationTargetException ex) {
+            throw new ParseOptionConversionException(name, value, type.getSimpleName(), ex.getTargetException());
+        }
+        catch (IllegalAccessException | NoSuchMethodException ignored) {
         }
 
         // Look for a static valueOf(String) method (this covers enums which have a valueOf method)
@@ -64,7 +68,10 @@ public class TypeConverter
                 return valueOf.invoke(null, value);
             }
         }
-        catch (Throwable ignored) {
+        catch (InvocationTargetException ex) {
+            throw new ParseOptionConversionException(name, value, type.getSimpleName(), ex.getTargetException());
+        }
+        catch (IllegalAccessException | NoSuchMethodException ignored) {
         }
 
         // Look for a constructor taking a string
@@ -72,7 +79,10 @@ public class TypeConverter
             Constructor<?> constructor = type.getConstructor(String.class);
             return constructor.newInstance(value);
         }
-        catch (Throwable ignored) {
+        catch (InvocationTargetException ex) {
+            throw new ParseOptionConversionException(name, value, type.getSimpleName(), ex.getTargetException());
+        }
+        catch (IllegalAccessException | InstantiationException | NoSuchMethodException ignored) {
         }
 
         throw new ParseOptionConversionException(name, value, type.getSimpleName());

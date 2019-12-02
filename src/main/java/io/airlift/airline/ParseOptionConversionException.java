@@ -27,7 +27,12 @@ public class ParseOptionConversionException
 
     ParseOptionConversionException(String optionTitle, String value, String typeName)
     {
-        super("%s: can not convert \"%s\" to a %s", optionTitle, value, typeName);
+        this(optionTitle, value, typeName, null);
+    }
+
+    ParseOptionConversionException(String optionTitle, String value, String typeName, Throwable cause)
+    {
+        super(cause, "%s: can not convert \"%s\" to a %s", optionTitle, value, typeName);
         this.optionTitle = optionTitle;
         this.value = value;
         this.typeName = typeName;
