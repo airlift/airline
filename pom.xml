@@ -29,7 +29,7 @@
 
     <artifactId>airline</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
 
     <name>airline</name>
     <description>Java annotation-based framework for parsing Git like command line structures</description>
@@ -40,7 +40,7 @@
     <scm>
         <connection>scm:git:git@github.com:airlift/airline.git</connection>
         <url>http://github.com/airlift/airline/tree/master</url>
-        <tag>HEAD</tag>
+        <tag>0.9</tag>
     </scm>
 
     <properties>
