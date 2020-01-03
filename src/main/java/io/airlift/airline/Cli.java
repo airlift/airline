@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -86,7 +87,9 @@ public class Cli<C>
                 .map(group -> loadCommandGroup(
                         group.name,
                         group.description,
-                        loadCommand(group.defaultCommand),
+                        Optional.ofNullable(group.defaultCommand)
+                                .map(MetadataLoader::loadCommand)
+                                .orElse(null),
                         loadCommands(group.commands)))
                 .collect(toImmutableList());
 
