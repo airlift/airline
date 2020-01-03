@@ -218,7 +218,6 @@ public class Cli<C>
         private Class<? extends C> defaultCommand;
         private final List<Class<? extends C>> defaultCommandGroupCommands = new ArrayList<>();
         protected final Map<String, GroupBuilder<C>> groups = new HashMap<>();
-        protected CommandFactory<C> commandFactory;
 
         public CliBuilder(String name)
         {
@@ -232,13 +231,6 @@ public class Cli<C>
             requireNonNull(description, "description is null");
             checkArgument(!description.isEmpty(), "description is empty");
             this.description = description;
-            return this;
-        }
-
-        public CliBuilder<C> withCommandFactory(CommandFactory<C> commandFactory)
-        {
-            requireNonNull(commandFactory, "commandFactory is null");
-            this.commandFactory = commandFactory;
             return this;
         }
 
