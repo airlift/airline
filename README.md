@@ -1,3 +1,9 @@
+# :warning: DEPRECATED :warning:
+
+This project is no longer maintained. We recommend
+[Airline 2](https://rvesse.github.io/airline/) or
+[Picocli](https://picocli.info/) as a replacement.
+
 Airline
 =======
 
