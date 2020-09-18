@@ -1,7 +1,25 @@
-language: java
-
 dist: trusty
 
+arch:
+  - amd64
+  - ppc64le
+
+language: java
 jdk:
   - oraclejdk8
   - oraclejdk9
+
+before_install:
+  - |
+    if [[ "$TRAVIS_CPU_ARCH" == "ppc64le" ]]; then
+      sudo apt install maven
+      wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
+      sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+      if [[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ]]; then
+        sudo apt-get update && sudo apt-get install -y adoptopenjdk-8-hotspot
+      fi
+      if [[ "$TRAVIS_JDK_VERSION" == "oraclejdk9" ]]; then
+        wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+        source ./install-jdk.sh --url 'https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk-9.0.4%2B11/OpenJDK9U-jdk_ppc64le_linux_hotspot_9.0.4_11.tar.gz'
+      fi
+    fi
