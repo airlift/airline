@@ -1,7 +1,7 @@
 package io.airlift.command;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import io.airlift.command.Cli.CliBuilder;
 import org.testng.annotations.Test;
@@ -91,7 +91,7 @@ public class GalaxyCommandLineParser
         public boolean debug = false;
 
         @Option(type = GLOBAL, name = "--coordinator", description = "Galaxy coordinator host (overrides GALAXY_COORDINATOR)")
-        public String coordinator = Objects.firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
+        public String coordinator = MoreObjects.firstNonNull(System.getenv("GALAXY_COORDINATOR"), "http://localhost:64000");
 
         @Override
         public String toString()

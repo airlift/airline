@@ -298,7 +298,8 @@ public class Cli<C>
             return this;
         }
 
-        public CliBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
+        @SafeVarargs
+        public final CliBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
         {
             this.defaultCommandGroupCommands.add(command);
             this.defaultCommandGroupCommands.addAll(ImmutableList.copyOf(moreCommands));
@@ -377,7 +378,8 @@ public class Cli<C>
             return this;
         }
 
-        public GroupBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
+        @SafeVarargs
+        public final GroupBuilder<C> withCommands(Class<? extends C> command, Class<? extends C>... moreCommands)
         {
             this.commands.add(command);
             this.commands.addAll(ImmutableList.copyOf(moreCommands));

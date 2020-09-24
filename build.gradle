@@ -2,16 +2,16 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: "maven"
 
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.0'
-	distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+tasks.create(name: 'wrapper_task' ,type: Wrapper) {
+	gradleVersion = '6.0.1'
+	distributionUrl = "https://services.gradle.org/distributions/gradle-6.0.1-all.zip"
 }
 
 allprojects {
 	group = "com.complexible.airline"
-	sourceCompatibility = '1.6'
-	targetCompatibility = '1.6'
-	version = "0.7.4"
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	version = "0.7.8"
 
 	repositories {
 		mavenCentral()
@@ -26,7 +26,7 @@ ext {
 
 dependencies {
 	compile 'javax.inject:javax.inject:1'
-	compile "com.google.guava:guava:18.0"
+	compile "com.google.guava:guava:27.0-jre"
 	compile 'com.google.code.findbugs:jsr305:3.0.0'
 
 	testCompile 'org.testng:testng:6.0.1'

@@ -279,3 +279,20 @@ OPTIONS
         -h, --help
             Display help information
 ```
+
+**Updating manpages**
+===================
+
+1: In `~/.gradle.properites` : (example url is for adjusting manpages)
+```
+artifactoryUrl=https://stardog.jfrog.io/stardog/cp-internal
+artifactoryUsername=......
+artifactoryPassword=......
+```
+2: In airline and stardog root level `build.gradle` Update airline's version number
+
+3: in airline repo: `./gradlew clean install`
+
+4: in stardog repo: `./gradlew clean dist` (only do this once)
+
+5: for manpage generation - `./gradlew manPages`. (needs ronn)
