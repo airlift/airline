@@ -483,7 +483,22 @@ public class CommandUsage
         final String br = "<br>";
         final String np = "<br>\n"; //new paragraph
 
-        aBuilder.append("# ").append(programName).append(" ").append(groupName).append(" ").append(command.getName()).append(" Manual Page\n");
+        // for jekyll to pick up these pages on the website
+        aBuilder.append("---\n");
+        aBuilder.append("layout: default\n");
+        aBuilder.append("title: ").append(groupName).append(" ").append(command.getName()).append("\n");
+
+        if (programName.equals("stardog")){
+            aBuilder.append("grand_parent: ").append("Stardog CLI Reference\n");
+        }
+        else {
+            aBuilder.append("grand_parent: ").append("Stardog Admin CLI Reference\n");
+        }
+
+        aBuilder.append("parent: ").append(groupName).append("\n");
+        aBuilder.append("---\n\n");
+
+        aBuilder.append("# ").append(" `").append(programName).append(" ").append(groupName).append(" ").append(command.getName()).append("` ").append("\n");
         aBuilder.append("## Description\n");
         aBuilder.append(command.getDescription()).append(np);
         aBuilder.append("## Usage\n`");
@@ -506,12 +521,12 @@ public class CommandUsage
             aBuilder.append(" [--] ")
                     .append(UsageHelper.toUsage(arguments));
         }
-        aBuilder.append("`\n");
+        aBuilder.append("`\n{: .fs-5}\n");
 
         if (options.size() > 0 || arguments != null) {
             options = sortOptions(options);
-            aBuilder.append("## Options\n");
-            aBuilder.append("Name, shorthand | Description\n");
+            aBuilder.append("## Options\n\n");
+            aBuilder.append("Name, shorthand | Description \n");
             aBuilder.append("---|---\n");
 
             for (OptionMetadata option : options) {
@@ -543,11 +558,11 @@ public class CommandUsage
         }
 
         if (command.getDiscussion() != null) {
-            aBuilder.append("## Discussion\n").append(command.getDiscussion()).append("\n");
+            aBuilder.append("\n## Discussion\n").append(command.getDiscussion()).append("\n");
         }
 
         if (command.getExamples() != null && !command.getExamples().isEmpty()) {
-            aBuilder.append("## Examples\n");
+            aBuilder.append("\n## Examples\n");
 
             // this will only work for "well-formed" examples
             for (int i = 0; i < command.getExamples().size(); i+=3) {
@@ -557,7 +572,7 @@ public class CommandUsage
                 if (aText.startsWith("*")) {
                     aText = aText.substring(1).trim();
                 }
-                aBuilder.append(aText).append("\n```\n").append(aEx).append("\n```\n");
+                aBuilder.append(aText).append("\n```bash\n").append(aEx).append("\n```\n");
             }
         }
 
