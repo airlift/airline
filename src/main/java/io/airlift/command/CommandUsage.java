@@ -338,10 +338,12 @@ public class CommandUsage
         if (programName != null) {
             aBuilder.append(programName).append(" ").append(htmlize(Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getGlobalOptions())))));
             options.addAll(command.getGlobalOptions());
+            aBuilder.append(" ");
         }
         if (groupName != null) {
             aBuilder.append(groupName).append(" ").append(htmlize(Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getGroupOptions())))));
             options.addAll(command.getGroupOptions());
+            aBuilder.append(" ");
         }
         aBuilder.append(command.getName()).append(" ").append(htmlize(Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getCommandOptions())))));
         options.addAll(command.getCommandOptions());
@@ -471,6 +473,108 @@ public class CommandUsage
 
         aBuilder.append("</body>\n");
         aBuilder.append("</html>\n");
+
+        return aBuilder.toString();
+    }
+
+    public String usageMD(@Nullable String programName, @Nullable String groupName, CommandMetadata command) {
+
+        final StringBuilder aBuilder = new StringBuilder("");
+        final String br = "<br>";
+        final String np = "<br>\n"; //new paragraph
+
+        // for jekyll to pick up these pages on the website
+        aBuilder.append("---\n");
+        aBuilder.append("layout: default\n");
+        aBuilder.append("title: ").append(groupName).append(" ").append(command.getName()).append("\n");
+
+        if (programName.equals("stardog")){
+            aBuilder.append("grand_parent: ").append("Stardog CLI Reference\n");
+        }
+        else {
+            aBuilder.append("grand_parent: ").append("Stardog Admin CLI Reference\n");
+        }
+
+        aBuilder.append("parent: ").append(groupName).append("\n");
+        aBuilder.append("---\n\n");
+
+        aBuilder.append("# ").append(" `").append(programName).append(" ").append(groupName).append(" ").append(command.getName()).append("` ").append("\n");
+        aBuilder.append("## Description\n");
+        aBuilder.append(command.getDescription()).append(np);
+        aBuilder.append("## Usage\n`");
+        List<OptionMetadata> options = newArrayList();
+        if (programName != null) {
+            aBuilder.append(programName).append(" ").append(Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getGlobalOptions()))));
+            options.addAll(command.getGlobalOptions());
+            aBuilder.append(" ");
+        }
+        if (groupName != null) {
+            aBuilder.append(groupName).append(" ").append(Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getGroupOptions()))));
+            options.addAll(command.getGroupOptions());
+            aBuilder.append(" ");
+        }
+        aBuilder.append(command.getName()).append(" ").append((Joiner.on(" ").join(toSynopsisUsage(sortOptions(command.getCommandOptions())))));
+        options.addAll(command.getCommandOptions());
+
+        ArgumentsMetadata arguments = command.getArguments();
+        if (arguments != null) {
+            aBuilder.append(" [--] ")
+                    .append(UsageHelper.toUsage(arguments));
+        }
+        aBuilder.append("`\n{: .fs-5}\n");
+
+        if (options.size() > 0 || arguments != null) {
+            options = sortOptions(options);
+            aBuilder.append("## Options\n\n");
+            aBuilder.append("Name, shorthand | Description \n");
+            aBuilder.append("---|---\n");
+
+            for (OptionMetadata option : options) {
+                // skip hidden options
+                if (option.isHidden()) {
+                    continue;
+                }
+                // option names
+                aBuilder.append("`");
+                aBuilder.append(UsageHelper.toDescription(option));
+                aBuilder.append("` | ");
+
+                // description
+                aBuilder.append(option.getDescription());
+                aBuilder.append("\n");
+            }
+
+            if (arguments != null) {
+                // "--" option
+                aBuilder.append("`--` | This option can be used to separate command-line options from the " +
+                                "list of argument(s). (Useful when an argument might be mistaken for a command-line option)\n");
+
+                // arguments name
+                aBuilder.append("`").append(UsageHelper.toDescription(arguments)).append("` | ");
+
+                // description
+                aBuilder.append(arguments.getDescription()).append("\n");
+            }
+        }
+
+        if (command.getDiscussion() != null) {
+            aBuilder.append("\n## Discussion\n").append(command.getDiscussion()).append("\n");
+        }
+
+        if (command.getExamples() != null && !command.getExamples().isEmpty()) {
+            aBuilder.append("\n## Examples\n");
+
+            // this will only work for "well-formed" examples
+            for (int i = 0; i < command.getExamples().size(); i+=3) {
+                String aText = command.getExamples().get(i).trim();
+                String aEx = command.getExamples().get(i+1);
+
+                if (aText.startsWith("*")) {
+                    aText = aText.substring(1).trim();
+                }
+                aBuilder.append(aText).append("\n```bash\n").append(aEx).append("\n```\n");
+            }
+        }
 
         return aBuilder.toString();
     }

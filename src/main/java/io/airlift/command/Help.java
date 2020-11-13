@@ -19,6 +19,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class Help implements Runnable, Callable<Void> {
     public static boolean USAGE_AS_HTML = false;
     public static boolean USAGE_AS_RONN = false;
+    public static boolean USAGE_AS_MD = false;
 
     @Inject
     @Nullable
@@ -83,6 +84,9 @@ public class Help implements Runnable, Callable<Void> {
                 else if (USAGE_AS_RONN) {
                     out.append(new CommandUsage().usageRonn(global.getName(), null, command));
                 }
+                else if (USAGE_AS_MD) {
+                    out.append(new CommandUsage().usageMD(global.getName(), null, command));
+                }
                 else {
                     new CommandUsage().usage(global.getName(), null, command.getName(), command, out);
                 }
@@ -107,6 +111,9 @@ public class Help implements Runnable, Callable<Void> {
                             }
                             else if (USAGE_AS_RONN) {
                                 out.append(new CommandUsage().usageRonn(global.getName(), group.getName(), command));
+                            }
+                            else if (USAGE_AS_MD) {
+                                out.append(new CommandUsage().usageMD(global.getName(), group.getName(), command));
                             }
                             else {
                                 new CommandUsage().usage(global.getName(), group.getName(), command.getName(), command, out);
