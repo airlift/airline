@@ -496,6 +496,7 @@ public class CommandUsage
         }
 
         aBuilder.append("parent: ").append(groupName).append("\n");
+        aBuilder.append("description: ").append("'").append(command.getDescription().replace("'","")).append("'").append("\n");
         aBuilder.append("---\n\n");
 
         aBuilder.append("# ").append(" `").append(programName).append(" ").append(groupName).append(" ").append(command.getName()).append("` ").append("\n");
