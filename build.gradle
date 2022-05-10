@@ -11,7 +11,7 @@ allprojects {
 	group = "com.complexible.airline"
 	sourceCompatibility = '1.8'
 	targetCompatibility = '1.8'
-	version = "0.8.0"
+	version = "0.8.1"
 
 	repositories {
 		mavenCentral()

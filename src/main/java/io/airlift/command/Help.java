@@ -96,7 +96,7 @@ public class Help implements Runnable, Callable<Void> {
 
         // command in a group?
         for (CommandGroupMetadata group : global.getCommandGroups()) {
-            if (name.endsWith(group.getName())) {
+            if (name.equals(group.getName())) {
                 // general group help or specific command help?
                 if (commandNames.size() == 1) {
                     new CommandGroupUsage().usage(global, group, out);
